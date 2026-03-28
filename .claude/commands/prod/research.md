@@ -1,4 +1,4 @@
-# /research — Multi-Agent Research Orchestrator
+# /prod:research — Multi-Agent Research Orchestrator
 
 Decompose a research question into parallel agent workstreams, launch them, monitor progress, and synthesize results.
 

@@ -45,23 +45,26 @@ ${bold("COMMANDS")}
       Launch the interactive TUI — manage your backlog, start tasks,
       and run parallel Claude Code sessions.
 
-  skills [--force]
-      Install aflow workflow skills as Claude Code slash commands in the
-      current repo. Writes to .claude/commands/ so they appear as
-      /think, /work, /fix, /ship, etc.
+  skills [--force] [--user]
+      Install aflow workflow skills as Claude Code slash commands.
 
-      Each skill reads the current task from .aflow/backlog.json (matched
-      by the current branch name) and uses its items and acceptance
-      criteria to guide the work.
+      By default, installs to .claude/commands/ in the current repo.
+      With --user, installs to ~/.claude/commands/ (available globally).
 
-      Included skills:
-        think        Product strategy session before building
-        work         Implement the task's unchecked items
-        fix          Fix bugs, update task items if needed
-        investigate  Root-cause debugging
-        qa           QA the diff against acceptance criteria
-        review       Pre-landing code review
-        ship         Typecheck, review, commit, push, PR
+      Engineering skills (task workflow):
+        /think        Product strategy session before building
+        /work         Implement the task's unchecked items
+        /fix          Fix bugs, update task items if needed
+        /investigate  Root-cause debugging
+        /qa           QA the diff against acceptance criteria
+        /review       Pre-landing code review
+        /ship         Typecheck, review, commit, push, PR
+
+      Product skills (research & spec pipeline):
+        /prod:research  Multi-agent research orchestrator
+        /prod:spec      Research to product spec
+        /prod:enrich    Autonomous spec enrichment from codebase
+        /prod:refine    Interactive spec refinement
 
   hooks
       Create .aflow/hooks/ with a post_create template. The hook runs
