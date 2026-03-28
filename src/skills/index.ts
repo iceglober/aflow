@@ -1,6 +1,6 @@
 /**
  * Embedded skill files for the wtm workflow.
- * These get written to .claude/commands/s/ by `wtm install-skills`.
+ * These get written to .claude/commands/ by `wtm install-skills`.
  *
  * Each skill operates within the context of a wtm task:
  * - .wtm/backlog.json is the source of truth (tasks, items, acceptance criteria)

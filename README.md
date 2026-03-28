@@ -92,15 +92,15 @@ wtm ships with Claude Code slash commands that plug into the task workflow. Inst
 wtm install-skills
 ```
 
-This writes 7 skills to `.claude/commands/s/`. Each skill automatically reads the current task from `.wtm/backlog.json` (matched by branch name) and uses its items and acceptance criteria to guide the work.
+This writes 7 skills to `.claude/commands/`. Each skill automatically reads the current task from `.wtm/backlog.json` (matched by branch name) and uses its items and acceptance criteria to guide the work.
 
-- `/s:think` — product strategy session before building
-- `/s:work` — implement the task's unchecked items
-- `/s:fix` — fix bugs, update task items if needed
-- `/s:investigate` — root-cause debugging
-- `/s:qa` — QA the diff against acceptance criteria
-- `/s:review` — pre-landing code review
-- `/s:ship` — typecheck, review, commit, push, PR
+- `/think` — product strategy session before building
+- `/work` — implement the task's unchecked items
+- `/fix` — fix bugs, update task items if needed
+- `/investigate` — root-cause debugging
+- `/qa` — QA the diff against acceptance criteria
+- `/review` — pre-landing code review
+- `/ship` — typecheck, review, commit, push, PR
 
 ## License
 

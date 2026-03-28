@@ -100,8 +100,8 @@ COMMANDS
 
   install-skills [--force]
       Install wtm workflow skills as Claude Code slash commands in the
-      current repo. Writes to .claude/commands/s/ so they appear as
-      /s:think, /s:work, /s:fix, /s:ship, etc.
+      current repo. Writes to .claude/commands/ so they appear as
+      /think, /work, /fix, /ship, etc.
 
       Each skill reads the current task from .wtm/backlog.json (matched
       by the current branch name) and uses its items and acceptance
