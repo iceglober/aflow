@@ -84,27 +84,23 @@ cp "$REPO_ROOT/.env" "$WORKTREE_DIR/.env"
 cd "$WORKTREE_DIR" && pnpm install
 ```
 
-## Spec workflow skills
+## Skills
 
-wtm ships with a set of Claude Code slash commands for spec-driven development. Install them in any repo:
+wtm ships with Claude Code slash commands that plug into the task workflow. Install them in any repo:
 
 ```bash
 wtm install-skills
 ```
 
-This writes 9 skills to `.claude/commands/s/`:
+This writes 7 skills to `.claude/commands/s/`. Each skill automatically reads the current task from `.wtm/backlog.json` (matched by branch name) and uses its items and acceptance criteria to guide the work.
 
 - `/s:think` — product strategy session before building
-- `/s:todos` — generate implementation checklist from a spec
-- `/s:work` — implement a section of the todos
-- `/s:fix` — fix issues, update spec if behavior changes
-- `/s:update` — apply a spec change, sync todos
+- `/s:work` — implement the task's unchecked items
+- `/s:fix` — fix bugs, update task items if needed
 - `/s:investigate` — root-cause debugging
-- `/s:qa` — QA the diff against spec acceptance criteria
+- `/s:qa` — QA the diff against acceptance criteria
 - `/s:review` — pre-landing code review
 - `/s:ship` — typecheck, review, commit, push, PR
-
-Skills expect a `.spec.json` at repo root pointing to your spec and todos files. See `wtm install-skills` output for setup instructions.
 
 ## License
 

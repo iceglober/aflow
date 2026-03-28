@@ -8,7 +8,7 @@ import { gitRoot } from "../lib/git.js";
 export const installSkills = command({
   name: "install-skills",
   description:
-    "Install spec-workflow skills as Claude Code slash commands in the current repo",
+    "Install wtm workflow skills as Claude Code slash commands in the current repo",
   args: {
     force: flag({
       long: "force",
@@ -59,15 +59,11 @@ export const installSkills = command({
       console.log(`  /s:${slug}`);
     }
 
-    // Check for .spec.json
-    const specJson = path.join(root, ".spec.json");
-    if (!fs.existsSync(specJson)) {
+    // Check for .wtm/backlog.json
+    const backlogJson = path.join(root, ".wtm", "backlog.json");
+    if (!fs.existsSync(backlogJson)) {
       console.log("");
-      warn("no .spec.json found — skills need a spec target to work");
-      console.log(
-        '  Create one: echo \'{"target":"your-project"}\' > .spec.json',
-      );
-      console.log("  Then create: docs/spec/your-project_spec.md");
+      info("run `wtm start-work` to create a backlog — skills read tasks from .wtm/backlog.json");
     }
   },
 });

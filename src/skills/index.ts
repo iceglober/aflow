@@ -1,7 +1,33 @@
 /**
- * Embedded skill files for the spec-driven workflow.
+ * Embedded skill files for the wtm workflow.
  * These get written to .claude/commands/s/ by `wtm install-skills`.
+ *
+ * Each skill operates within the context of a wtm task:
+ * - .wtm/backlog.json is the source of truth (tasks, items, acceptance criteria)
+ * - The current task is identified by matching `git branch --show-current` to a task's `branch` field
+ * - .wtm/spec.md is auto-generated from the backlog — read-only context
+ * - CLAUDE.md has project-specific commands (typecheck, build, etc.)
  */
+
+const TASK_PREAMBLE = `## Context: Current task
+
+Run \\\`git branch --show-current\\\` to get the current branch name.
+
+Read \\\`.wtm/backlog.json\\\` and find the task whose \\\`branch\\\` field matches the current branch. This is your **current task**.
+
+If no task matches, tell the user: "This branch isn't linked to a wtm task. Run \\\`wtm start-work\\\` to create one."
+
+The task object has:
+- \\\`id\\\` — task identifier (e.g. "t3")
+- \\\`title\\\` — short description
+- \\\`description\\\` — full context
+- \\\`items\\\` — checklist of implementation tasks (\\\`{ text, done }\\\`)
+- \\\`acceptance\\\` — acceptance criteria (strings)
+- \\\`status\\\` — pending | active | shipped | merged
+- \\\`branch\\\` — the git branch for this task
+- \\\`pr\\\` — PR URL if shipped
+
+Also read \\\`.wtm/spec.md\\\` for a formatted overview of the full backlog, and \\\`CLAUDE.md\\\` for project-specific commands (typecheck, build, lint, etc.).`;
 
 export const SKILLS: Record<string, string> = {
   "think.md": `---
@@ -10,46 +36,47 @@ description: Product strategy session before building. Forces you to think throu
 
 # Think
 
-You are a product strategist helping the founder think through a feature before any code is written. Your job is to prevent building the wrong thing.
+You are a product strategist helping think through a feature before any code is written. Your job is to prevent building the wrong thing.
 
 ## Input
 
 The user describes what they want to build: \`$ARGUMENTS\`
 
+${TASK_PREAMBLE}
+
 ## Process
 
-### Step 1: Read the spec
+### Step 1: Understand the landscape
 
-- Read \`.spec.json\` to get the project name
-- Read \`docs/spec/{target}_spec.md\` in full — understand the product vision, phasing, what exists, and what's planned
-- Read \`docs/todos/{target}_todos.md\` to see what's done vs. remaining
+- Read \`.wtm/spec.md\` for the full backlog — what's pending, active, shipped
+- Read \`CLAUDE.md\` to understand the project's architecture
 - Skim the relevant source files to understand the current state
 
 ### Step 2: Ask forcing questions
 
 Ask these one at a time. Wait for the answer before asking the next. Push back on vague answers.
 
-1. **Who specifically wants this?** Not "users" — name the person. What kind of writer? What are they working on? What's their skill level? If you can't name one real person who'd use this, stop here.
+1. **Who specifically wants this?** Not "users" — a specific person or persona. If you can't name one, stop here.
 
-2. **What are they doing today without it?** There's always a workaround. What is it? How painful is it? If the workaround is "fine, just slightly annoying," this feature can wait.
+2. **What are they doing today without it?** There's always a workaround. How painful is it? If the workaround is fine, this can wait.
 
-3. **What's the smallest version that matters?** Not the full vision — the narrowest slice that someone would actually use. One screen. One action. One outcome. If you can't scope it to a day of work, it's too big.
+3. **What's the smallest version that matters?** Not the full vision — the narrowest slice someone would actually use. One screen. One action. One outcome.
 
-4. **What breaks if we build it wrong?** Every feature has a failure mode. What's the worst case? Does it corrupt data? Annoy users? Create tech debt that blocks Phase 2? Name the risk.
+4. **What breaks if we build it wrong?** Every feature has a failure mode. Does it corrupt data? Create tech debt? Name the risk.
 
-5. **Does the spec already cover this?** Quote the specific spec section if it does. Is this a new requirement, a change to an existing one, or already planned for a later phase? If it's planned for Phase 3, explain what that means.
+5. **Does the backlog already cover this?** Check the existing tasks. Is this a new task, a change to an existing one, or already queued?
 
 ### Step 3: Challenge the premise
 
 Based on the answers, do ONE of:
-- **Validate** — the idea holds up. Say so clearly and move to Step 4.
-- **Redirect** — a different approach would solve the same problem better. Explain why.
-- **Defer** — the idea is good but premature. Identify what phase it belongs in.
+- **Validate** — the idea holds up. Move to Step 4.
+- **Redirect** — a different approach would solve the same problem better.
+- **Defer** — the idea is good but premature. Say when it should happen.
 - **Kill** — the idea doesn't serve the product. Explain honestly.
 
-### Step 4: Produce a plan
+### Step 4: Plan the implementation
 
-If validated, write a concise plan (not code):
+If validated, write a concise plan:
 
 \`\`\`markdown
 ## Feature: {name}
@@ -57,10 +84,8 @@ If validated, write a concise plan (not code):
 **Problem:** {one sentence}
 **Who:** {specific user}
 **Smallest version:** {what to build}
-**Spec impact:** {new section | changes to section X.Y | none — already specced}
 **Depends on:** {prerequisites}
 **Risk:** {what could go wrong}
-**Estimated scope:** {S/M/L — files touched, new tables, new endpoints}
 
 ### Implementation sketch
 1. {schema changes}
@@ -72,311 +97,154 @@ If validated, write a concise plan (not code):
 - {explicit scope cuts}
 \`\`\`
 
-Save the plan to \`docs/design/{feature-slug}.md\`.
+### Step 5: Update the task
 
-### Step 5: Update the spec
+If the current task exists and this planning session refines it:
+- Update the task's \`items\` array in \`.wtm/backlog.json\` with the implementation checklist
+- Update \`acceptance\` with clear acceptance criteria
+- Set the \`design\` field to a brief summary of the plan
 
-If the feature is validated and the user agrees to proceed:
-
-- **New requirement:** Add a new section to the spec with requirements and acceptance criteria. Add corresponding unchecked todos.
-- **Change to existing:** Update the affected spec sections, tracing cascading implications. Sync the todos.
-- **Already specced:** No spec change needed. Just point the user to the right \`/work\` section.
-
-Do not leave the spec out of date. If we decided to build something, the spec should describe it before code is written.
-
-### Step 6: Recommend next action
-
-Tell the user exactly what to do next:
-- \`/work {section}\` to implement the newly specced feature
-- Or a specific real-world action ("go watch someone try to import a doc before building this")
+If this is a new feature not yet in the backlog, tell the user to add it via \`wtm start-work\`.
 
 ## Rules
 
-- Never produce code in this skill. Plans and spec updates only.
-- Push back on vague answers. "All writers" is not an answer. "A novelist revising their third draft" is.
-- If the user can't articulate who wants this and why, that IS the finding. Say so.
-- Read the spec before evaluating — don't give advice that contradicts the product direction.
+- Never produce code in this skill. Plans and task updates only.
+- Push back on vague answers. "All users" is not an answer.
 - Be direct. "This isn't worth building" is a valid output.
-- The spec is the single source of truth. If we decide to build it, it goes in the spec first.
-`,
-
-  "todos.md": `---
-description: Generate a comprehensive todos file from a spec file. Reads the target from .spec.json — no arguments needed, or provide a spec name to override.
----
-
-# Spec → Todos Generator
-
-You are generating a comprehensive implementation todo list from a product spec.
-
-## Inputs
-
-Read \`.spec.json\` from the repo root to get the project name (the \`target\` field). Use that to resolve file paths below.
-
-If the user provides an explicit name in \`$ARGUMENTS\`, use that instead. If \`.spec.json\` doesn't exist and no argument is given, ask the user to run \`spec-target <name>\` first.
-
-- **Spec file:** \`docs/spec/{target}_spec.md\`
-- **Output:** \`docs/todos/{target}_todos.md\`
-
-## Process
-
-1. Read the spec file completely. Understand every section, feature, data model, acceptance criterion, and edge case.
-
-2. Read any existing todo file at the output path. If one exists, preserve the checked/unchecked state of items that haven't changed — do not reset completed work.
-
-3. For each spec section, generate todo items that are:
-   - **Actionable** — each item describes a concrete implementation task, not a vague goal
-   - **Atomic** — one task per checkbox, not compound tasks
-   - **Complete** — every requirement from the spec is covered, including data model changes, API endpoints, UI components, edge cases, and acceptance criteria
-   - **Ordered** — items within a section follow a logical implementation order (schema → API → client → UI)
-
-4. Include acceptance criteria from the spec verbatim below each section's todos (not as checkboxes — as plain text reference).
-
-5. Cross-cutting concerns (edge cases, lifecycle policies) get their own section with todos.
-
-6. Group by the spec's own section structure (phases, numbered sections).
-
-## Output Format
-
-\`\`\`markdown
-# {Name} — Implementation Todos
-
-Comprehensive todo list derived from \`{name}_spec.md\`. Covers the full product across all phases.
-
----
-
-## Phase N: {Phase Name}
-
-### N.N {Section Title} (Section N.N)
-
-- [ ] {concrete implementation task}
-- [ ] {concrete implementation task}
-
-**Acceptance criteria:**
-- {criterion from spec}
-\`\`\`
-
-## Rules
-
-- Every \`- [ ]\` in the spec becomes a \`- [ ]\` in the todos (expanded into implementation tasks if needed)
-- Data model tables in the spec → explicit "Add X table to database schema" todos
-- API endpoints mentioned in the spec → explicit "Create X endpoint" todos
-- Never skip edge case sections — they become cross-cutting todos
-- Do not add commentary or explanation — just the structured todo list
-- If an existing todo file has items checked \`[x]\`, preserve that state for items that still exist in the updated spec
+- Read the backlog before evaluating — don't duplicate existing work.
 `,
 
   "work.md": `---
-description: Implement a section of the todos file. Reference the spec for full scope. Check off items as completed. Provide which section(s) to work on.
+description: Implement the current task's items. Reads the task from the backlog, works through unchecked items, checks them off as completed. Provide optional focus area.
 ---
 
-# Spec Work
+# Work
 
-You are implementing a section of the todos file, using the spec as the authoritative reference for scope, behavior, and acceptance criteria.
+You are implementing the current wtm task, working through its checklist items.
 
-## Inputs
+## Input
 
-Read \`.spec.json\` from the repo root to get the project name (the \`target\` field). Use that to resolve file paths below.
+Optional focus or section to work on: \`$ARGUMENTS\`
 
-If \`.spec.json\` doesn't exist, ask the user to run \`spec-target <name>\` first.
-
-The user indicates which part of the todos to work on: \`$ARGUMENTS\`
-
-This could be a phase ("Phase 2"), a section ("2.3 Revision Snapshots"), a range ("sections 2.1 through 2.4"), or a description ("the knowledge base features").
-
-- **Todos file:** \`docs/todos/{target}_todos.md\`
-- **Spec file:** \`docs/spec/{target}_spec.md\`
+${TASK_PREAMBLE}
 
 ## Process
 
 ### Step 1: Scope the work
 
-1. Read the todos file and identify the unchecked items in the requested section(s)
-2. Read the corresponding spec sections for full context — acceptance criteria, data models, edge cases, and behavioral details
-3. Plan the implementation order: schema → API → client types → UI components
+1. Read the current task's \`items\` array — identify all unchecked items (\`done: false\`)
+2. Read the \`acceptance\` criteria for full context on what "done" means
+3. Read relevant source files to understand the current state
+4. Plan the implementation order: schema → API → client types → UI components
+
+If \`$ARGUMENTS\` specifies a focus area, only work on items matching that scope.
 
 ### Step 2: Implement
 
-For each unchecked todo item:
+For each unchecked item:
 1. Read relevant existing source files before writing code
 2. Implement the feature/change
-3. Check off the item \`[x]\` in the todos file immediately after completing it — do not batch
+3. Mark the item as done in \`.wtm/backlog.json\` immediately:
+   - Find the task, find the item by text, set \`done: true\`
+   - Write the updated backlog back to \`.wtm/backlog.json\`
 4. Move to the next item
 
 Work through items in dependency order. If item B depends on item A, complete A first.
 
 ### Step 3: Verify
 
-After completing the section:
-1. Typecheck the project (see CLAUDE.md for the typecheck command)
-2. Read the acceptance criteria from the spec — verify each criterion is met by the implementation
-3. Ensure every item in the section is checked
-4. Do NOT check items you didn't implement — leave them \`[ ]\`
+After completing items:
+1. Run the project's typecheck command (from CLAUDE.md)
+2. Review the acceptance criteria — verify each is met
+3. Ensure every completed item is marked done in the backlog
+4. Do NOT mark items done that you didn't implement
 
 ## Rules
 
-- The spec is the authoritative reference for what to build — the todos are a checklist derived from it
-- Check items off one at a time as you complete them, not all at the end
-- If you discover a spec requirement that has no corresponding todo, add it as a new unchecked item and implement it
-- If a todo item is ambiguous, the spec section resolves the ambiguity
-- Do not modify checked items from other sections
-- Do not modify the spec — it's read-only reference. If you find a spec issue, flag it to the user
+- The task's items are your checklist — work through them
+- Mark items done one at a time as you complete them, not all at the end
+- If you discover work that has no corresponding item, add a new item to the task's \`items\` array and implement it
+- Read source files before editing them
 - Use existing patterns in the codebase — match the style of adjacent code
+- Do not modify other tasks in the backlog
 `,
 
   "fix.md": `---
-description: Implement fixes/changes, then update the spec and todos if any fix changes a spec truth. Provide the list of issues to address.
+description: Fix bugs or implement changes for the current task. Updates the task's items if behavior changes. Provide the list of issues to address.
 ---
 
-# Spec Fix
+# Fix
 
-You are implementing fixes or changes to the codebase, then updating the spec and todos if any of the changes alter the product's truth.
+You are fixing issues or making changes within the scope of the current wtm task.
 
-## Inputs
+## Input
 
-Read \`.spec.json\` from the repo root to get the project name (the \`target\` field). Use that to resolve file paths below.
+The user provides issues to address: \`$ARGUMENTS\`
 
-If \`.spec.json\` doesn't exist, ask the user to run \`spec-target <name>\` first.
-
-The user provides a list of issues to address: \`$ARGUMENTS\`
-
-The issues may include screenshots, bug descriptions, UX tweaks, feature changes, or behavioral corrections.
-
-- **Spec file:** \`docs/spec/{target}_spec.md\`
-- **Todos file:** \`docs/todos/{target}_todos.md\`
+${TASK_PREAMBLE}
 
 ## Process
 
 ### Step 1: Understand the issues
 
 Read each issue carefully. Classify each as:
-- **Implementation bug** — code doesn't match spec (spec stays, code changes)
-- **Spec change** — the desired behavior differs from what the spec says (spec and code both change)
-- **New requirement** — something not covered by the spec at all (spec, todos, and code all change)
+- **Bug** — code doesn't match what the task describes (code changes, task stays)
+- **Scope change** — the desired behavior differs from the task's items (both change)
+- **New work** — something not covered by the task at all (add items, then implement)
 
 ### Step 2: Implement the fixes
 
 For each issue:
 1. Read the relevant source files before making changes
-2. Implement the fix in code
-3. Typecheck after changes (see CLAUDE.md for the typecheck command)
+2. Implement the fix
+3. Typecheck after changes (see CLAUDE.md)
 
-### Step 3: Update spec and todos (if needed)
+### Step 3: Update the task (if needed)
 
-Only update docs if an issue is a **spec change** or **new requirement** — not for pure bugs.
-
-When updating:
-- Apply changes to the spec, tracing cascading implications across all sections (same as spec-update)
-- Sync the todos file to match the updated spec
-- **Checkbox rules:**
-  - If a todo was checked \`[x]\` and the fix means it's now done differently but still done → keep checked
-  - If a todo was checked \`[x]\` but the spec change means it needs reimplementation → uncheck it
-  - If a new todo is added for work you just completed → check it \`[x]\`
-  - If a todo was checked and nothing about it changed → keep checked
-  - When in doubt, keep existing checkbox state
+Only update \`.wtm/backlog.json\` if an issue is a **scope change** or **new work**:
+- Add new items for new work
+- Mark completed items as \`done: true\`
+- Update acceptance criteria if behavior changed
+- Leave unrelated items alone
 
 ### Step 4: Verify
 
-- Both files are internally consistent
-- No references to renamed/removed concepts
-- Checked items accurately reflect completed work
-- All new spec requirements have corresponding todos
+- Typecheck passes
+- Each fix addresses the reported issue
+- Task items accurately reflect completed work
 
 ## Rules
 
-- Always implement the code changes first, then update docs
-- Read source files before editing them — understand existing code
-- Think through cascading spec implications before editing docs
-- The spec is the source of truth — if a fix contradicts the spec and it's intentional, update the spec
-`,
-
-  "update.md": `---
-description: Update a spec with a change, accounting for cascading implications, then sync the related todos file. Provide the change description.
----
-
-# Spec Update
-
-You are applying a change to a product spec and ensuring the related todos file stays in sync.
-
-## Inputs
-
-Read \`.spec.json\` from the repo root to get the project name (the \`target\` field). Use that to resolve file paths below.
-
-If \`.spec.json\` doesn't exist, ask the user to run \`spec-target <name>\` first.
-
-The user provides the change description: \`$ARGUMENTS\`
-
-- **Spec file:** \`docs/spec/{target}_spec.md\`
-- **Todos file:** \`docs/todos/{target}_todos.md\`
-
-## Process
-
-### Step 1: Understand the change
-
-Read the spec file completely. Understand the user's requested change and identify:
-- Which sections are directly affected
-- Which other sections reference or depend on the affected sections (cascading implications)
-- Whether data models, API endpoints, or UI flows need to change as a consequence
-- Whether acceptance criteria need updating
-- Whether edge case policies are affected
-
-### Step 2: Update the spec
-
-Apply the change to the spec file. For every direct change, trace its implications:
-- If a concept is renamed → rename it everywhere in the spec (data models, API paths, UI text, acceptance criteria, edge cases)
-- If a feature is added → check if existing features need to interact with it
-- If a feature is removed → remove references from other sections, data models, edge cases
-- If behavior changes → update acceptance criteria that assumed the old behavior
-- If a data model changes → update every section that references those fields
-
-Do not add commentary about what changed — just make the spec internally consistent.
-
-### Step 3: Sync the todos
-
-Read the todos file. Update it to reflect the spec changes:
-- Add new todos for new spec requirements
-- Remove or update todos for changed/removed requirements
-- **Preserve checkbox state** — items marked \`[x]\` stay checked if the underlying requirement hasn't changed. If a checked item's requirement changed, uncheck it (it needs re-implementation)
-- Ensure every spec requirement has a corresponding todo
-- Maintain the same section structure as the spec
-
-### Step 4: Verify
-
-Scan both files for internal consistency:
-- No orphaned references to renamed/removed concepts
-- Todos cover all spec sections
-- Checked items genuinely reflect completed work (if unsure, leave checked — don't uncheck speculatively)
-
-## Rules
-
-- Read both files in full before making any changes
-- Think through second-order effects before editing — a rename might affect 20+ locations
-- The spec is the source of truth; the todos derive from it
-- Never add todos that aren't grounded in the spec
-- Use \`replace_all\` for broad renames to avoid missing occurrences
+- Implement code changes first, then update the backlog
+- Read source files before editing them
+- The task's acceptance criteria define what "correct" means
+- If a fix contradicts the task's intent, flag it to the user
 `,
 
   "investigate.md": `---
-description: Systematic root-cause debugging. Traces a symptom to its cause before fixing anything. Updates spec if the fix changes product behavior. Provide the bug description or error message.
+description: Systematic root-cause debugging. Traces a symptom to its cause before fixing anything. Provide the bug description or error message.
 ---
 
 # Investigate
 
-You are debugging an issue. **No fixes until root cause is confirmed.** Guessing wastes time — tracing is fast.
+You are debugging an issue. **No fixes until root cause is confirmed.**
 
 ## Input
 
 The user describes a symptom: \`$ARGUMENTS\`
 
+${TASK_PREAMBLE}
+
 ## Phase 1: Gather evidence
 
-- Read \`.spec.json\` to get the project name
-- Read \`docs/spec/{target}_spec.md\` — check if the reported behavior contradicts the spec (it's a bug) or matches it (it's a spec issue)
+- Read the current task for context on what was recently changed
+- Read \`.wtm/spec.md\` to understand the broader project state
 - Read the error message or symptom description carefully
 - If there's a stack trace, identify the exact file and line
-- Check recent git history for the affected area: \`git log --oneline -10 -- <affected-files>\`
+- Check recent git history: \`git log --oneline -10 -- <affected-files>\`
 - Read the affected source files in full
 
-**Output:** A clear statement of what's happening, where, since when, and whether the spec says it should work differently.
+**Output:** A clear statement of what's happening, where, and since when.
 
 ## Phase 2: Form hypothesis
 
@@ -384,14 +252,13 @@ Based on the evidence, identify the most likely cause. Classify it:
 
 | Pattern | Signs |
 |---------|-------|
-| Null/undefined propagation | "Cannot read property of undefined", optional chaining gaps |
-| Type mismatch | Works in TS but fails at runtime, JSON parsing, API contract drift |
-| Race condition | Intermittent, timing-dependent, "works on second try" |
-| State corruption | Partial updates, stale closures, localStorage vs server drift |
-| Auth/permissions | 401/403, missing preHandler, cross-user data leak |
-| Configuration | Works locally but not in Docker, env var missing or wrong |
-| Import/dependency | Module not found, circular import, version mismatch |
-| Spec gap | The spec doesn't cover this scenario — behavior is undefined |
+| Null/undefined propagation | "Cannot read property of undefined" |
+| Type mismatch | Works in TS but fails at runtime |
+| Race condition | Intermittent, timing-dependent |
+| State corruption | Partial updates, stale closures |
+| Auth/permissions | 401/403, missing auth checks |
+| Configuration | Works locally but not in Docker |
+| Import/dependency | Module not found, version mismatch |
 
 **Output:** One specific, testable hypothesis.
 
@@ -400,316 +267,256 @@ Based on the evidence, identify the most likely cause. Classify it:
 **Do not fix yet.** Verify first:
 
 - Read the code at the suspected location
-- Trace the data flow: what are the inputs? What transforms them? Where does the output go?
-- If the hypothesis predicts a specific behavior, check if the code confirms it
-- If the code doesn't confirm it, **abandon the hypothesis** and form a new one
+- Trace the data flow: inputs → transforms → output
+- If the code doesn't confirm the hypothesis, **abandon it** and form a new one
 
-**3-strike rule:** If three hypotheses fail, stop and ask the user for more context. Do not keep guessing.
+**3-strike rule:** If three hypotheses fail, ask the user for more context.
 
-**Output:** "Confirmed: {hypothesis} because {evidence from code}" or "Rejected: {why}, new hypothesis: {next}"
+**Output:** "Confirmed: {hypothesis} because {evidence}" or "Rejected: {why}, new hypothesis: {next}"
 
 ## Phase 4: Fix
 
 Once root cause is confirmed:
 
 1. Make the minimal fix — fewest files, fewest lines
-2. Typecheck the project (see CLAUDE.md for the typecheck command)
-3. Check that the fix doesn't break adjacent code
-4. If the fix touches schema: note that a DB migration may be needed
-5. If the fix touches a port/adapter boundary: verify both adapters still work
+2. Typecheck (see CLAUDE.md)
+3. If the fix completes a task item, mark it done in \`.wtm/backlog.json\`
 
 **Blast radius check:** If the fix touches more than 3 files, explain why and ask before proceeding.
 
-## Phase 5: Spec sync
-
-Determine if the fix changes the product's documented behavior:
-
-- **Bug fix (code was wrong, spec was right):** No spec change. Check off any related todos if the fix completes them.
-- **Spec gap (spec didn't cover this case):** Add the scenario to the spec's edge cases or acceptance criteria. Add a corresponding checked todo.
-- **Spec was wrong (spec said X, but Y is the correct behavior):** Update the spec to match the fix. Sync todos.
-
-Read the spec section relevant to the fix and verify it's accurate after the change.
-
-## Phase 6: Report
+## Phase 5: Report
 
 \`\`\`
 ## Bug Report
 
 **Symptom:** {what the user saw}
 **Root cause:** {what actually went wrong}
-**Category:** {bug fix | spec gap | spec correction}
 **Fix:** {file:line — what changed and why}
-**Spec updated:** {yes — section X.Y | no — spec was already correct}
+**Task items updated:** {yes/no}
 **Verified:** {how you confirmed the fix}
-**Related risks:** {anything adjacent that should be checked}
 \`\`\`
 
 ## Rules
 
 - Never fix before confirming root cause.
-- Read code before theorizing. The answer is in the code, not in your training data.
-- One hypothesis at a time. Shotgunning multiple changes obscures which one worked.
+- Read code before theorizing.
+- One hypothesis at a time.
 - Minimal diff. Don't refactor while debugging.
-- If you can't find it, say so. "I need more context" is better than a wrong fix.
-- If the fix changes behavior, update the spec. The spec is the source of truth — it must match reality.
+- If you can't find it, say so.
 `,
 
   "qa.md": `---
-description: QA the current diff against the spec. Builds a test matrix from spec acceptance criteria, traces every user-facing change, walks through each scenario. Provide optional focus area.
+description: QA the current diff against the task's acceptance criteria. Walks through each scenario, traces code paths. Provide optional focus area.
 ---
 
 # QA
 
-You are performing quality assurance on the current diff. Your job is to verify the implementation matches the spec and handles real-world usage.
+You are performing quality assurance on the current diff for this task.
 
 ## Input
 
 Optional focus area: \`$ARGUMENTS\`
 
-## Step 1: Read the spec
+${TASK_PREAMBLE}
 
-- Read \`.spec.json\` to get the project name
-- Read \`docs/spec/{target}_spec.md\` — you need the acceptance criteria for every feature the diff touches
-- Read \`docs/todos/{target}_todos.md\` — check which items the diff claims to complete
+## Step 1: Understand the task
 
-## Step 2: Identify user-facing changes
+Read the current task's \`acceptance\` criteria — these are your primary test cases. Also read the \`items\` array to understand what was implemented.
+
+## Step 2: Scope the diff
 
 \`\`\`bash
 git diff main...HEAD --stat
 \`\`\`
 
-Read every changed file. For each, classify:
-- **UI change** — renders something the user sees or interacts with
+Read every changed file. Classify each:
+- **UI change** — renders something the user sees
 - **API change** — affects data the UI consumes
 - **Schema change** — affects what's stored
-- **Config change** — affects how the system behaves
+- **Config change** — affects system behavior
 
-Ignore: refactors with no user-visible effect, docs, comments.
+Ignore: refactors with no user-visible effect.
 
-## Step 3: Map changes to spec sections
-
-For each user-facing change, identify which spec section it relates to. Pull the acceptance criteria for that section — these are your test requirements.
-
-If a change has no corresponding spec section, flag it as **unspecced work**.
-
-## Step 4: Build the test matrix
+## Step 3: Build the test matrix
 
 For each acceptance criterion, plus general scenarios:
 
-| Scenario | Source | Type | Risk |
-|----------|--------|------|------|
-| {acceptance criterion from spec} | Spec §X.Y | Acceptance | High |
-| Happy path — the feature works as designed | General | Functional | Low |
-| Empty state — no data, first-time user | General | Edge | Medium |
-| Error state — API fails, network down, invalid input | General | Error | High |
-| Boundary — very long text, many items, zero items | General | Edge | Medium |
-| Concurrency — rapid clicks, duplicate submissions | General | Race | High |
-| Auth — signed out, expired session, different user | General | Security | High |
+| Scenario | Source | Risk |
+|----------|--------|------|
+| {acceptance criterion} | Task | High |
+| Happy path | General | Low |
+| Empty state — no data, first use | General | Medium |
+| Error state — API fails, bad input | General | High |
+| Boundary — very long text, many items, zero items | General | Medium |
+| Concurrency — rapid clicks, duplicates | General | High |
 
-Not every scenario applies to every change. Only include relevant ones.
+Only include scenarios relevant to the changes.
 
-## Step 5: Walk through each scenario
+## Step 4: Walk through each scenario
 
-For each scenario in the matrix:
+For each scenario:
+1. **Describe the user action**
+2. **Trace the code path** — component → API → database → response → render
+3. **Check each layer:** loading states, input validation, error handling, recovery, state consistency
+4. **Verdict:** PASS or FAIL with file:line reference
 
-1. **Describe the user action** — "The user clicks Import, selects a Google Doc, and waits"
-2. **Trace the code path** — component → API client → API route → database/storage → response → render
-3. **Check each layer:**
-   - Does the UI handle loading states?
-   - Does the API validate input?
-   - Are errors caught and surfaced to the user?
-   - Does the UI recover from errors (can they retry)?
-   - Is the state consistent after the operation?
-4. **Verdict:** PASS (code handles it) or FAIL (gap found) with file:line reference
+## Step 5: Check task items
 
-## Step 6: Check interaction effects
+Compare checked items in the backlog against the actual implementation:
+- Items marked done but code doesn't fully implement them?
+- Code that completes items not yet marked done?
 
-Changes don't exist in isolation. Check if the change affects related systems (state propagation, autosave, navigation, etc.).
+Flag mismatches.
 
-## Step 7: Verify todos
-
-Check \`docs/todos/{target}_todos.md\`:
-- Are there checked items \`[x]\` that this diff should have completed but the code doesn't fully implement?
-- Are there unchecked items that the diff actually completes but weren't checked off?
-
-Flag any mismatches.
-
-## Step 8: Report
+## Step 6: Report
 
 \`\`\`
 ## QA Report
 
-**Diff:** {N} files, {summary of what changed}
-**Spec sections covered:** {list}
+**Task:** {id}: {title}
+**Diff:** {N} files changed
 **Scenarios tested:** {count}
 **Passed:** {count}
 **Failed:** {count}
 
 ### Acceptance Criteria
 
-| Criterion | Spec | Verdict | Notes |
-|-----------|------|---------|-------|
-| {criterion} | §X.Y | PASS/FAIL | {detail} |
+| Criterion | Verdict | Notes |
+|-----------|---------|-------|
+| {criterion} | PASS/FAIL | {detail} |
 
-### Other Failures
+### Failures
 
 | # | Scenario | Gap | Severity | File |
 |---|----------|-----|----------|------|
-| 1 | {scenario} | {what's missing} | {Critical/High/Medium/Low} | {file:line} |
+| 1 | {scenario} | {what's missing} | {severity} | {file:line} |
 
-### Todo Sync
-- {any mismatches between checked todos and actual implementation}
-
-### Recommendations
-- {what to fix, in priority order}
+### Task Item Sync
+- {mismatches between items and implementation}
 \`\`\`
 
-## Step 9: Fix (if asked)
+## Step 7: Fix (if asked)
 
-If the user says "fix" or the failures are critical:
-- Fix each gap, one at a time
-- Typecheck after each fix
-- Re-verify the scenario passes
-- If a fix changes specced behavior, update the spec and todos
+If the user says "fix" or failures are critical:
+- Fix each gap, typecheck after
+- Mark any newly completed items in the backlog
 
 ## Rules
 
-- The spec's acceptance criteria are your primary test cases. Every one must be verified.
-- Think like a user, not a developer. "What if I click this twice fast?" is a QA question.
-- Trace the full code path for each scenario. Don't assume layers handle errors just because they could.
-- Schema changes are high-risk. Always check if they're backward compatible with existing data.
-- Don't test code that didn't change. Focus on the diff.
-- If the diff has no user-facing changes, say "No user-facing changes to QA" and stop.
-- Update todos if you find items that are checked but not actually complete, or complete but not checked.
+- Acceptance criteria are your primary test cases. Every one must be verified.
+- Think like a user. "What if I click this twice fast?"
+- Trace the full code path — don't assume layers handle errors.
+- Don't test code that didn't change.
 `,
 
   "review.md": `---
-description: Pre-landing code review. Analyzes diff against main for correctness, security, architecture, and spec compliance. Auto-fixes critical issues. Provide optional context about the change.
+description: Pre-landing code review for the current task. Analyzes diff for correctness, security, and architecture. Auto-fixes critical issues. Provide optional context.
 ---
 
 # Review
 
-You are performing a pre-landing code review. This is the gate before shipping — be thorough.
+You are performing a pre-landing code review. This is the gate before shipping.
 
 ## Input
 
-Optional context from the user: \`$ARGUMENTS\`
+Optional context: \`$ARGUMENTS\`
+
+${TASK_PREAMBLE}
 
 ## Process
 
-### Step 1: Read the spec
-
-- Read \`.spec.json\` to get the project name
-- Read \`docs/spec/{target}_spec.md\` — you need this to evaluate whether the diff matches the product's intended behavior
-- Read \`docs/todos/{target}_todos.md\` — you need this to check if the diff aligns with planned work
-
-### Step 2: Scope the diff
+### Step 1: Scope the diff
 
 \`\`\`bash
 git diff main...HEAD --stat
 git log main..HEAD --oneline
 \`\`\`
 
-Read every changed file in full. Understand what the diff does as a whole, not file-by-file.
+Read every changed file in full. Understand the diff as a whole.
 
-### Step 3: Typecheck
+### Step 2: Typecheck
 
-Run the project's typecheck command (see CLAUDE.md for the specific command). If typecheck fails, fix before continuing. This is non-negotiable.
+Run the project's typecheck command (see CLAUDE.md). If it fails, fix before continuing.
 
-### Step 4: Architecture review
+### Step 3: Architecture review
 
-Check against the project's architecture patterns (from CLAUDE.md):
-- Are imports following the established dependency rules?
-- Are new env vars added to \`.env.example\`?
-- Do new API routes have proper auth checks?
+Check against the project's patterns (from CLAUDE.md):
+- Are imports following established dependency rules?
+- Do new API routes have proper auth?
 - Is data access properly scoped?
+- Are new env vars added to \`.env.example\`?
 
-### Step 5: Security review
+### Step 4: Security review
 
 For each changed file:
-- **Injection:** Raw SQL with user input? \`dangerouslySetInnerHTML\` with user data? Shell exec with user strings?
+- **Injection:** Raw SQL with user input? \`dangerouslySetInnerHTML\`? Shell exec with user strings?
 - **Auth:** Missing auth checks? Cross-user data access? Secrets in client bundle?
-- **Input:** Unvalidated request bodies? Unbounded queries? File uploads without size limits?
-- **Secrets:** Hardcoded keys or tokens? \`.env\` not gitignored?
+- **Input:** Unvalidated request bodies? Unbounded queries?
+- **Secrets:** Hardcoded keys? \`.env\` not gitignored?
 
-### Step 6: Correctness review
+### Step 5: Correctness review
 
 For each changed file:
 - Logic errors, off-by-one, null/undefined gaps
 - Missing error handling at system boundaries
 - Race conditions in async code
-- Dead code or unused imports introduced
-- Inconsistent patterns vs. adjacent existing code
+- Dead code or unused imports
+- Inconsistent patterns vs. adjacent code
 
-### Step 7: Completeness audit
+### Step 6: Completeness audit
 
-Map every code path the diff introduces or modifies:
-- Happy path
-- Error/failure path
-- Edge cases (empty input, null, concurrent access, very large input)
+Map every code path the diff introduces:
+- Happy path, error path, edge cases
+- For each: does the code handle it?
 
-For each path, does the code handle it? If not, flag it.
+### Step 7: Task alignment
 
-### Step 8: Spec compliance
+Compare the diff against the task's acceptance criteria:
+- Does the code satisfy all criteria?
+- Does the diff go beyond the task's scope?
+- Are there task items the diff should complete but doesn't?
 
-Compare the diff against the spec:
-- **Contradictions:** Does the code behave differently than the spec says it should?
-- **Scope creep:** Does the diff implement something not in the spec?
-- **Missing work:** Are there spec requirements the diff should address but doesn't?
-- **Stale spec:** Does the diff change behavior that the spec still describes the old way?
-
-Report spec issues as a separate section in the summary.
-
-### Step 9: Classify and fix
+### Step 8: Classify and fix
 
 For each finding:
-- **CRITICAL** — Bug, security hole, or data loss risk. Fix it immediately without asking.
-- **ISSUE** — Real problem but not dangerous. Describe it, fix it, explain the fix.
-- **SUGGESTION** — Could be better but isn't broken. List all suggestions in a batch and ask which to apply.
-- **SPEC DRIFT** — Code and spec disagree. List these separately. Do not auto-fix — ask the user whether the spec or the code is correct, then update accordingly.
+- **CRITICAL** — Bug, security hole, data loss. Fix immediately.
+- **ISSUE** — Real problem, not dangerous. Fix and explain.
+- **SUGGESTION** — Could be better, isn't broken. List and ask.
 
-### Step 10: Update spec if needed
-
-If any SPEC DRIFT items were resolved:
-- Update the spec to match the agreed-upon behavior
-- Sync the todos to reflect the spec changes
-- Check off any todos that the diff completes
-
-### Step 11: Summary
+### Step 9: Summary
 
 \`\`\`
 ## Review Summary
 
-**Changes:** {one sentence describing what the diff does}
-**Files:** {count} files changed
-**Findings:** {count} critical, {count} issues, {count} suggestions
-**Spec compliance:** {IN SYNC | N drift items found — M resolved}
+**Task:** {id}: {title}
+**Changes:** {one sentence}
+**Files:** {count} changed
+**Findings:** {N} critical, {N} issues, {N} suggestions
 **Fixed:** {what was auto-fixed}
-**Remaining:** {suggestions the user declined, or nothing}
 **Verdict:** CLEAN / ISSUES FIXED / NEEDS ATTENTION
 \`\`\`
 
 ## Rules
 
 - Read every changed file. Do not skim.
-- Read the spec. A correct implementation of the wrong thing is still wrong.
-- Fix CRITICAL and ISSUE findings immediately — don't just report them.
+- Fix CRITICAL and ISSUE findings immediately.
 - Never refactor code outside the diff.
 - If the diff is clean, say "Clean" — don't manufacture findings.
-- Spec drift is not a blocker but it must be surfaced. The spec is the source of truth — if it's wrong, fix it; if the code is wrong, fix that instead.
 `,
 
   "ship.md": `---
-description: Ship the current branch. Typechecks, reviews the diff (including spec compliance), commits, pushes, and creates a PR. Won't ship if spec is out of sync. Provide an optional PR description.
+description: Ship the current task's branch. Typechecks, reviews, commits, pushes, and creates a PR. Provide an optional PR description.
 ---
 
 # Ship
 
-You are shipping the current branch. This is a pipeline: typecheck → review → spec check → commit → push → PR.
+You are shipping the current task's branch. Pipeline: typecheck → review → commit → push → PR.
 
 ## Input
 
 Optional PR context: \`$ARGUMENTS\`
+
+${TASK_PREAMBLE}
 
 ## Step 1: Pre-flight
 
@@ -719,48 +526,34 @@ git log main..HEAD --oneline
 git diff main...HEAD --stat
 \`\`\`
 
-Determine:
-- Are there uncommitted changes? If yes, ask: commit them or stash?
-- Is there anything to ship? If HEAD equals main, stop: "Nothing to ship."
-- What branch are we on? If \`main\`, stop: "Create a branch first."
+- Uncommitted changes? Ask: commit or stash?
+- HEAD equals main? Stop: "Nothing to ship."
+- On \`main\`? Stop: "Create a branch first."
 
-## Step 2: Quality gate (typecheck)
+## Step 2: Typecheck
 
-Run the project's typecheck command (see CLAUDE.md for the specific command).
+Run the project's typecheck command (see CLAUDE.md). Fix errors before proceeding.
 
-If it fails: fix the type errors, then re-run. Do not proceed with type errors.
+## Step 3: Review
 
-## Step 3: Review gate
+Run the \`/review\` process on the current diff.
+- **CRITICAL:** Fix. Non-negotiable.
+- **ISSUE:** Fix.
+- **SUGGESTION:** List. Ask: "Fix or ship as-is?"
 
-Run the \`/review\` process on the current diff (all steps including spec compliance).
+## Step 4: Task verification
 
-- **CRITICAL findings:** Fix them. This is non-negotiable.
-- **ISSUE findings:** Fix them.
-- **SUGGESTION findings:** List them. Ask: "Fix these before shipping, or ship as-is?"
-- **SPEC DRIFT findings:** These MUST be resolved before shipping. Ask the user whether to update the spec or the code, then do it.
+- Read the current task from \`.wtm/backlog.json\`
+- Are there unchecked items that this diff completes? Mark them done.
+- Do the acceptance criteria pass?
 
-If there are unresolved CRITICAL or SPEC DRIFT items, do not proceed.
+## Step 5: Commit
 
-## Step 4: Spec verification
-
-Read \`.spec.json\`, then verify:
-
-- Read \`docs/spec/{target}_spec.md\` and \`docs/todos/{target}_todos.md\`
-- Does the diff complete any todo items that aren't checked off? Check them off now.
-- Are any checked todo items no longer accurate (code changed since they were checked)? Flag them.
-- Does the spec accurately describe the behavior that will be in production after this ships?
-
-If the spec is out of date, update it before proceeding. The PR should include the spec updates alongside the code changes.
-
-## Step 5: Stage and commit
-
-If there are uncommitted changes (including review/spec fixes):
-- Stage specific files — never \`git add -A\` or \`git add .\`
+If there are uncommitted changes:
+- Stage specific files — never \`git add -A\`
 - Exclude: \`.env\`, \`.data/\`, credentials, large binaries
-- Include: spec and todos files if they were updated
 - Write a commit message:
-  - First line: imperative, under 70 chars, describes the "why"
-  - If multiple concerns, use a summary + bullet body
+  - First line: imperative, under 70 chars
   - End with \`Co-Authored-By: Claude <noreply@anthropic.com>\`
 
 ## Step 6: Push
@@ -769,19 +562,18 @@ If there are uncommitted changes (including review/spec fixes):
 git push -u origin HEAD
 \`\`\`
 
-If push fails (rejected, no remote), diagnose and report. Never force-push.
+Never force-push.
 
 ## Step 7: Create PR
 
 \`\`\`bash
 gh pr create --title "<title>" --body "$(cat <<'EOF'
 ## Summary
-<2-4 bullets describing the changes>
+<2-4 bullets>
 
-## Spec
-- Sections affected: <list or "none">
-- Spec updated: <yes/no>
-- Todos completed: <list or "none">
+## Task
+- **ID:** {task id}
+- **Items completed:** {count}/{total}
 
 ## Review
 - Typechecked: yes
@@ -795,29 +587,29 @@ EOF
 )"
 \`\`\`
 
-If \`gh\` is not available, print the push result and tell the user to create the PR manually.
+## Step 8: Update task
 
-## Step 8: Report
+- Set the task's \`status\` to \`"shipped"\` in \`.wtm/backlog.json\`
+- Set the task's \`pr\` field to the PR URL
+- Set \`shippedAt\` to the current ISO timestamp
+
+## Step 9: Report
 
 \`\`\`
 ## Shipped
 
+**Task:** {id}: {title}
 **Branch:** {branch}
 **PR:** {url}
-**Commits:** {count}
-**Review:** {verdict}
-**Spec:** {in sync | updated sections X.Y, Z.W}
-**Todos completed:** {list or none}
+**Items completed:** {done}/{total}
 \`\`\`
 
 ## Rules
 
-- Never skip the typecheck, review, or spec verification gates
-- Never ship with spec drift — resolve it first
-- Never force-push
-- Never push to main directly
-- Never commit \`.env\`, secrets, or \`.data/\`
-- If review found and fixed issues, those fixes get their own commit before the push
-- Spec and todos updates are part of the shipment, not a separate step
+- Never skip typecheck or review.
+- Never force-push.
+- Never push to main directly.
+- Never commit \`.env\` or secrets.
+- Update the task status after creating the PR.
 `,
 };

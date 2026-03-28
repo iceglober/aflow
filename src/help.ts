@@ -99,23 +99,24 @@ COMMANDS
         REPO_ROOT      - absolute path to the main repository
 
   install-skills [--force]
-      Install spec-workflow skills as Claude Code slash commands in the
+      Install wtm workflow skills as Claude Code slash commands in the
       current repo. Writes to .claude/commands/s/ so they appear as
       /s:think, /s:work, /s:fix, /s:ship, etc.
 
+      Each skill reads the current task from .wtm/backlog.json (matched
+      by the current branch name) and uses its items and acceptance
+      criteria to guide the work.
+
       Included skills:
         think        Product strategy session before building
-        todos        Generate todos from a spec file
-        work         Implement a section of the todos
-        fix          Fix issues, update spec if behavior changes
-        update       Apply a spec change, sync todos
-        investigate  Root-cause debugging with spec awareness
-        qa           QA the diff against spec acceptance criteria
-        review       Pre-landing code review with spec compliance
+        work         Implement the task's unchecked items
+        fix          Fix bugs, update task items if needed
+        investigate  Root-cause debugging
+        qa           QA the diff against acceptance criteria
+        review       Pre-landing code review
         ship         Typecheck → review → commit → push → PR
 
       Skips existing files by default. Use --force to overwrite.
-      Skills expect a .spec.json at repo root and docs/spec/ + docs/todos/.
 
   upgrade
       Check for and install the latest version of wtm. Uses the gh CLI
