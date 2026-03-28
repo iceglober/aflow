@@ -46,10 +46,10 @@ if ! command -v gh &>/dev/null; then
   exit 1
 fi
 
-# Verify gh is authenticated
+# Verify gh is authenticated (needed for private repos, optional for public)
 if ! gh auth status &>/dev/null 2>&1; then
-  err "gh CLI is not authenticated — run: gh auth login"
-  exit 1
+  warn "gh CLI is not authenticated — release downloads may fail for private repos"
+  warn "  Run: gh auth login"
 fi
 
 # ── Find latest release ──────────────────────────────────────────────

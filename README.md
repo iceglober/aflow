@@ -6,10 +6,10 @@ Structured AI workflows for product and engineering. Two skill pipelines — one
 
 ### Install
 
-Requires Node.js 20+ and the [GitHub CLI](https://cli.github.com) (authenticated).
+Requires Node.js 20+ and the [GitHub CLI](https://cli.github.com).
 
 ```bash
-bash <(gh api repos/iceglober/aflow/contents/install.sh --jq .content | base64 -d)
+curl -fsSL https://raw.githubusercontent.com/iceglober/aflow/main/install.sh | bash
 ```
 
 ### Initialize skills
@@ -149,9 +149,9 @@ af hooks   # creates .aflow/hooks/post_create template
 
 The hook receives `WORKTREE_DIR`, `WORKTREE_NAME`, `BASE_BRANCH`, and `REPO_ROOT` as environment variables.
 
-## Auto-Claude (TUI)
+## Auto-Claude [Alpha]
 
-`af start` launches an interactive TUI for managing a task backlog with parallel Claude Code sessions.
+`af start` launches an interactive TUI that runs the engineering pipeline above across a backlog of tasks with parallel Claude Code sessions.
 
 Tasks live in `.aflow/backlog.json`. Add tasks, start them (creates a worktree + Claude session), and monitor multiple sessions running concurrently. Auto-start mode fills available concurrency slots with the highest-priority pending tasks.
 

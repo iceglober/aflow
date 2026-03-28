@@ -46,7 +46,7 @@ jobs:
             ## Install
 
             ```bash
-            bash <(gh api repos/iceglober/aflow/contents/install.sh --jq .content | base64 -d)
+            curl -fsSL https://raw.githubusercontent.com/iceglober/aflow/main/install.sh | bash
             ```
 
             ## Update
