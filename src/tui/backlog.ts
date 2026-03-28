@@ -31,7 +31,7 @@ export interface Backlog {
 }
 
 function backlogDir(): string {
-  return path.join(gitRoot(), ".wtm");
+  return path.join(gitRoot(), ".aflow");
 }
 
 function backlogPath(): string {

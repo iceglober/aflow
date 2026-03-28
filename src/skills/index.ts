@@ -1,11 +1,11 @@
 /**
- * Embedded skill files for the wtm workflow.
- * These get written to .claude/commands/s/ by `wtm install-skills`.
+ * Embedded skill files for the aflow workflow.
+ * These get written to .claude/commands/ by `af skills`.
  *
- * Each skill operates within the context of a wtm task:
- * - .wtm/backlog.json is the source of truth (tasks, items, acceptance criteria)
+ * Each skill operates within the context of an aflow task:
+ * - .aflow/backlog.json is the source of truth (tasks, items, acceptance criteria)
  * - The current task is identified by matching `git branch --show-current` to a task's `branch` field
- * - .wtm/spec.md is auto-generated from the backlog — read-only context
+ * - .aflow/spec.md is auto-generated from the backlog — read-only context
  * - CLAUDE.md has project-specific commands (typecheck, build, etc.)
  */
 
@@ -13,9 +13,9 @@ const TASK_PREAMBLE = `## Context: Current task
 
 Run \\\`git branch --show-current\\\` to get the current branch name.
 
-Read \\\`.wtm/backlog.json\\\` and find the task whose \\\`branch\\\` field matches the current branch. This is your **current task**.
+Read \\\`.aflow/backlog.json\\\` and find the task whose \\\`branch\\\` field matches the current branch. This is your **current task**.
 
-If no task matches, tell the user: "This branch isn't linked to a wtm task. Run \\\`wtm start-work\\\` to create one."
+If no task matches, tell the user: "This branch isn't linked to an aflow task. Run \\\`af start\\\` to create one."
 
 The task object has:
 - \\\`id\\\` — task identifier (e.g. "t3")
@@ -27,7 +27,527 @@ The task object has:
 - \\\`branch\\\` — the git branch for this task
 - \\\`pr\\\` — PR URL if shipped
 
-Also read \\\`.wtm/spec.md\\\` for a formatted overview of the full backlog, and \\\`CLAUDE.md\\\` for project-specific commands (typecheck, build, lint, etc.).`;
+Also read \\\`.aflow/spec.md\\\` for a formatted overview of the full backlog, and \\\`CLAUDE.md\\\` for project-specific commands (typecheck, build, lint, etc.).`;
+
+// --- Product skills ---
+
+const PROD_RESEARCH = `---
+description: Multi-agent research orchestrator. Decomposes a research question into parallel agent workstreams, launches them, monitors progress, and synthesizes results. Provide the research topic and context.
+---
+
+# /prod:research — Multi-Agent Research Orchestrator
+
+Decompose a research question into parallel agent workstreams, launch them, monitor progress, and synthesize results.
+
+---
+
+## Phase 1: Plan the Research
+
+When the user asks to research something:
+
+1. **Understand the question.** What exactly are we trying to learn? Who is it for? What decisions will it inform?
+
+2. **Decompose into agent workstreams.** Each agent should have:
+   - A clear, non-overlapping scope (e.g., "Market sizing & competitive landscape", "Technical feasibility & architecture", "Regulatory & compliance landscape")
+   - 3-6 specific sections they must write
+   - A target output length (~500-1500 lines of markdown per agent is the sweet spot)
+
+3. **Plan the synthesis agent.** This runs AFTER all research agents complete. Its job is to read all agent outputs and produce a single coherent synthesis document with cross-cutting insights, contradictions, and recommendations.
+
+4. **Present the plan to the user.** Format:
+
+\\\`\\\`\\\`
+## Research Plan: [Topic]
+
+### Agent 1: [Name]
+**Scope:** [1-2 sentence scope]
+**Sections:**
+1. [Section name]
+2. [Section name]
+3. ...
+**Output file:** research/[topic]/[agent-name].md
+
+### Agent 2: [Name]
+...
+
+### Synthesis Agent
+**Runs after:** All research agents complete
+**Output file:** research/[topic]/synthesis.md
+\\\`\\\`\\\`
+
+5. **Wait for user approval** before proceeding. Do NOT launch agents until the user confirms the plan.
+
+---
+
+## Phase 2: Create Skeleton Files
+
+Once the user approves the plan:
+
+1. **Create the output directory:** \\\`research/[topic]/\\\`
+
+2. **For each research agent, create a skeleton markdown file** at the planned path. The skeleton MUST include:
+   - Title, Status: IN PROGRESS, Last updated timestamp
+   - Critical instructions block telling the agent to follow Search -> Edit -> Search -> Edit pattern
+   - Numbered section headings with placeholder text
+
+3. **Also create the synthesis skeleton** with similar critical instructions, but noting it should read from the other agent output files.
+
+---
+
+## Phase 3: Launch Research Agents
+
+Launch ALL research agents in parallel using the Agent tool with \\\`run_in_background: true\\\`.
+
+Each agent prompt MUST include:
+
+1. **The research question and their specific scope** -- be precise about boundaries
+2. **The exact file path they must write to** -- absolute path
+3. **The section list they must complete** -- numbered, in order
+4. **The critical write protocol** -- the agent MUST Edit its output file after EVERY SINGLE search or web fetch. Never two searches in a row without a write. Work through sections in order. Every number needs an inline source URL.
+5. **Any relevant context files they should read first** -- provide absolute paths
+
+**IMPORTANT:** Use \\\`run_in_background: true\\\` for all research agents so they run in parallel.
+
+---
+
+## Phase 4: Monitor Progress
+
+Use escalating check-in intervals:
+
+- **~30 seconds:** Verify agents have started writing
+- **~2 minutes:** Check approximate progress (line counts, sections done)
+- **~5 minutes:** Check for completion. **STUCK AGENT RULE:** If an agent's line count hasn't increased between two consecutive check-ins, stop it immediately and relaunch with pre-loaded data from its search results.
+- **Every 5 minutes thereafter** until all agents complete.
+
+Use \\\`wc -l\\\` via Bash for quick line count checks. Keep reports concise.
+
+### Stuck Agent Recovery
+
+1. Stop the agent immediately
+2. Read the output file to see what sections are complete
+3. Check the agent's process output for useful data it found but never wrote
+4. Relaunch with a new agent that skips completed sections and has pre-loaded data
+
+---
+
+## Phase 5: Synthesis
+
+Once ALL research agents are complete:
+
+1. Launch the synthesis agent
+2. It MUST read all research agent outputs, identify cross-cutting themes, contradictions, and gaps
+3. Produce: executive summary, key findings by theme, contradictions, confidence assessment, recommended next steps
+4. Follow the same write protocol (write after every read)
+
+---
+
+## Key Rules
+
+1. **Never launch agents without user approval of the plan.**
+2. **Every agent gets the critical write protocol.** Non-negotiable.
+3. **Monitor proactively.** Don't wait for the user to ask.
+4. **Kill stuck agents immediately.** They do NOT self-correct.
+5. **Keep check-in reports concise.**
+6. **Source integrity.** Every number needs an inline URL.
+7. **Pre-load data on relaunch.** Don't re-research the same ground.
+`;
+
+const PROD_SPEC = `---
+description: Convert research output into a tight, actionable product spec. Strips narrative, defines terms, surfaces unknowns, questions KPIs. Provide the research directory path and scoping guidance.
+---
+
+# /prod:spec — Research to Product Spec
+
+Take research output and convert it into a tight, actionable product spec. Strip narrative, define terms, surface unknowns, question KPIs.
+
+Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:refine\\\` x N
+
+---
+
+## Input
+
+The user provides:
+1. **A research directory** to refine (e.g., \\\`research/dental-claims\\\`)
+2. **Scoping guidance** — what's in scope, what's explicitly out of scope, what to focus on
+
+Parse the arguments from \\\`$ARGUMENTS\\\` to extract the research path and the scoping constraints.
+
+---
+
+## Phase 1: Ingest and Scope
+
+1. **Read every file in the research directory.** Start with the synthesis, then read each agent output for depth.
+2. **Apply the user's scoping constraints.** Out-of-scope items go to an "Out of Scope" section — not deleted, just fenced.
+3. **Build a mental model of what THIS spec covers.** Write it down in one sentence.
+
+---
+
+## Phase 2: Identify Unknowns
+
+This is the most important phase. Research agents make assumptions. Your job is to find them.
+
+**Types of unknowns:**
+- **Platform Unknowns** — data model, API capabilities, integration points, infrastructure
+- **Domain Unknowns** — payer-specific behaviors, edge cases, regional variations
+- **Business Unknowns** — build vs. buy, prioritization, pricing, go-to-market
+- **Integration Unknowns** — vendor API capabilities, enrollment timelines, PMS constraints
+
+**Format unknowns as open questions:**
+
+\\\`\\\`\\\`
+UNKNOWN [U-01]: Current encounter data model schema
+  Assumed: Patient demographics, subscriber info exist
+  Risk if wrong: Deeper refactoring than estimated
+  Needed from: Engineering team — export current schema
+  Blocks: Data model design, effort estimates
+\\\`\\\`\\\`
+
+Number every unknown (U-01, U-02, ...) so they can be referenced and tracked.
+
+---
+
+## Phase 3: Write the Spec
+
+Write to: \\\`[research-dir]/spec-[scope-slug].md\\\`
+
+### Structure:
+
+1. **Header** — Status, Scope (one sentence), Out of scope, Date, Source research
+2. **Unknowns Register** — All unknowns with assumed/risk/needed-from/blocks fields
+3. **Definitions** — Every domain term defined precisely. No ambiguity.
+4. **Requirements** — ID'd (R-01...), MUST/SHOULD/COULD, references unknowns with \\\`[depends: U-xx]\\\`
+5. **Data Requirements** — What data, where from, what's missing
+6. **Business Rules** — IF/THEN/ELSE with IDs (BR-01...), flag unknown dependencies
+7. **KPIs and Targets** — Only what this scope can influence. Definition, target, confidence, measurement.
+8. **Out of Scope** — Fenced with boundary context
+9. **Open Questions** — Decisions to make (not facts to find). Options, dependencies, who decides.
+
+---
+
+## Phase 4: Refinement Passes
+
+1. **Fat Trimming** — Remove anything that isn't a requirement, rule, unknown, or decision
+2. **First Principles** — For every "must," ask "what breaks if we don't?" If nothing, it's a "should"
+3. **Ambiguity Check** — Kill weasel words: "generally," "typically," "usually," "often," "may," "might." Convert to specific rules, unknowns, or delete.
+4. **Unknown Cross-Reference** — Every requirement depending on an unknown gets \\\`[depends: U-xx]\\\`
+
+---
+
+## Key Principles
+
+1. **Unknowns are first-class citizens.** Top of the spec, not footnotes.
+2. **Requirements, not solutions.** WHAT not HOW.
+3. **No narrative.** Specs are reference documents, not stories.
+4. **Define everything.** If a term could mean two things, define it.
+5. **KPIs earn their place.** Measurable, actionable, attributable to this scope.
+6. **Scope is a weapon.** Enforce it aggressively.
+7. **Assumptions are risks.** Surface them, don't hide them.
+`;
+
+const PROD_REFINE = `---
+description: Interactive spec refinement. Walk through unknowns with the user, integrate answers, produce an updated spec with fewer unknowns. Provide the spec file path.
+---
+
+# /prod:refine — Interactive Spec Refinement
+
+Walk through a product spec's unknowns with the user, integrate answers, and produce an updated spec with fewer unknowns.
+
+Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:refine\\\` x N
+
+---
+
+## Input
+
+The user provides a path to an existing spec file produced by \\\`/prod:spec\\\`.
+
+Example: \\\`/prod:refine research/dental-claims/spec-submission.md\\\`
+
+Parse the spec path from \\\`$ARGUMENTS\\\`.
+
+---
+
+## Phase 1: Load and Assess
+
+1. **Read the spec file.** Parse all UNKNOWN [U-xx] entries, [depends: U-xx] references, and OQ-xx Open Questions.
+2. **Build a dependency map.** For each unknown: which requirements, business rules, KPIs, and open questions depend on it.
+3. **Prioritize by blast radius.** Sort by number of downstream dependencies.
+4. **Present the assessment** — total unknowns, open questions, blocked requirements, and the priority list with plain-language questions.
+
+---
+
+## Phase 2: Interactive Resolution
+
+Walk through unknowns ONE AT A TIME, in priority order.
+
+For each unknown:
+
+1. **Ask a clear, answerable question.** Translate the unknown into plain language.
+   - Bad: "What is the current encounter data model schema?"
+   - Good: "Does your encounter model store procedure codes? If so, are they CPT codes, CDT codes, or a generic code field?"
+
+2. **Wait for the user's response.** They may:
+   - Answer fully -> mark RESOLVED
+   - Answer partially -> narrow the remaining gap
+   - Say "skip" or "don't know" -> leave as-is, move on
+   - Provide info that changes the spec -> note the change
+   - Ask a clarifying question back -> answer it, then re-ask
+
+3. **After each answer, briefly state the impact** and immediately move to the next question.
+
+4. **If an answer creates NEW unknowns**, note them.
+
+5. **If an answer changes a requirement or rule**, note the change. Don't rewrite mid-conversation.
+
+---
+
+## Phase 3: Open Questions
+
+After unknowns, present each Open Question as a decision:
+
+"**OQ-03: Real-time or batched submission?**
+Options: (A) always real-time, (B) always batch, (C) configurable.
+Given what we've learned, [option X] seems most aligned. Preference?"
+
+If decided -> convert to business rule or requirement.
+If deferred -> leave as OQ.
+
+---
+
+## Phase 4: Generate Updated Spec
+
+Once the user has answered what they can:
+
+1. **Read the current spec in full.**
+2. **Apply all changes:**
+   - Resolved unknowns -> remove from register, embed facts in requirements, remove [depends: U-xx] tags
+   - Partially resolved -> update the unknown, keep tags
+   - New unknowns -> add to register with next U-number
+   - Resolved OQs -> convert to BR-xx or R-xx
+   - Changed requirements -> update text and MUST/SHOULD/COULD level
+
+3. **Write to a NEW file:** \\\`[original-name]-v[N].md\\\`. NEVER overwrite the previous version.
+
+4. **Add a changelog** at the top:
+   - What was resolved, partially resolved, newly discovered
+   - Which OQs were decided
+   - Which requirements changed
+   - Remaining unknowns and open questions count
+
+5. **Present a summary:** resolved count, remaining count, key changes, next steps, file path.
+
+---
+
+## Rules
+
+1. **One question at a time.** Don't dump all unknowns at once.
+2. **Translate, don't copy.** Plain language for the person in front of you.
+3. **"Skip" is always valid.** Never pressure.
+4. **Facts become requirements. Decisions become rules.**
+5. **Never lose information.** Resolved unknowns become embedded facts.
+6. **Version, don't overwrite.** Every pass produces a new file.
+7. **New unknowns are progress.** More specific = more concrete.
+8. **Stay in scope.** Don't pull out-of-scope items back in.
+9. **Keep the pace.** Ask the next question immediately after stating impact.
+`;
+
+const PROD_ENRICH = `---
+description: Autonomous spec enrichment from codebase. Reads a product spec, researches the current repo to resolve unknowns, and produces an updated spec version — no user input needed. Provide the spec file path.
+---
+
+# /prod:enrich — Codebase-Driven Spec Enrichment
+
+Read a product spec, research the current codebase to resolve unknowns, and produce an updated spec version autonomously — no user input required.
+
+Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:enrich\\\` -> \\\`/prod:refine\\\` x N
+
+Unlike \\\`/prod:refine\\\` (interactive, user answers questions), this skill is fully autonomous. It reads the repo to answer what the repo can answer, then hands off to the user for what it can't.
+
+---
+
+## Input
+
+The user provides a path to an existing spec file.
+
+Example: \\\`/prod:enrich research/dental-claims/spec-submission.md\\\`
+
+Parse the spec path from \\\`$ARGUMENTS\\\`.
+
+---
+
+## Phase 1: Load Spec and Identify Researchable Unknowns
+
+1. **Read the spec file in full.** Parse all UNKNOWN [U-xx] entries and their "Needed from" fields.
+
+2. **Classify each unknown by researchability:**
+
+   **Researchable from codebase** — the answer is in the repo:
+   - Data model questions -> read schema files, migrations, models, types
+   - API capabilities -> read route handlers, service files, SDK usage
+   - Integration details -> read config, client libraries, API calls
+   - Current workflow/lifecycle -> read state machines, event handlers, job runners
+   - Provider/payer data -> read seed files, config tables, enums
+
+   **Researchable from dependencies** — the answer is in installed packages or their docs:
+   - SDK capabilities -> read node_modules types, package docs
+   - Validation behavior -> read library source or config
+
+   **NOT researchable** — requires human input:
+   - Business decisions (pricing, prioritization, GTM)
+   - Domain expertise (payer-specific rules, billing practices)
+   - External vendor capabilities (requires contacting vendor)
+   - Legal/compliance questions
+
+3. **Plan the research.** For each researchable unknown, identify:
+   - What to search for (file patterns, keywords, types)
+   - Where to look (directories, specific files)
+   - What would constitute a resolution vs. a partial answer
+
+4. **Present the plan to the user:**
+
+\\\`\\\`\\\`
+## Enrichment Plan: [spec name]
+
+**Total unknowns:** N
+**Researchable from codebase:** N
+**Researchable from dependencies:** N
+**Requires human input (skipping):** N
+
+### Will research:
+1. [U-xx]: [title] — searching [what/where]
+2. [U-xx]: [title] — searching [what/where]
+...
+
+### Skipping (not in codebase):
+- [U-xx]: [title] — needs [who/what]
+...
+
+Proceeding with research.
+\\\`\\\`\\\`
+
+Do NOT wait for approval — proceed immediately after presenting the plan. This skill is meant to be autonomous.
+
+---
+
+## Phase 2: Research
+
+Launch parallel research agents for independent unknowns. Use sequential research for unknowns that depend on each other.
+
+### For each researchable unknown:
+
+1. **Search the codebase** using Glob and Grep:
+   - Schema/model files: \\\`**/*.prisma\\\`, \\\`**/models/**\\\`, \\\`**/schema.*\\\`, \\\`**/migrations/**\\\`, \\\`**/*.entity.*\\\`
+   - Type definitions: \\\`**/*.d.ts\\\`, \\\`**/types/**\\\`, \\\`**/interfaces/**\\\`
+   - API routes: \\\`**/routes/**\\\`, \\\`**/api/**\\\`, \\\`**/controllers/**\\\`
+   - Config: \\\`**/*.config.*\\\`, \\\`**/.env.example\\\`, \\\`**/config/**\\\`
+   - Services/integrations: \\\`**/services/**\\\`, \\\`**/integrations/**\\\`, \\\`**/clients/**\\\`
+   - Search for keywords from the unknown (e.g., "encounter", "procedure", "npi", "stedi", "payer")
+
+2. **Read relevant files** to understand the actual implementation.
+
+3. **Record findings** with specific file:line references. Be precise:
+   - "Found \\\`encounter\\\` table in \\\`prisma/schema.prisma:42\\\` with fields: patientId, providerId, dateOfService, status. No procedure-level fields."
+   - NOT "The encounter model appears to have some fields."
+
+4. **Classify the result:**
+   - **RESOLVED** — found a definitive answer. Record the fact.
+   - **PARTIALLY RESOLVED** — found relevant info that narrows the unknown. Record what's known and what remains.
+   - **UNRESOLVABLE FROM CODE** — searched thoroughly, answer is not in the codebase. Reclassify as requires-human.
+
+### Research strategies by unknown type:
+
+**Data model unknowns:**
+- Search for ORM models, schema files, migration files, database types
+- Look for entity definitions, interfaces, and type aliases
+- Check seed files for reference data (payer lists, code tables, etc.)
+
+**Integration unknowns:**
+- Search for SDK imports and client instantiation
+- Read API call sites to understand what endpoints are used
+- Check config/env for API keys, endpoints, feature flags
+
+**Workflow unknowns:**
+- Search for state machines, status enums, event handlers
+- Read job/worker files for background processing patterns
+- Check webhook handlers for inbound event processing
+
+**Provider/configuration unknowns:**
+- Search for provider tables, NPI fields, taxonomy references
+- Check onboarding flows, admin UIs, setup scripts
+
+---
+
+## Phase 3: Generate Updated Spec
+
+Apply the same rules as \\\`/prod:refine\\\` Phase 4:
+
+1. **Write to a NEW file:** \\\`[original-name]-v[N].md\\\`. Never overwrite.
+
+2. **For resolved unknowns:**
+   - Remove from Unknowns Register
+   - Embed the discovered fact in the relevant section with file:line references
+   - Remove \\\`[depends: U-xx]\\\` tags from unblocked requirements
+   - Update requirements if the discovered reality changes them (e.g., a MUST becomes impossible, or a new constraint is discovered)
+
+3. **For partially resolved unknowns:**
+   - Update the "Known" and "Remaining gap" fields
+   - Add file:line references for what was found
+   - Keep \\\`[depends: U-xx]\\\` tags
+
+4. **For new discoveries** that aren't tied to existing unknowns:
+   - If the codebase reveals a constraint or capability the spec didn't account for, add it as a new requirement or update an existing one
+   - If the codebase reveals a new unknown (e.g., "the encounter model exists but uses a custom ORM that may not support the needed queries"), add it to the register
+
+5. **Add a changelog** at the top:
+
+\\\`\\\`\\\`markdown
+## Changelog
+
+### v[N] — enriched from codebase (YYYY-MM-DD)
+- Resolved from code: U-xx ([title] — [one-line finding with file ref])
+- Partially resolved: U-xx ([what was found])
+- New discoveries: [anything the codebase revealed that wasn't in the spec]
+- Still requires human input: U-xx, U-xx, ...
+- Remaining unknowns: N
+\\\`\\\`\\\`
+
+---
+
+## Phase 4: Report
+
+Present the results:
+
+\\\`\\\`\\\`
+## Enrichment Complete
+
+**Researched:** N unknowns
+**Resolved from codebase:** N
+**Partially resolved:** N
+**Not in codebase (needs human):** N
+**New discoveries:** N
+
+### Key findings:
+- [most impactful facts discovered, with file references]
+
+### Still needs human input:
+- [U-xx]: [title] — [why it can't be answered from code]
+
+Updated spec: [file path]
+Run \\\`/prod:refine [new file path]\\\` to resolve remaining unknowns with the user.
+\\\`\\\`\\\`
+
+---
+
+## Rules
+
+1. **Be thorough but not exhaustive.** Search broadly first (Glob for patterns), then deep-read relevant files. Don't read every file in the repo.
+2. **Cite everything.** Every fact from the codebase gets a file:line reference. The user should be able to verify any finding in 10 seconds.
+3. **Don't guess.** If the code is ambiguous, record the ambiguity as a partial resolution, not a guess. "Found two possible encounter tables — \\\`encounters\\\` and \\\`clinical_encounters\\\` — unclear which is primary" is better than picking one.
+4. **Respect scope.** Only research unknowns that are in the spec. Don't go exploring tangential topics.
+5. **Preserve the spec structure.** The output must have the same sections as the input. Don't reorganize — just update content.
+6. **Version, don't overwrite.** Always write a new file.
+7. **The codebase is truth.** If the code contradicts the spec's assumption, the code wins. Update the spec accordingly and flag the discrepancy.
+8. **Proceed without approval.** This skill is autonomous by design. Present the plan and immediately start researching.
+`;
 
 export const SKILLS: Record<string, string> = {
   "think.md": `---
@@ -48,7 +568,7 @@ ${TASK_PREAMBLE}
 
 ### Step 1: Understand the landscape
 
-- Read \`.wtm/spec.md\` for the full backlog — what's pending, active, shipped
+- Read \`.aflow/spec.md\` for the full backlog — what's pending, active, shipped
 - Read \`CLAUDE.md\` to understand the project's architecture
 - Skim the relevant source files to understand the current state
 
@@ -100,11 +620,11 @@ If validated, write a concise plan:
 ### Step 5: Update the task
 
 If the current task exists and this planning session refines it:
-- Update the task's \`items\` array in \`.wtm/backlog.json\` with the implementation checklist
+- Update the task's \`items\` array in \`.aflow/backlog.json\` with the implementation checklist
 - Update \`acceptance\` with clear acceptance criteria
 - Set the \`design\` field to a brief summary of the plan
 
-If this is a new feature not yet in the backlog, tell the user to add it via \`wtm start-work\`.
+If this is a new feature not yet in the backlog, tell the user to add it via \`af start\`.
 
 ## Rules
 
@@ -120,7 +640,7 @@ description: Implement the current task's items. Reads the task from the backlog
 
 # Work
 
-You are implementing the current wtm task, working through its checklist items.
+You are implementing the current aflow task, working through its checklist items.
 
 ## Input
 
@@ -144,9 +664,9 @@ If \`$ARGUMENTS\` specifies a focus area, only work on items matching that scope
 For each unchecked item:
 1. Read relevant existing source files before writing code
 2. Implement the feature/change
-3. Mark the item as done in \`.wtm/backlog.json\` immediately:
+3. Mark the item as done in \`.aflow/backlog.json\` immediately:
    - Find the task, find the item by text, set \`done: true\`
-   - Write the updated backlog back to \`.wtm/backlog.json\`
+   - Write the updated backlog back to \`.aflow/backlog.json\`
 4. Move to the next item
 
 Work through items in dependency order. If item B depends on item A, complete A first.
@@ -175,7 +695,7 @@ description: Fix bugs or implement changes for the current task. Updates the tas
 
 # Fix
 
-You are fixing issues or making changes within the scope of the current wtm task.
+You are fixing issues or making changes within the scope of the current aflow task.
 
 ## Input
 
@@ -201,7 +721,7 @@ For each issue:
 
 ### Step 3: Update the task (if needed)
 
-Only update \`.wtm/backlog.json\` if an issue is a **scope change** or **new work**:
+Only update \`.aflow/backlog.json\` if an issue is a **scope change** or **new work**:
 - Add new items for new work
 - Mark completed items as \`done: true\`
 - Update acceptance criteria if behavior changed
@@ -238,7 +758,7 @@ ${TASK_PREAMBLE}
 ## Phase 1: Gather evidence
 
 - Read the current task for context on what was recently changed
-- Read \`.wtm/spec.md\` to understand the broader project state
+- Read \`.aflow/spec.md\` to understand the broader project state
 - Read the error message or symptom description carefully
 - If there's a stack trace, identify the exact file and line
 - Check recent git history: \`git log --oneline -10 -- <affected-files>\`
@@ -280,7 +800,7 @@ Once root cause is confirmed:
 
 1. Make the minimal fix — fewest files, fewest lines
 2. Typecheck (see CLAUDE.md)
-3. If the fix completes a task item, mark it done in \`.wtm/backlog.json\`
+3. If the fix completes a task item, mark it done in \`.aflow/backlog.json\`
 
 **Blast radius check:** If the fix touches more than 3 files, explain why and ask before proceeding.
 
@@ -543,7 +1063,7 @@ Run the \`/review\` process on the current diff.
 
 ## Step 4: Task verification
 
-- Read the current task from \`.wtm/backlog.json\`
+- Read the current task from \`.aflow/backlog.json\`
 - Are there unchecked items that this diff completes? Mark them done.
 - Do the acceptance criteria pass?
 
@@ -589,7 +1109,7 @@ EOF
 
 ## Step 8: Update task
 
-- Set the task's \`status\` to \`"shipped"\` in \`.wtm/backlog.json\`
+- Set the task's \`status\` to \`"shipped"\` in \`.aflow/backlog.json\`
 - Set the task's \`pr\` field to the PR URL
 - Set \`shippedAt\` to the current ISO timestamp
 
@@ -612,4 +1132,11 @@ EOF
 - Never commit \`.env\` or secrets.
 - Update the task status after creating the PR.
 `,
+
+  // --- Product skills (installed to prod/ subdirectory) ---
+
+  "prod/research.md": PROD_RESEARCH,
+  "prod/spec.md": PROD_SPEC,
+  "prod/refine.md": PROD_REFINE,
+  "prod/enrich.md": PROD_ENRICH,
 };

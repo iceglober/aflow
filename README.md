@@ -1,106 +1,161 @@
-# wtm
+# aflow
 
-Worktree manager for git. Work on multiple branches at the same time without stashing or switching.
+Structured AI workflows for product and engineering. Two skill pipelines — one for turning ideas into specs, one for turning specs into code — powered by Claude Code.
 
-wtm creates git worktrees as sibling directories next to your repo. Each worktree is an independent checkout — its own branch, its own working tree, its own terminal. No bare-repo setup needed.
+## Getting Started
 
-## Install
+### Install
 
-Requires [Node.js](https://nodejs.org) 20+ and the [GitHub CLI](https://cli.github.com).
-
-```bash
-bash <(gh api repos/iceglober/wtm/contents/install.sh --jq .content | base64 -d)
-```
-
-Update to the latest version at any time:
+Requires Node.js 20+ and the [GitHub CLI](https://cli.github.com) (authenticated).
 
 ```bash
-wtm upgrade
+bash <(gh api repos/iceglober/aflow/contents/install.sh --jq .content | base64 -d)
 ```
 
-## Quick start
+### Initialize skills
+
+Install aflow skills as Claude Code slash commands in your repo:
 
 ```bash
-# Create a worktree for a new branch (branches from main by default)
-wtm create feature-auth
-
-# You're now in a shell inside ~/repos/my-app-wt-feature-auth/
-# It's a full copy of your repo on its own branch. Work here, commit here.
-# Type `exit` to return to your main worktree.
-
-# See all your worktrees
-wtm list
-
-# Done with a branch? Delete the worktree
-wtm delete feature-auth
-
-# Clean up all merged/stale worktrees at once
-wtm cleanup
+af skills
 ```
 
-## Commands
-
-| Command | What it does |
-|---------|-------------|
-| `wtm create <name>` | New worktree + branch, opens a shell inside it |
-| `wtm checkout <branch>` | Worktree from an existing remote branch |
-| `wtm list` | Table of all worktrees |
-| `wtm delete <name>` | Remove a worktree and its local branch |
-| `wtm cleanup` | Delete worktrees for merged/deleted branches |
-| `wtm start-work` | TUI for managing a backlog + Claude Code sessions |
-| `wtm init-hooks` | Create a post-create hook template |
-| `wtm install-skills` | Install spec-workflow Claude Code slash commands |
-| `wtm upgrade` | Update wtm to the latest release |
-
-Run `wtm --help` for full documentation on each command.
-
-## How it works
-
-Given a repo at `~/repos/my-app`:
-
-```
-~/repos/my-app/                  <- your main worktree (unchanged)
-~/repos/my-app-wt-feature-auth/  <- wtm create feature-auth
-~/repos/my-app-wt-bugfix/        <- wtm create bugfix
-```
-
-Each worktree shares the same `.git` — commits, stash, and reflog are all shared. But each has its own working directory and branch.
-
-Set `WTM_DIR` to put worktrees somewhere else:
+Or install globally (available in every repo):
 
 ```bash
-export WTM_DIR=~/worktrees
-wtm create feature-auth  # creates ~/worktrees/feature-auth/
+af skills --user
 ```
+
+This gives you two skill pipelines:
+
+| Pipeline | Skills | Purpose |
+|----------|--------|---------|
+| **Product** | `/prod:research` → `/prod:spec` → `/prod:enrich` → `/prod:refine` | Idea → research → spec → refined spec |
+| **Engineering** | `/think` → `/work` → `/fix` → `/investigate` → `/qa` → `/review` → `/ship` | Spec → code → ship |
+
+## Product Pipeline
+
+Turn an idea into a tight, actionable product spec with tracked unknowns.
+
+### `/prod:research` — Research
+
+Decomposes a question into parallel agent workstreams. Each agent searches the web, writes findings to a markdown file, and a synthesis agent combines them.
+
+```
+/prod:research Build an E2E dental claim submission solution on top of our existing platform
+```
+
+Produces a `research/` directory with one file per agent plus a synthesis.
+
+### `/prod:spec` — Spec
+
+Takes research output and converts it into a structured product spec. Strips narrative, defines terms, surfaces unknowns as first-class tracked items, questions KPIs.
+
+```
+/prod:spec using research/dental-claims focused on submission only
+```
+
+Produces a spec file with:
+- **Unknowns register** — numbered items (U-01, U-02...) with assumptions, risks, and what blocks on them
+- **Requirements** — MUST/SHOULD/COULD with `[depends: U-xx]` tags
+- **Business rules** — IF/THEN/ELSE decision logic
+- **KPIs** — only what the spec's scope can actually influence
+
+### `/prod:enrich` — Enrich from Codebase
+
+Reads the spec's unknowns, searches the current repo to resolve what it can (schemas, types, configs, integrations), and produces an updated spec version. Fully autonomous — no user input.
+
+```
+/prod:enrich research/dental-claims/spec-submission.md
+```
+
+Resolves unknowns like "what does our encounter model look like?" by reading the actual schema. Cites every finding with `file:line` references. Anything it can't answer from code stays in the unknowns register for `/prod:refine`.
+
+### `/prod:refine` — Refine with User
+
+Interactive walkthrough of remaining unknowns. Asks one question at a time, in priority order (highest blast radius first). Integrates answers and produces a new versioned spec.
+
+```
+/prod:refine research/dental-claims/spec-submission-v2.md
+```
+
+Run this as many times as needed. Each pass produces a new version (`v3`, `v4`...) with fewer unknowns. "Skip" or "don't know" is always valid — the unknown stays in the spec.
+
+### The Loop
+
+```
+/prod:research  →  /prod:spec  →  /prod:enrich  →  /prod:refine × N
+   (web)          (structure)     (codebase)        (human)
+```
+
+Each step reduces ambiguity. Research gathers raw information. Spec structures it and surfaces what's missing. Enrich answers what the code can answer. Refine gets human answers for the rest. Repeat refine until the spec is buildable.
+
+## Engineering Pipeline
+
+Ship features with structured Claude Code skills. Adapted from [gstack](https://github.com/garrytan/gstack).
+
+Each skill reads the current task from `.aflow/backlog.json` (matched by branch name) and uses its items and acceptance criteria to guide the work.
+
+### `/think` — Plan Before Building
+
+Product strategy session. Forces you to think through what you're building and why. Asks forcing questions (who wants this? what's the smallest version that matters?) and challenges the premise before any code is written.
+
+### `/work` — Implement
+
+Works through the current task's unchecked items. Reads the task, implements each item in dependency order, marks items done as it goes, and typechecks after.
+
+### `/fix` — Fix Issues
+
+Fix bugs or implement changes within the current task scope. Classifies each issue (bug, scope change, new work) and updates the task's items if behavior changes.
+
+### `/investigate` — Debug
+
+Systematic root-cause debugging. Gathers evidence, forms one hypothesis at a time, verifies before fixing. Three-strike rule: if three hypotheses fail, asks for more context.
+
+### `/qa` — Quality Check
+
+QA the current diff against the task's acceptance criteria. Builds a test matrix, walks through each scenario tracing the full code path, and produces a report with PASS/FAIL per criterion.
+
+### `/review` — Code Review
+
+Pre-landing review. Reads every changed file, runs typecheck, checks architecture patterns, security (injection, auth, secrets), and correctness. Auto-fixes critical issues.
+
+### `/ship` — Ship It
+
+End-to-end shipping pipeline: typecheck → review → commit → push → PR. Verifies task items, creates a PR with a summary tied to the task, and updates the task status.
+
+## Worktrees
+
+aflow makes git worktrees practical. Each feature gets its own directory with a shared `.git`.
+
+```bash
+af wt create feature-auth          # new branch + worktree, opens a shell
+af wt create hotfix --from release  # fork from a specific branch
+af wt checkout feature-payments     # worktree from an existing remote branch
+af wt list                          # show all worktrees
+af wt delete feature-auth           # clean up
+af wt cleanup                       # batch-delete merged/stale worktrees
+```
+
+Set `AFLOW_DIR` to override where worktrees are stored.
 
 ## Hooks
 
-Run `wtm init-hooks` to create a `.wtm/hooks/post_create` script. It runs after every `wtm create` and `wtm checkout` — use it to install deps, copy `.env`, or anything else a new worktree needs.
+Run setup scripts automatically after creating a worktree:
 
 ```bash
-#!/usr/bin/env bash
-# .wtm/hooks/post_create
-cp "$REPO_ROOT/.env" "$WORKTREE_DIR/.env"
-cd "$WORKTREE_DIR" && pnpm install
+af hooks   # creates .aflow/hooks/post_create template
 ```
 
-## Skills
+The hook receives `WORKTREE_DIR`, `WORKTREE_NAME`, `BASE_BRANCH`, and `REPO_ROOT` as environment variables.
 
-wtm ships with Claude Code slash commands that plug into the task workflow. Install them in any repo:
+## Auto-Claude (TUI)
 
-```bash
-wtm install-skills
-```
+`af start` launches an interactive TUI for managing a task backlog with parallel Claude Code sessions.
 
-This writes 7 skills to `.claude/commands/s/`. Each skill automatically reads the current task from `.wtm/backlog.json` (matched by branch name) and uses its items and acceptance criteria to guide the work.
+Tasks live in `.aflow/backlog.json`. Add tasks, start them (creates a worktree + Claude session), and monitor multiple sessions running concurrently. Auto-start mode fills available concurrency slots with the highest-priority pending tasks.
 
-- `/s:think` — product strategy session before building
-- `/s:work` — implement the task's unchecked items
-- `/s:fix` — fix bugs, update task items if needed
-- `/s:investigate` — root-cause debugging
-- `/s:qa` — QA the diff against acceptance criteria
-- `/s:review` — pre-landing code review
-- `/s:ship` — typecheck, review, commit, push, PR
+![aflow TUI](assets/tui.png)
 
 ## License
 

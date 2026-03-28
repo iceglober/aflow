@@ -20,11 +20,11 @@ export function repoName(): string {
 /**
  * Resolve where a worktree should live.
  *
- * - If WTM_DIR is set: WTM_DIR/<name>
+ * - If AFLOW_DIR is set: AFLOW_DIR/<name>
  * - Otherwise: ../<repo>-wt-<name> (sibling of the repo)
  */
 export function worktreePath(name: string): string {
-  const wtmDir = process.env.WTM_DIR;
+  const wtmDir = process.env.AFLOW_DIR;
   if (wtmDir) {
     return path.resolve(wtmDir, name);
   }

@@ -1,6 +1,18 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import type { SDKMessage, SDKAssistantMessage, SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
 import { EventEmitter } from "node:events";
+import { execFileSync } from "node:child_process";
+
+/** Find the system-installed Claude Code CLI path.
+ *  When bundled, the SDK can't find its own cli.js (import.meta.url points to
+ *  the bundle). We resolve the user's installed `claude` binary instead. */
+function findClaudeCli(): string | undefined {
+  try {
+    return execFileSync("which", ["claude"], { encoding: "utf-8" }).trim() || undefined;
+  } catch {
+    return undefined;
+  }
+}
 export interface TaskInfo {
   id: string;
   title: string;
@@ -122,6 +134,9 @@ export class Session extends EventEmitter {
     this.status = "working";
     this.emit("update");
 
+    // Prevent unhandled 'error' events from crashing the process
+    this.on("error", () => {});
+
     const gen = this.generateMessages();
 
     this.queryInstance = query({
@@ -129,6 +144,7 @@ export class Session extends EventEmitter {
       options: {
         abortController: this.abortController,
         cwd: this.worktreePath,
+        pathToClaudeCodeExecutable: findClaudeCli(),
         includePartialMessages: true,
         settingSources: ["project" as any],
         tools: { type: "preset", preset: "claude_code" } as any,
@@ -210,13 +226,20 @@ export class Session extends EventEmitter {
           this.emit("update");
         }
       }
-    } catch (err) {
+    } catch (err: any) {
+      // EPIPE means the subprocess exited — not a fatal error for the TUI
+      const isEpipe = err?.code === "EPIPE" || (err instanceof Error && err.message.includes("EPIPE"));
       this.status = "failed";
       this.messages.push({
         role: "tool",
-        text: `Error: ${err instanceof Error ? err.message : String(err)}`,
+        text: isEpipe
+          ? "Session subprocess exited unexpectedly"
+          : `Error: ${err instanceof Error ? err.message : String(err)}`,
         timestamp: Date.now(),
       });
+      // Clean up pending promises so the UI doesn't hang
+      if (this.pendingQuestion) { this.pendingQuestion.resolve({}); this.pendingQuestion = null; }
+      if (this.pendingTool) { this.pendingTool.resolve("deny"); this.pendingTool = null; }
       this.emit("update");
     }
   }

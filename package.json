@@ -1,9 +1,9 @@
 {
-  "name": "wtm",
-  "version": "0.2.0",
+  "name": "aflow",
+  "version": "0.3.0",
   "type": "module",
   "bin": {
-    "wtm": "./dist/index.js"
+    "af": "./dist/index.js"
   },
   "scripts": {
     "build": "tsup",

@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Install or update wtm — the worktree manager CLI.
+# Install or update aflow — AI-native development workflow CLI.
 #
 # Usage (with gh CLI authenticated, works for private repos):
-#   bash <(gh api repos/iceglober/wtm/contents/install.sh --jq .content | base64 -d)
+#   bash <(gh api repos/iceglober/aflow/contents/install.sh --jq .content | base64 -d)
 #
 # Usage (when repo is public):
-#   curl -fsSL https://raw.githubusercontent.com/iceglober/wtm/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/iceglober/aflow/main/install.sh | bash
 #
 # Usage (from local repo clone):
 #   bash install.sh
 set -euo pipefail
 
-REPO="iceglober/wtm"
+REPO="iceglober/aflow"
 TAG_PREFIX="v"
-BINARY_NAME="wtm"
+BINARY_NAME="af"
 
 # ── Colors ────────────────────────────────────────────────────────────
 if [ -t 1 ]; then
@@ -63,8 +63,8 @@ LATEST_TAG=$(echo "$RELEASE_JSON" | node -e "
 ")
 
 if [ -z "$LATEST_TAG" ]; then
-  err "no wtm releases found in $REPO"
-  echo "  Create a release first: git tag ${TAG_PREFIX}0.2.0 && git push origin --tags"
+  err "no aflow releases found in $REPO"
+  echo "  Create a release first: git tag ${TAG_PREFIX}0.3.0 && git push origin --tags"
   exit 1
 fi
 
@@ -73,7 +73,7 @@ info "latest version: ${VERSION}"
 
 # ── Find install directory ────────────────────────────────────────────
 find_install_dir() {
-  # Check if wtm already exists somewhere on PATH
+  # Check if af already exists somewhere on PATH
   local existing
   existing=$(command -v "$BINARY_NAME" 2>/dev/null || true)
   if [ -n "$existing" ]; then
@@ -101,7 +101,7 @@ INSTALL_DIR=$(find_install_dir)
 INSTALL_PATH="${INSTALL_DIR}/${BINARY_NAME}"
 
 # ── Download ──────────────────────────────────────────────────────────
-info "downloading wtm v${VERSION}..."
+info "downloading af v${VERSION}..."
 
 # Use gh CLI to download the release asset
 TMP_PATH="${INSTALL_PATH}.tmp"
@@ -110,7 +110,7 @@ gh release download "$LATEST_TAG" -R "$REPO" -p "$BINARY_NAME" -O "$TMP_PATH" --
 chmod +x "$TMP_PATH"
 mv "$TMP_PATH" "$INSTALL_PATH"
 
-ok "wtm ${VERSION} installed at ${INSTALL_PATH}"
+ok "af ${VERSION} installed at ${INSTALL_PATH}"
 
 # ── PATH check ────────────────────────────────────────────────────────
 if ! echo "$PATH" | tr ':' '\n' | grep -qx "$INSTALL_DIR"; then

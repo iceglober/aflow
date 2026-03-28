@@ -28,6 +28,6 @@ export default defineConfig({
     };
   },
   define: {
-    __WTM_VERSION__: JSON.stringify(pkg.version),
+    __AFLOW_VERSION__: JSON.stringify(pkg.version),
   },
 });
