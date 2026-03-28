@@ -1,11 +1,11 @@
 /**
- * Embedded skill files for the wtm workflow.
- * These get written to .claude/commands/s/ by `wtm install-skills`.
+ * Embedded skill files for the aflow workflow.
+ * These get written to .claude/commands/ by `af skills`.
  *
- * Each skill operates within the context of a wtm task:
- * - .wtm/backlog.json is the source of truth (tasks, items, acceptance criteria)
+ * Each skill operates within the context of an aflow task:
+ * - .aflow/backlog.json is the source of truth (tasks, items, acceptance criteria)
  * - The current task is identified by matching `git branch --show-current` to a task's `branch` field
- * - .wtm/spec.md is auto-generated from the backlog — read-only context
+ * - .aflow/spec.md is auto-generated from the backlog — read-only context
  * - CLAUDE.md has project-specific commands (typecheck, build, etc.)
  */
 
@@ -13,9 +13,9 @@ const TASK_PREAMBLE = `## Context: Current task
 
 Run \\\`git branch --show-current\\\` to get the current branch name.
 
-Read \\\`.wtm/backlog.json\\\` and find the task whose \\\`branch\\\` field matches the current branch. This is your **current task**.
+Read \\\`.aflow/backlog.json\\\` and find the task whose \\\`branch\\\` field matches the current branch. This is your **current task**.
 
-If no task matches, tell the user: "This branch isn't linked to a wtm task. Run \\\`wtm start-work\\\` to create one."
+If no task matches, tell the user: "This branch isn't linked to an aflow task. Run \\\`af start\\\` to create one."
 
 The task object has:
 - \\\`id\\\` — task identifier (e.g. "t3")
@@ -27,7 +27,7 @@ The task object has:
 - \\\`branch\\\` — the git branch for this task
 - \\\`pr\\\` — PR URL if shipped
 
-Also read \\\`.wtm/spec.md\\\` for a formatted overview of the full backlog, and \\\`CLAUDE.md\\\` for project-specific commands (typecheck, build, lint, etc.).`;
+Also read \\\`.aflow/spec.md\\\` for a formatted overview of the full backlog, and \\\`CLAUDE.md\\\` for project-specific commands (typecheck, build, lint, etc.).`;
 
 export const SKILLS: Record<string, string> = {
   "think.md": `---
@@ -48,7 +48,7 @@ ${TASK_PREAMBLE}
 
 ### Step 1: Understand the landscape
 
-- Read \`.wtm/spec.md\` for the full backlog — what's pending, active, shipped
+- Read \`.aflow/spec.md\` for the full backlog — what's pending, active, shipped
 - Read \`CLAUDE.md\` to understand the project's architecture
 - Skim the relevant source files to understand the current state
 
@@ -100,11 +100,11 @@ If validated, write a concise plan:
 ### Step 5: Update the task
 
 If the current task exists and this planning session refines it:
-- Update the task's \`items\` array in \`.wtm/backlog.json\` with the implementation checklist
+- Update the task's \`items\` array in \`.aflow/backlog.json\` with the implementation checklist
 - Update \`acceptance\` with clear acceptance criteria
 - Set the \`design\` field to a brief summary of the plan
 
-If this is a new feature not yet in the backlog, tell the user to add it via \`wtm start-work\`.
+If this is a new feature not yet in the backlog, tell the user to add it via \`af start\`.
 
 ## Rules
 
@@ -120,7 +120,7 @@ description: Implement the current task's items. Reads the task from the backlog
 
 # Work
 
-You are implementing the current wtm task, working through its checklist items.
+You are implementing the current aflow task, working through its checklist items.
 
 ## Input
 
@@ -144,9 +144,9 @@ If \`$ARGUMENTS\` specifies a focus area, only work on items matching that scope
 For each unchecked item:
 1. Read relevant existing source files before writing code
 2. Implement the feature/change
-3. Mark the item as done in \`.wtm/backlog.json\` immediately:
+3. Mark the item as done in \`.aflow/backlog.json\` immediately:
    - Find the task, find the item by text, set \`done: true\`
-   - Write the updated backlog back to \`.wtm/backlog.json\`
+   - Write the updated backlog back to \`.aflow/backlog.json\`
 4. Move to the next item
 
 Work through items in dependency order. If item B depends on item A, complete A first.
@@ -175,7 +175,7 @@ description: Fix bugs or implement changes for the current task. Updates the tas
 
 # Fix
 
-You are fixing issues or making changes within the scope of the current wtm task.
+You are fixing issues or making changes within the scope of the current aflow task.
 
 ## Input
 
@@ -201,7 +201,7 @@ For each issue:
 
 ### Step 3: Update the task (if needed)
 
-Only update \`.wtm/backlog.json\` if an issue is a **scope change** or **new work**:
+Only update \`.aflow/backlog.json\` if an issue is a **scope change** or **new work**:
 - Add new items for new work
 - Mark completed items as \`done: true\`
 - Update acceptance criteria if behavior changed
@@ -238,7 +238,7 @@ ${TASK_PREAMBLE}
 ## Phase 1: Gather evidence
 
 - Read the current task for context on what was recently changed
-- Read \`.wtm/spec.md\` to understand the broader project state
+- Read \`.aflow/spec.md\` to understand the broader project state
 - Read the error message or symptom description carefully
 - If there's a stack trace, identify the exact file and line
 - Check recent git history: \`git log --oneline -10 -- <affected-files>\`
@@ -280,7 +280,7 @@ Once root cause is confirmed:
 
 1. Make the minimal fix — fewest files, fewest lines
 2. Typecheck (see CLAUDE.md)
-3. If the fix completes a task item, mark it done in \`.wtm/backlog.json\`
+3. If the fix completes a task item, mark it done in \`.aflow/backlog.json\`
 
 **Blast radius check:** If the fix touches more than 3 files, explain why and ask before proceeding.
 
@@ -543,7 +543,7 @@ Run the \`/review\` process on the current diff.
 
 ## Step 4: Task verification
 
-- Read the current task from \`.wtm/backlog.json\`
+- Read the current task from \`.aflow/backlog.json\`
 - Are there unchecked items that this diff completes? Mark them done.
 - Do the acceptance criteria pass?
 
@@ -589,7 +589,7 @@ EOF
 
 ## Step 8: Update task
 
-- Set the task's \`status\` to \`"shipped"\` in \`.wtm/backlog.json\`
+- Set the task's \`status\` to \`"shipped"\` in \`.aflow/backlog.json\`
 - Set the task's \`pr\` field to the PR URL
 - Set \`shippedAt\` to the current ISO timestamp
 

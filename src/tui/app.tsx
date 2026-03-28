@@ -377,7 +377,7 @@ function AppRoot() {
     <Box flexDirection="column" height={rows}>
       {/* Header */}
       <Box paddingX={2} marginBottom={1}>
-        <Text bold>wtm</Text>
+        <Text bold>aflow</Text>
         <Text dimColor>  {backlog.tasks.length} tasks</Text>
         <Text>  </Text>
         {autoStart ? (

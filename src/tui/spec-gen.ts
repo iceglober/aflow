@@ -3,9 +3,9 @@ import path from "node:path";
 import { gitRoot } from "../lib/git.js";
 import type { Backlog, Task } from "./backlog.js";
 
-/** Regenerate .wtm/spec.md from backlog data. */
+/** Regenerate .aflow/spec.md from backlog data. */
 export function generateSpec(backlog: Backlog): void {
-  const specPath = path.join(gitRoot(), ".wtm", "spec.md");
+  const specPath = path.join(gitRoot(), ".aflow", "spec.md");
   const dir = path.dirname(specPath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
@@ -13,7 +13,7 @@ export function generateSpec(backlog: Backlog): void {
 
   lines.push(`# ${capitalize(backlog.project)} — Spec`);
   lines.push("");
-  lines.push("> Auto-generated from \\`.wtm/backlog.json\\`. Manage tasks in the WTM TUI.");
+  lines.push("> Auto-generated from \\`.aflow/backlog.json\\`. Manage tasks in the aflow TUI.");
   lines.push("");
   lines.push("---");
   lines.push("");
@@ -55,7 +55,7 @@ export function generateSpec(backlog: Backlog): void {
   }
 
   if (backlog.tasks.length === 0) {
-    lines.push("*No tasks yet. Add tasks in the WTM TUI.*");
+    lines.push("*No tasks yet. Add tasks in the aflow TUI.*");
     lines.push("");
   }
 

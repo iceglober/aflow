@@ -32,7 +32,7 @@ jobs:
           ls -lh dist/index.js
 
       - name: Prepare release artifact
-        run: cp dist/index.js wtm
+        run: cp dist/index.js af
 
       - name: Extract version from tag
         id: version
@@ -41,18 +41,18 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "wtm v${{ steps.version.outputs.version }}"
+          name: "aflow v${{ steps.version.outputs.version }}"
           body: |
             ## Install
 
             ```bash
-            bash <(gh api repos/iceglober/wtm/contents/install.sh --jq .content | base64 -d)
+            bash <(gh api repos/iceglober/aflow/contents/install.sh --jq .content | base64 -d)
             ```
 
             ## Update
 
             ```bash
-            wtm upgrade
+            af upgrade
             ```
-          files: wtm
+          files: af
           generate_release_notes: true

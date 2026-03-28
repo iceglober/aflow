@@ -5,7 +5,7 @@ import { gitRoot } from "../lib/git.js";
 import { ok, info } from "../lib/fmt.js";
 
 const HOOK_TEMPLATE = `#!/usr/bin/env bash
-# wtm post_create hook
+# aflow post_create hook
 # Runs after a new worktree is created.
 #
 # Available environment variables:
@@ -22,11 +22,11 @@ echo "worktree ready: $WORKTREE_DIR"
 `;
 
 export const initHooks = command({
-  name: "init-hooks",
-  description: "Create .wtm/hooks/ with a post_create template",
+  name: "hooks",
+  description: "Create .aflow/hooks/ with a post_create template",
   args: {},
   handler: () => {
-    const hookDir = path.join(gitRoot(), ".wtm", "hooks");
+    const hookDir = path.join(gitRoot(), ".aflow", "hooks");
     fs.mkdirSync(hookDir, { recursive: true });
 
     const hookFile = path.join(hookDir, "post_create");

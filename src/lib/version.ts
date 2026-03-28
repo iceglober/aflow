@@ -1,4 +1,4 @@
-declare const __WTM_VERSION__: string;
+declare const __AFLOW_VERSION__: string;
 
 export const VERSION: string =
-  typeof __WTM_VERSION__ !== "undefined" ? __WTM_VERSION__ : "0.0.0-dev";
+  typeof __AFLOW_VERSION__ !== "undefined" ? __AFLOW_VERSION__ : "0.0.0-dev";

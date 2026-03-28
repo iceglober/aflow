@@ -6,7 +6,7 @@ import { execFileSync } from "node:child_process";
 import { VERSION } from "../lib/version.js";
 import { ok, info, warn, red } from "../lib/fmt.js";
 
-const REPO = "iceglober/wtm";
+const REPO = "iceglober/aflow";
 const TAG_PREFIX = "v";
 
 interface Release {
@@ -66,7 +66,7 @@ async function fetchFromApi(): Promise<Release | null> {
   const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
-    "User-Agent": "wtm-cli",
+    "User-Agent": "aflow-cli",
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -93,7 +93,7 @@ async function fetchFromApi(): Promise<Release | null> {
   if (!release) return null;
 
   const version = release.tag_name.slice(TAG_PREFIX.length);
-  const asset = release.assets.find((a) => a.name === "wtm");
+  const asset = release.assets.find((a) => a.name === "af");
 
   return {
     version,
@@ -122,7 +122,7 @@ async function downloadBinary(
     const tmp = dest + ".tmp";
     execFileSync(
       "gh",
-      ["release", "download", release.tag, "-R", REPO, "-p", "wtm", "-O", tmp],
+      ["release", "download", release.tag, "-R", REPO, "-p", "af", "-O", tmp],
       { stdio: ["pipe", "pipe", "pipe"] },
     );
     fs.chmodSync(tmp, 0o755);
@@ -139,7 +139,7 @@ async function downloadBinary(
   }
 
   const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
-  const headers: Record<string, string> = { "User-Agent": "wtm-cli" };
+  const headers: Record<string, string> = { "User-Agent": "aflow-cli" };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(release.assetUrl, { headers, redirect: "follow" });
@@ -157,7 +157,7 @@ async function downloadBinary(
 
 export const upgrade = command({
   name: "upgrade",
-  description: "Update wtm to the latest version",
+  description: "Update aflow to the latest version",
   args: {},
   handler: async () => {
     info(`current version: ${VERSION}`);

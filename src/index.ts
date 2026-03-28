@@ -18,23 +18,31 @@ if (args.length === 0 || args[0] === "--help" || args[0] === "-h" || args[0] ===
   process.exit(0);
 }
 if (args[0] === "--version" || args[0] === "-V") {
-  console.log(`wtm ${VERSION}`);
+  console.log(`af ${VERSION}`);
   process.exit(0);
 }
 
-const cli = subcommands({
-  name: "wtm",
-  version: VERSION,
-  description: "Worktree manager for regular (non-bare) git repositories",
+const wt = subcommands({
+  name: "wt",
+  description: "Worktree management — create, list, and clean up git worktrees",
   cmds: {
     create,
     checkout,
     list,
     delete: del,
     cleanup,
-    "init-hooks": initHooks,
-    "start-work": startWork,
-    "install-skills": installSkills,
+  },
+});
+
+const cli = subcommands({
+  name: "af",
+  version: VERSION,
+  description: "aflow — AI-native development workflow",
+  cmds: {
+    wt,
+    start: startWork,
+    skills: installSkills,
+    hooks: initHooks,
     upgrade,
   },
 });

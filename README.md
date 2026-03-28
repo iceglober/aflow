@@ -1,106 +1,92 @@
-# wtm
+# aflow
 
-Worktree manager for git. Work on multiple branches at the same time without stashing or switching.
-
-wtm creates git worktrees as sibling directories next to your repo. Each worktree is an independent checkout — its own branch, its own working tree, its own terminal. No bare-repo setup needed.
+AI-native development workflow for the command line. Manage git worktrees, track tasks with a backlog, and ship features with Claude Code skills — all from one tool.
 
 ## Install
 
-Requires [Node.js](https://nodejs.org) 20+ and the [GitHub CLI](https://cli.github.com).
+Requires Node.js 20+ and the [GitHub CLI](https://cli.github.com) (authenticated).
 
 ```bash
-bash <(gh api repos/iceglober/wtm/contents/install.sh --jq .content | base64 -d)
+bash <(gh api repos/iceglober/aflow/contents/install.sh --jq .content | base64 -d)
 ```
 
-Update to the latest version at any time:
+To update:
 
 ```bash
-wtm upgrade
+af upgrade
 ```
 
 ## Quick start
 
 ```bash
-# Create a worktree for a new branch (branches from main by default)
-wtm create feature-auth
+# Create a worktree for a new feature
+af wt create feature-auth
 
-# You're now in a shell inside ~/repos/my-app-wt-feature-auth/
-# It's a full copy of your repo on its own branch. Work here, commit here.
-# Type `exit` to return to your main worktree.
+# Launch the task management TUI
+af start
 
-# See all your worktrees
-wtm list
-
-# Done with a branch? Delete the worktree
-wtm delete feature-auth
-
-# Clean up all merged/stale worktrees at once
-wtm cleanup
+# Install Claude Code workflow skills
+af skills
 ```
 
-## Commands
+## Worktrees
 
-| Command | What it does |
-|---------|-------------|
-| `wtm create <name>` | New worktree + branch, opens a shell inside it |
-| `wtm checkout <branch>` | Worktree from an existing remote branch |
-| `wtm list` | Table of all worktrees |
-| `wtm delete <name>` | Remove a worktree and its local branch |
-| `wtm cleanup` | Delete worktrees for merged/deleted branches |
-| `wtm start-work` | TUI for managing a backlog + Claude Code sessions |
-| `wtm init-hooks` | Create a post-create hook template |
-| `wtm install-skills` | Install spec-workflow Claude Code slash commands |
-| `wtm upgrade` | Update wtm to the latest release |
-
-Run `wtm --help` for full documentation on each command.
-
-## How it works
-
-Given a repo at `~/repos/my-app`:
-
-```
-~/repos/my-app/                  <- your main worktree (unchanged)
-~/repos/my-app-wt-feature-auth/  <- wtm create feature-auth
-~/repos/my-app-wt-bugfix/        <- wtm create bugfix
-```
-
-Each worktree shares the same `.git` — commits, stash, and reflog are all shared. But each has its own working directory and branch.
-
-Set `WTM_DIR` to put worktrees somewhere else:
+aflow makes git worktrees practical. Each feature gets its own directory with a shared `.git` — no more stashing, no more branch juggling.
 
 ```bash
-export WTM_DIR=~/worktrees
-wtm create feature-auth  # creates ~/worktrees/feature-auth/
+af wt create feature-auth          # new branch + worktree, opens a shell
+af wt create hotfix --from release  # fork from a specific branch
+af wt checkout feature-payments     # worktree from an existing remote branch
+af wt list                          # show all worktrees
+af wt delete feature-auth           # clean up
+af wt cleanup                       # batch-delete merged/stale worktrees
 ```
 
-## Hooks
+Worktrees are created as siblings of the repo by default:
 
-Run `wtm init-hooks` to create a `.wtm/hooks/post_create` script. It runs after every `wtm create` and `wtm checkout` — use it to install deps, copy `.env`, or anything else a new worktree needs.
-
-```bash
-#!/usr/bin/env bash
-# .wtm/hooks/post_create
-cp "$REPO_ROOT/.env" "$WORKTREE_DIR/.env"
-cd "$WORKTREE_DIR" && pnpm install
 ```
+~/repos/myapp/                ← main repo
+~/repos/myapp-wt-feature-auth/   ← worktree
+```
+
+Set `AFLOW_DIR` to store them elsewhere.
+
+## Task management
+
+`af start` launches an interactive TUI for managing a task backlog. Tasks live in `.aflow/backlog.json` and drive the Claude Code skills.
+
+- Add, edit, reorder, and delete tasks
+- Start tasks — creates a worktree and a Claude Code session
+- Run multiple sessions in parallel (up to 3 concurrent)
+- Monitor session progress, costs, and token usage
 
 ## Skills
 
-wtm ships with Claude Code slash commands that plug into the task workflow. Install them in any repo:
+aflow ships with Claude Code slash commands that plug into the task workflow:
 
 ```bash
-wtm install-skills
+af skills
 ```
 
-This writes 7 skills to `.claude/commands/s/`. Each skill automatically reads the current task from `.wtm/backlog.json` (matched by branch name) and uses its items and acceptance criteria to guide the work.
+This installs 7 skills to `.claude/commands/`. Each skill reads the current task from `.aflow/backlog.json` (matched by branch name) and uses its items and acceptance criteria to guide the work.
 
-- `/s:think` — product strategy session before building
-- `/s:work` — implement the task's unchecked items
-- `/s:fix` — fix bugs, update task items if needed
-- `/s:investigate` — root-cause debugging
-- `/s:qa` — QA the diff against acceptance criteria
-- `/s:review` — pre-landing code review
-- `/s:ship` — typecheck, review, commit, push, PR
+- `/think` — product strategy session before building
+- `/work` — implement the task's unchecked items
+- `/fix` — fix bugs, update task items if needed
+- `/investigate` — root-cause debugging
+- `/qa` — QA the diff against acceptance criteria
+- `/review` — pre-landing code review
+- `/ship` — typecheck, review, commit, push, PR
+
+## Hooks
+
+Run setup scripts automatically after creating a worktree:
+
+```bash
+af hooks   # creates .aflow/hooks/post_create template
+```
+
+The hook receives `WORKTREE_DIR`, `WORKTREE_NAME`, `BASE_BRANCH`, and `REPO_ROOT` as environment variables.
 
 ## License
 

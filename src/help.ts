@@ -1,109 +1,56 @@
+import { bold, dim, cyan } from "./lib/fmt.js";
+import { VERSION } from "./lib/version.js";
+
 export const HELP_TEXT = `
-wtm - worktree manager for regular (non-bare) git repositories
+${bold("aflow")} ${dim(`v${VERSION}`)}
+AI-native development workflow — worktrees, tasks, and Claude Code skills.
 
-Works in any cloned repo. No bare-repo conversion needed.
-Worktrees are created as sibling directories: ../<repo>-wt-<name>
-Override the location by setting the WTM_DIR environment variable.
+${bold("USAGE")}
 
-USAGE
-  wtm <command> [arguments] [flags]
+  ${cyan("af")} <command> [arguments] [flags]
 
-COMMANDS
-  create <name> [--from <branch>]
-      Create a new worktree with a new branch based on <branch>.
-      Fetches the latest from origin, creates the worktree, sets up
-      upstream tracking, runs the post_create hook, then spawns an
-      interactive shell inside the worktree (exit the shell to return).
-      If --from is omitted, defaults to the repo's main branch.
+${bold("COMMANDS")}
+
+  ${bold("Worktree management")} ${dim("(af wt ...)")}
+
+  wt create <name> [--from <branch>]
+      Create a new worktree with a fresh branch forked from <branch>
+      (defaults to main/master). Opens a shell inside the worktree.
 
       Examples:
-        wtm create feature-auth              # branch from default (main/master)
-        wtm create feature-auth --from dev   # branch from dev
+        af wt create feature-auth
+        af wt create hotfix-login --from release/2.0
 
-  checkout <branch>
+  wt checkout <branch>
       Create a worktree from an existing remote branch.
-      Fetches the branch from origin and creates a local tracking worktree.
-      If the worktree already exists, prints its path and exits.
-      Does NOT spawn a shell (use \`cd\` to enter it).
 
-      Examples:
-        wtm checkout fix/login-bug
-        wtm checkout release/2.0
+      Example:
+        af wt checkout feature-payments
 
-  list
-      Print a table of all worktrees with their name, branch, and commit.
-      The main worktree is marked with (main). Aliases: ls
+  wt list
+      Show all worktrees with their branch and latest commit.
 
-      Example output:
-        NAME                  BRANCH          COMMIT
-        my-repo (main)        main            abc1234
-        my-repo-wt-feature    feature-auth    def5678
+  wt delete <name> [--force]
+      Remove a worktree and its local branch. Refuses if the worktree
+      has uncommitted changes unless --force is passed.
 
-  delete <name> [--force]
-      Remove a worktree and delete its local branch.
-      Fails if the worktree has uncommitted changes unless --force is set.
-      Aliases: rm
+  wt cleanup [--base <branch>] [--dry-run] [--yes]
+      Delete worktrees whose branches are merged into <base> (default:
+      auto-detected) or whose remote branch has been deleted. Skips
+      worktrees with uncommitted changes or unpushed commits.
 
-      Examples:
-        wtm delete feature-auth
-        wtm delete feature-auth --force
+  ${bold("Workflow")}
 
-  cleanup [--base <branch>] [--dry-run] [--yes]
-      Find and delete worktrees that are safe to remove. A worktree is a
-      candidate for cleanup when ALL of these are true:
-        1. Its branch is merged into the base branch, OR its remote branch
-           has been deleted.
-        2. It has no uncommitted changes (staged, unstaged, or untracked).
-        3. It has no local commits not reachable from origin/<base>.
+  start
+      Launch the interactive TUI — manage your backlog, start tasks,
+      and run parallel Claude Code sessions.
 
-      Protected branches are never offered for cleanup:
-        main, master, next, prerelease
+  skills [--force]
+      Install aflow workflow skills as Claude Code slash commands in the
+      current repo. Writes to .claude/commands/ so they appear as
+      /think, /work, /fix, /ship, etc.
 
-      Flags:
-        --base <branch>   Base branch to check merges against (default: auto-detect)
-        --dry-run         List candidates without deleting anything
-        --yes, -y         Delete all candidates without prompting
-
-      Examples:
-        wtm cleanup --dry-run          # preview what would be deleted
-        wtm cleanup --yes              # delete all safe-to-remove worktrees
-        wtm cleanup --base develop     # check against develop instead of main
-
-  start-work
-      Launch the work management TUI. Manage your backlog, run parallel
-      Claude Code sessions, and ship PRs — all from one interface.
-
-      Data lives in .wtm/backlog.json. A spec (.wtm/spec.md) is auto-
-      generated from the backlog on every change.
-
-      TUI keybindings:
-        [tab]    Switch between backlog and sessions views
-        [a]      Add a new task
-        [e]      Edit focused task
-        [d]      Delete focused task
-        [S]      Auto-start the highest-priority pending task
-        [J/K]    Reorder tasks (move up/down)
-        [enter]  Start focused task (creates worktree + Claude session)
-        [r]      Refresh (pull main, check PR status)
-        [q]      Quit
-
-  init-hooks
-      Create a .wtm/hooks/ directory in the repo root with a post_create
-      hook template. The hook runs after every \`wtm create\` and
-      \`wtm checkout\`. Edit it to install deps, copy .env, etc.
-
-      Hook environment variables:
-        WORKTREE_DIR   - absolute path to the new worktree
-        WORKTREE_NAME  - name of the worktree / branch
-        BASE_BRANCH    - branch it was created from
-        REPO_ROOT      - absolute path to the main repository
-
-  install-skills [--force]
-      Install wtm workflow skills as Claude Code slash commands in the
-      current repo. Writes to .claude/commands/s/ so they appear as
-      /s:think, /s:work, /s:fix, /s:ship, etc.
-
-      Each skill reads the current task from .wtm/backlog.json (matched
+      Each skill reads the current task from .aflow/backlog.json (matched
       by the current branch name) and uses its items and acceptance
       criteria to guide the work.
 
@@ -114,37 +61,49 @@ COMMANDS
         investigate  Root-cause debugging
         qa           QA the diff against acceptance criteria
         review       Pre-landing code review
-        ship         Typecheck → review → commit → push → PR
+        ship         Typecheck, review, commit, push, PR
 
-      Skips existing files by default. Use --force to overwrite.
+  hooks
+      Create .aflow/hooks/ with a post_create template. The hook runs
+      after every \`af wt create\` or \`af wt checkout\`.
+
+      Hook environment variables:
+        WORKTREE_DIR   - absolute path to the new worktree
+        WORKTREE_NAME  - name of the worktree / branch
+        BASE_BRANCH    - branch it was created from
+        REPO_ROOT      - absolute path to the main repository
 
   upgrade
-      Check for and install the latest version of wtm. Uses the gh CLI
-      for authentication (required for private repos), or falls back to
-      the GitHub API with GITHUB_TOKEN.
+      Check for a newer version and self-update.
 
-      Examples:
-        wtm upgrade                    # update to latest release
-        GITHUB_TOKEN=xxx wtm upgrade   # without gh CLI
+${bold("FLAGS")}
 
-FLAGS
-  --version, -V    Print the version number and exit
-  --help, -h       Show this help text
+  --version, -V    Print version
+  --help, -h       Show this help
 
-ENVIRONMENT VARIABLES
-  WTM_DIR     Override worktree storage directory. When set, worktrees are
-              created at WTM_DIR/<name> instead of ../<repo>-wt-<name>.
+${bold("ENVIRONMENT")}
 
-WORKTREE LAYOUT
-  Given a repo at ~/repos/my-app:
+  AFLOW_DIR    Override where worktrees are stored. By default, worktrees
+               are created as siblings of the repo:
 
-    Default (no WTM_DIR):
-      ~/repos/my-app/                  <- main worktree
-      ~/repos/my-app-wt-feature/       <- wtm create feature
-      ~/repos/my-app-wt-bugfix/        <- wtm create bugfix
+                 repo/            <- your project
+                 repo-wt-feature/ <- worktree
 
-    With WTM_DIR=~/worktrees:
-      ~/repos/my-app/                  <- main worktree
-      ~/worktrees/feature/             <- wtm create feature
-      ~/worktrees/bugfix/              <- wtm create bugfix
+               With AFLOW_DIR set:
+
+                 AFLOW_DIR/
+                   feature/       <- worktree
+                   bugfix/        <- worktree
+
+${bold("WORKTREE LAYOUT")}
+
+  Worktrees share the same .git object store, so branches, stashes, and
+  history are shared. Each worktree has its own working tree and index.
+
+  Default:
+    ~/repos/myapp/               <- main repo
+    ~/repos/myapp-wt-feature/    <- worktree
+
+  With AFLOW_DIR=~/.worktrees:
+    ~/.worktrees/feature/        <- worktree
 `.trimStart();

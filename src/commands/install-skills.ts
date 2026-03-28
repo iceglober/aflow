@@ -6,9 +6,9 @@ import { ok, info, warn } from "../lib/fmt.js";
 import { gitRoot } from "../lib/git.js";
 
 export const installSkills = command({
-  name: "install-skills",
+  name: "skills",
   description:
-    "Install wtm workflow skills as Claude Code slash commands in the current repo",
+    "Install aflow workflow skills as Claude Code slash commands in the current repo",
   args: {
     force: flag({
       long: "force",
@@ -25,7 +25,7 @@ export const installSkills = command({
       process.exit(1);
     }
 
-    const skillsDir = path.join(root, ".claude", "commands", "s");
+    const skillsDir = path.join(root, ".claude", "commands");
 
     // Create directory
     fs.mkdirSync(skillsDir, { recursive: true });
@@ -45,7 +45,7 @@ export const installSkills = command({
     }
 
     if (installed > 0) {
-      ok(`installed ${installed} skills to .claude/commands/s/`);
+      ok(`installed ${installed} skills to .claude/commands/`);
     }
     if (skipped > 0) {
       info(`skipped ${skipped} existing files (use --force to overwrite)`);
@@ -56,14 +56,14 @@ export const installSkills = command({
     info("available skills:");
     for (const name of names) {
       const slug = name.replace(".md", "");
-      console.log(`  /s:${slug}`);
+      console.log(`  /${slug}`);
     }
 
-    // Check for .wtm/backlog.json
-    const backlogJson = path.join(root, ".wtm", "backlog.json");
+    // Check for .aflow/backlog.json
+    const backlogJson = path.join(root, ".aflow", "backlog.json");
     if (!fs.existsSync(backlogJson)) {
       console.log("");
-      info("run `wtm start-work` to create a backlog — skills read tasks from .wtm/backlog.json");
+      info("run `af start` to create a backlog — skills read tasks from .aflow/backlog.json");
     }
   },
 });
