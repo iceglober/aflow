@@ -4,6 +4,7 @@
   "description": "Structured AI workflows for product and engineering",
   "license": "MIT",
   "repository": "https://github.com/iceglober/aflow",
+  "packageManager": "pnpm@10.32.1",
   "type": "module",
   "bin": {
     "af": "./dist/index.js"
