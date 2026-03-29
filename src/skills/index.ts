@@ -18,6 +18,8 @@ import { prodSpec } from "./prod-spec.js";
 import { prodRefine } from "./prod-refine.js";
 import { prodEnrich } from "./prod-enrich.js";
 import { prodReview } from "./prod-review.js";
+import { prodLab } from "./prod-lab.js";
+import { researcher } from "./researcher.js";
 
 export const SKILLS: Record<string, string> = {
   // Engineering skills
@@ -27,6 +29,7 @@ export const SKILLS: Record<string, string> = {
   "fix.md": fix(),
   "qa.md": qa(),
   "ship.md": ship(),
+  "researcher.md": researcher(),
 
   // Product skills (installed to prod/ subdirectory)
   "prod/research.md": prodResearch(),
@@ -34,4 +37,5 @@ export const SKILLS: Record<string, string> = {
   "prod/refine.md": prodRefine(),
   "prod/enrich.md": prodEnrich(),
   "prod/review.md": prodReview(),
+  "prod/lab.md": prodLab(),
 };
