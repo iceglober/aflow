@@ -15,7 +15,7 @@ const HOOK_TEMPLATE = `#!/usr/bin/env bash
 #   REPO_ROOT     -- absolute path to the main repository
 #
 # Examples:
-#   cd "$WORKTREE_DIR" && pnpm install
+#   cd "$WORKTREE_DIR" && bun install
 #   cp "$REPO_ROOT/.env" "$WORKTREE_DIR/.env"
 
 echo "worktree ready: $WORKTREE_DIR"

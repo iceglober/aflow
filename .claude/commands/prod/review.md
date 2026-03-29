@@ -6,7 +6,7 @@ description: Spec gap analysis after refinement. Reads the latest spec version, 
 
 Read the latest spec version, review the changelog of what's been resolved, and identify new gaps, inconsistencies, or opportunities that weren't visible before unknowns were resolved.
 
-Pipeline: `/prod:research` → `/prod:spec` → `/prod:enrich` → `/prod:refine` × N → `/prod:review`
+Pipeline: \`/prod:research\` -> \`/prod:spec\` -> \`/prod:enrich\` -> \`/prod:refine\` x N -> \`/prod:review\`
 
 After multiple rounds of enrichment and refinement, a spec accumulates changes. Resolving unknowns can reveal new gaps — requirements that conflict, business rules that don't cover newly understood edge cases, or opportunities enabled by discoveries. This skill audits the spec with fresh eyes.
 
@@ -16,9 +16,9 @@ After multiple rounds of enrichment and refinement, a spec accumulates changes. 
 
 The user provides a path to the latest version of a spec file.
 
-Example: `/prod:review research/dental-claims/spec-submission-v4.md`
+Example: \`/prod:review research/dental-claims/spec-submission-v4.md\`
 
-Parse the spec path from `$ARGUMENTS`.
+Parse the spec path from \`$ARGUMENTS\`.
 
 ---
 
@@ -28,11 +28,11 @@ Parse the spec path from `$ARGUMENTS`.
    - All sections: header, unknowns register, definitions, requirements, data requirements, business rules, KPIs, out of scope, open questions
    - The changelog — every version's changes
 
-2. **Find prior versions.** Look in the same directory for earlier versions of this spec (`-v1.md`, `-v2.md`, or the unnumbered original). Read the oldest available version to understand the starting point.
+2. **Find prior versions.** Look in the same directory for earlier versions of this spec (\`-v1.md\`, \`-v2.md\`, or the unnumbered original). Read the oldest available version to understand the starting point.
 
 3. **Build a change inventory.** From the changelogs and diffs between versions:
    - What unknowns were resolved, and how?
-   - What requirements were added, modified, or re-leveled (MUST ↔ SHOULD ↔ COULD)?
+   - What requirements were added, modified, or re-leveled (MUST <-> SHOULD <-> COULD)?
    - What business rules were added or changed?
    - What new unknowns were introduced during refinement?
    - What open questions were decided?
@@ -47,7 +47,7 @@ Work through each category systematically. For each, identify gaps the spec does
 
 Check that resolved unknowns were fully propagated:
 
-1. **Orphaned dependencies.** Search for `[depends: U-xx]` tags referencing unknowns that no longer exist in the register. These should have been cleaned up when the unknown was resolved.
+1. **Orphaned dependencies.** Search for \`[depends: U-xx]\` tags referencing unknowns that no longer exist in the register. These should have been cleaned up when the unknown was resolved.
 
 2. **Stale assumptions.** For each resolved unknown, check whether its resolution invalidates assumptions elsewhere in the spec. Example: U-03 assumed a simple data model, but enrichment revealed a multi-tenant schema — do requirements still make sense?
 
@@ -91,12 +91,12 @@ Audit the unknowns that are still open:
 
 ## Phase 3: Generate Updated Spec
 
-1. **Write to a NEW file:** `[original-name]-v[N].md`. Never overwrite.
+1. **Write to a NEW file:** \`[original-name]-v[N].md\`. Never overwrite.
 
 2. **Apply fixes for each finding:**
 
    **Consistency fixes:**
-   - Remove orphaned `[depends: U-xx]` tags
+   - Remove orphaned \`[depends: U-xx]\` tags
    - Update requirements whose assumptions were invalidated
    - Correct definitions that drifted
    - Resolve requirement conflicts (flag to user if the resolution isn't clear-cut)
@@ -119,7 +119,7 @@ Audit the unknowns that are still open:
 
 3. **Add a changelog entry:**
 
-```markdown
+\`\`\`markdown
 ### v[N] — spec review (YYYY-MM-DD)
 - Consistency: [what was fixed — orphaned tags, stale assumptions, conflicts]
 - Completeness: [what was added — edge cases, rules, data requirements]
@@ -127,13 +127,13 @@ Audit the unknowns that are still open:
 - Unknowns: [resolved N from existing info, split N into sub-unknowns, added N new]
 - Remaining unknowns: N
 - Remaining open questions: N
-```
+\`\`\`
 
 ---
 
 ## Phase 4: Report
 
-```
+\`\`\`
 ## Spec Review Complete
 
 **Spec:** [file name]
@@ -162,9 +162,9 @@ Audit the unknowns that are still open:
 Updated spec: [file path]
 
 **Next step:**
-- If new unknowns were added → run `/prod:enrich [new file]` then `/prod:refine [new file]`
-- If spec is clean → ready for engineering (`/think` → `/work`)
-```
+- If new unknowns were added -> run \`/prod:enrich [new file]\` then \`/prod:refine [new file]\`
+- If spec is clean -> ready for engineering (\`/think\` -> \`/work\`)
+\`\`\`
 
 ---
 
@@ -175,6 +175,6 @@ Updated spec: [file path]
 3. **Don't expand scope.** Flag opportunities, don't act on them. The user decides what's in scope.
 4. **Consistency over completeness.** A consistent spec with known gaps is better than an inconsistent spec that tries to cover everything.
 5. **Version, don't overwrite.** Always write a new file.
-6. **Respect the pipeline.** This skill audits — it doesn't replace enrichment or refinement. If new unknowns need human input, say so and point to `/prod:refine`.
+6. **Respect the pipeline.** This skill audits — it doesn't replace enrichment or refinement. If new unknowns need human input, say so and point to \`/prod:refine\`.
 7. **Be specific.** "Some requirements may conflict" is useless. "R-12 requires real-time submission but R-27 assumes batch processing" is actionable.
-8. **Proceed autonomously.** Like `/prod:enrich`, this skill runs without waiting for approval. Present findings and the updated spec.
+8. **Proceed autonomously.** Like \`/prod:enrich\`, this skill runs without waiting for approval. Present findings and the updated spec.

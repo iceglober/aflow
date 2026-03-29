@@ -1,71 +1,45 @@
 ---
-description: Implement the current task's items. Reads the task from the backlog, works through unchecked items, checks them off as completed. Provide optional focus area.
+description: Implement a given task using the existing codebase patterns. Provide the task description or instructions.
 ---
 
 # Work
 
-You are implementing the current wtm task, working through its checklist items.
+You are implementing a task described by the user. Work through it methodically using the existing codebase patterns.
 
 ## Input
 
-Optional focus or section to work on: `$ARGUMENTS`
+The user describes what to implement: `$ARGUMENTS`
 
-## Context: Current task
-
-Run \`git branch --show-current\` to get the current branch name.
-
-Read \`.wtm/backlog.json\` and find the task whose \`branch\` field matches the current branch. This is your **current task**.
-
-If no task matches, tell the user: "This branch isn't linked to a wtm task. Run \`wtm start-work\` to create one."
-
-The task object has:
-- \`id\` — task identifier (e.g. "t3")
-- \`title\` — short description
-- \`description\` — full context
-- \`items\` — checklist of implementation tasks (\`{ text, done }\`)
-- \`acceptance\` — acceptance criteria (strings)
-- \`status\` — pending | active | shipped | merged
-- \`branch\` — the git branch for this task
-- \`pr\` — PR URL if shipped
-
-Also read \`.wtm/spec.md\` for a formatted overview of the full backlog, and \`CLAUDE.md\` for project-specific commands (typecheck, build, lint, etc.).
+Read `CLAUDE.md` for project-specific commands (typecheck, build, lint, etc.).
 
 ## Process
 
-### Step 1: Scope the work
+### Step 1: Understand the task
 
-1. Read the current task's `items` array — identify all unchecked items (`done: false`)
-2. Read the `acceptance` criteria for full context on what "done" means
+1. Parse `$ARGUMENTS` to understand what needs to be done
+2. Read `CLAUDE.md` to understand the project's architecture and conventions
 3. Read relevant source files to understand the current state
 4. Plan the implementation order: schema → API → client types → UI components
 
-If `$ARGUMENTS` specifies a focus area, only work on items matching that scope.
-
 ### Step 2: Implement
 
-For each unchecked item:
+Work through the task methodically:
 1. Read relevant existing source files before writing code
-2. Implement the feature/change
-3. Mark the item as done in `.wtm/backlog.json` immediately:
-   - Find the task, find the item by text, set `done: true`
-   - Write the updated backlog back to `.wtm/backlog.json`
-4. Move to the next item
+2. Implement each piece of the change
+3. Verify each change compiles before moving on
 
-Work through items in dependency order. If item B depends on item A, complete A first.
+Work in dependency order. If change B depends on change A, complete A first.
 
 ### Step 3: Verify
 
-After completing items:
+After implementing:
 1. Run the project's typecheck command (from CLAUDE.md)
-2. Review the acceptance criteria — verify each is met
-3. Ensure every completed item is marked done in the backlog
-4. Do NOT mark items done that you didn't implement
+2. Review the task description — verify the ask is fully met
+3. Run any relevant tests
 
 ## Rules
 
-- The task's items are your checklist — work through them
-- Mark items done one at a time as you complete them, not all at the end
-- If you discover work that has no corresponding item, add a new item to the task's `items` array and implement it
 - Read source files before editing them
 - Use existing patterns in the codebase — match the style of adjacent code
-- Do not modify other tasks in the backlog
+- Work methodically — don't try to do everything at once
+- If the task is ambiguous, state your interpretation and proceed

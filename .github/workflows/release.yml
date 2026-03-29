@@ -41,38 +41,26 @@ jobs:
           git tag "${{ steps.pkg.outputs.version }}"
           git push origin "${{ steps.pkg.outputs.version }}"
 
-      - uses: actions/setup-node@v4
-        if: steps.check.outputs.exists == 'false'
-        with:
-          node-version: "20"
-
-      - uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
         if: steps.check.outputs.exists == 'false'
 
       - name: Install dependencies
         if: steps.check.outputs.exists == 'false'
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Build bundle
         if: steps.check.outputs.exists == 'false'
-        run: pnpm build
+        run: bun run build
 
       - name: Verify bundle
         if: steps.check.outputs.exists == 'false'
         run: |
-          node dist/index.js --version
+          bun dist/index.js --version
           ls -lh dist/index.js
 
       - name: Prepare release artifact
         if: steps.check.outputs.exists == 'false'
         run: cp dist/index.js af
-
-      - name: Extract version
-        if: steps.check.outputs.exists == 'false'
-        id: version
-        run: echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
-        env:
-          TAG: ${{ steps.pkg.outputs.version }}
 
       - name: Create GitHub Release
         if: steps.check.outputs.exists == 'false'

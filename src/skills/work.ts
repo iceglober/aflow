@@ -11,7 +11,24 @@ You are implementing a task described by the user. Work through it methodically 
 
 The user describes what to implement: \`$ARGUMENTS\`
 
-Read \`CLAUDE.md\` for project-specific commands (typecheck, build, lint, etc.).
+## Setup
+
+Before making any changes:
+
+1. **Pull the latest default branch:**
+   \`\`\`bash
+   git fetch origin
+   MAIN=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+   git checkout "$MAIN" && git pull origin "$MAIN"
+   \`\`\`
+
+2. **Create a working branch** with a descriptive slug derived from \`$ARGUMENTS\`:
+   \`\`\`bash
+   git checkout -b <slug>
+   \`\`\`
+   Use a short, kebab-case slug (e.g., \`add-researcher-skill\`, \`fix-release-workflow\`).
+
+3. Read \`CLAUDE.md\` for project-specific commands (typecheck, build, lint, etc.).
 
 ## Process
 
