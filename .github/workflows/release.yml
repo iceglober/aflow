@@ -2,8 +2,10 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
+    paths:
+      - package.json
 
 permissions:
   contents: write
@@ -13,35 +15,71 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from package.json
+        id: pkg
+        run: echo "version=v$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+
+      - name: Check if tag already exists
+        id: check
+        run: |
+          if git rev-parse "${{ steps.pkg.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip if already released
+        if: steps.check.outputs.exists == 'true'
+        run: echo "Tag ${{ steps.pkg.outputs.version }} already exists — nothing to do."
+
+      - name: Create and push tag
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          git tag "${{ steps.pkg.outputs.version }}"
+          git push origin "${{ steps.pkg.outputs.version }}"
 
       - uses: actions/setup-node@v4
+        if: steps.check.outputs.exists == 'false'
         with:
           node-version: "20"
 
       - uses: pnpm/action-setup@v4
+        if: steps.check.outputs.exists == 'false'
 
       - name: Install dependencies
+        if: steps.check.outputs.exists == 'false'
         run: pnpm install --frozen-lockfile
 
       - name: Build bundle
+        if: steps.check.outputs.exists == 'false'
         run: pnpm build
 
       - name: Verify bundle
+        if: steps.check.outputs.exists == 'false'
         run: |
           node dist/index.js --version
           ls -lh dist/index.js
 
       - name: Prepare release artifact
+        if: steps.check.outputs.exists == 'false'
         run: cp dist/index.js af
 
-      - name: Extract version from tag
+      - name: Extract version
+        if: steps.check.outputs.exists == 'false'
         id: version
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+        run: echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+        env:
+          TAG: ${{ steps.pkg.outputs.version }}
 
       - name: Create GitHub Release
+        if: steps.check.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          name: "aflow v${{ steps.version.outputs.version }}"
+          tag_name: ${{ steps.pkg.outputs.version }}
+          name: "aflow ${{ steps.pkg.outputs.version }}"
           body: |
             ## Install
 
