@@ -61,7 +61,7 @@ ${bold("COMMANDS")}
         /research-auto      Autonomous experimentation (think-test-reflect loop)
 
       Spec pipeline skills:
-        /spec-research-web  Multi-agent web research orchestrator
+        /research-web  Multi-agent web research orchestrator
         /spec-make          Create product spec from research or description
         /spec-enrich        Autonomous spec enrichment from codebase
         /spec-refine        Interactive spec refinement

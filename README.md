@@ -30,7 +30,7 @@ This gives you two skill pipelines plus standalone research tools:
 
 | Pipeline | Skills | Purpose |
 |----------|--------|---------|
-| **Spec** | `/spec-research-web` → `/spec-make` → `/spec-enrich` → `/spec-refine` → `/spec-review` → `/spec-lab` | Idea → research → spec → refined spec → validation |
+| **Spec** | `/research-web` → `/spec-make` → `/spec-enrich` → `/spec-refine` → `/spec-review` → `/spec-lab` | Idea → research → spec → refined spec → validation |
 | **Engineering** | `/think` → `/work` → `/fix` → `/qa` → `/ship` | Spec → code → ship |
 | **Research** | `/research-auto` | Autonomous experimentation (think-test-reflect loop) |
 
@@ -38,12 +38,12 @@ This gives you two skill pipelines plus standalone research tools:
 
 Turn an idea into a tight, actionable product spec with tracked unknowns.
 
-### `/spec-research-web` — Web Research
+### `/research-web` — Web Research
 
 Decomposes a question into parallel agent workstreams. Each agent searches the web, writes findings to a markdown file, and a synthesis agent combines them.
 
 ```
-/spec-research-web Build an E2E dental claim submission solution on top of our existing platform
+/research-web Build an E2E dental claim submission solution on top of our existing platform
 ```
 
 Produces a `research/` directory with one file per agent plus a synthesis.
@@ -109,7 +109,7 @@ For open-ended optimization or iteration, use `/research-auto` instead.
 ### The Loop
 
 ```
-/spec-research-web  →  /spec-make  →  /spec-enrich  →  /spec-refine × N  →  /spec-review
+/research-web  →  /spec-make  →  /spec-enrich  →  /spec-refine × N  →  /spec-review
      (web)            (structure)      (codebase)        (human)              (audit)
                                                                                 ↕
                                                                            /spec-lab

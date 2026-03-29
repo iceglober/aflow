@@ -2,7 +2,7 @@
 description: Multi-agent research orchestrator. Decomposes a research question into parallel agent workstreams, launches them, monitors progress, and synthesizes results. Use when user says 'research this topic', 'I need to understand', 'deep dive into', 'investigate the market for', 'what do we know about'. Provide the research topic and context.
 ---
 
-# /spec-research-web — Multi-Agent Research Orchestrator
+# /research-web — Multi-Agent Research Orchestrator
 
 Decompose a research question into parallel agent workstreams, launch them, monitor progress, and synthesize results.
 

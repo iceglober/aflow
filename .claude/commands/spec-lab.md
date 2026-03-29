@@ -6,7 +6,7 @@ description: Design and run validation experiments against spec unknowns. Binary
 
 Design and orchestrate **validation experiments** — binary yes/no questions that resolve spec unknowns through code. For open-ended optimization or iteration, use \`/research-auto\` instead.
 
-Pipeline: \`/spec-research-web\` -> \`/spec-make\` -> \`/spec-lab\` -> \`/spec-enrich\` -> \`/spec-refine\`
+Pipeline: \`/research-web\` -> \`/spec-make\` -> \`/spec-lab\` -> \`/spec-enrich\` -> \`/spec-refine\`
 
 ---
 
@@ -106,7 +106,7 @@ Create \`.lab/\` directory if it doesn't exist. Add \`.lab/\` to \`.gitignore\` 
 Launch validation experiments in **parallel** using the Agent tool with \`run_in_background: true\`:
 
 For each validation:
-1. Spawn a subagent with the instruction file content as its prompt
+1. Spawn a subagent with the instruction file content as its prompt using Sonnet
 2. The subagent must:
    - Execute the test plan
    - Record raw results

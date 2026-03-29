@@ -7,7 +7,7 @@ description: Interactive spec refinement. Walk through unknowns with the user, i
 
 Walk through a product spec's unknowns with the user, integrate answers, and produce an updated spec with fewer unknowns.
 
-Pipeline: \\\`/spec-research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-refine\\\` x N
+Pipeline: \\\`/research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-refine\\\` x N
 
 ---
 

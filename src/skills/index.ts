@@ -13,7 +13,7 @@ import { workBacklog } from "./work-backlog.js";
 import { fix } from "./fix.js";
 import { qa } from "./qa.js";
 import { ship } from "./ship.js";
-import { specResearchWeb } from "./spec-research-web.js";
+import { researchWeb } from "./research-web.js";
 import { specMake } from "./spec-make.js";
 import { specRefine } from "./spec-refine.js";
 import { specEnrich } from "./spec-enrich.js";
@@ -32,7 +32,7 @@ export const SKILLS: Record<string, string> = {
   "research-auto.md": researchAuto(),
 
   // Spec pipeline skills
-  "spec-research-web.md": specResearchWeb(),
+  "research-web.md": researchWeb(),
   "spec-make.md": specMake(),
   "spec-refine.md": specRefine(),
   "spec-enrich.md": specEnrich(),

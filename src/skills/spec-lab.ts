@@ -7,7 +7,7 @@ description: Design and run validation experiments against spec unknowns. Binary
 
 Design and orchestrate **validation experiments** — binary yes/no questions that resolve spec unknowns through code. For open-ended optimization or iteration, use \\\`/research-auto\\\` instead.
 
-Pipeline: \\\`/spec-research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-lab\\\` -> \\\`/spec-enrich\\\` -> \\\`/spec-refine\\\`
+Pipeline: \\\`/research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-lab\\\` -> \\\`/spec-enrich\\\` -> \\\`/spec-refine\\\`
 
 ---
 

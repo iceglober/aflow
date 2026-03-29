@@ -5,9 +5,9 @@ description: Create a tight, actionable product spec from research output or a f
 
 # /spec-make — Create Product Spec
 
-Create a tight, actionable product spec. Accepts either research output from \\\`/spec-research-web\\\` or a direct feature description.
+Create a tight, actionable product spec. Accepts either research output from \\\`/research-web\\\` or a direct feature description.
 
-Pipeline: \\\`/spec-research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-refine\\\` x N
+Pipeline: \\\`/research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-refine\\\` x N
 
 ---
 

@@ -6,7 +6,7 @@ description: Autonomous spec enrichment from codebase. Reads a product spec, res
 
 Read a product spec, research the current codebase to resolve unknowns, and produce an updated spec version autonomously — no user input required.
 
-Pipeline: \`/spec-research-web\` -> \`/spec-make\` -> \`/spec-enrich\` -> \`/spec-refine\` x N
+Pipeline: \`/research-web\` -> \`/spec-make\` -> \`/spec-enrich\` -> \`/spec-refine\` x N
 
 Unlike \`/spec-refine\` (interactive, user answers questions), this skill is fully autonomous. It reads the repo to answer what the repo can answer, then hands off to the user for what it can't.
 

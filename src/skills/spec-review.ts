@@ -7,7 +7,7 @@ description: Spec gap analysis after refinement. Reads the latest spec version, 
 
 Read the latest spec version, review the changelog of what's been resolved, and identify new gaps, inconsistencies, or opportunities that weren't visible before unknowns were resolved.
 
-Pipeline: \\\`/spec-research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-enrich\\\` -> \\\`/spec-refine\\\` x N -> \\\`/spec-review\\\`
+Pipeline: \\\`/research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-enrich\\\` -> \\\`/spec-refine\\\` x N -> \\\`/spec-review\\\`
 
 After multiple rounds of enrichment and refinement, a spec accumulates changes. Resolving unknowns can reveal new gaps — requirements that conflict, business rules that don't cover newly understood edge cases, or opportunities enabled by discoveries. This skill audits the spec with fresh eyes.
 
