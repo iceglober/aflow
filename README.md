@@ -16,19 +16,19 @@ af skills
 
 ```bash
 # 1. Research the problem space
-/research-web Build dental claim submission on our existing platform
+/research-web Build a multi-tenant billing system with usage-based pricing
 
 # 2. Create a spec from the research
-/spec-make research/dental-claims focused on submission only
+/spec-make research/billing focused on metering and invoicing
 
 # 3. Enrich the spec from your codebase (autonomous)
-/spec-enrich research/dental-claims/spec-submission.md
+/spec-enrich research/billing/spec-metering.md
 
 # 4. Refine unknowns with the user (interactive, repeat as needed)
-/spec-refine research/dental-claims/spec-submission-v2.md
+/spec-refine research/billing/spec-metering-v2.md
 
 # 5. Implement it
-/work Add claim submission API endpoint per spec R-01 through R-05
+/work Add usage metering API per spec R-01 through R-05
 
 # 6. Ship it
 /ship
@@ -36,7 +36,7 @@ af skills
 
 ## Skills
 
-### Spec pipeline
+### Design pipeline
 
 | Step | Skill | What it does |
 |------|-------|-------------|
@@ -58,7 +58,7 @@ af skills
 `/spec-make` accepts either a research directory or a plain description:
 
 ```
-/spec-make research/dental-claims focused on submission only
+/spec-make research/billing focused on metering and invoicing
 /spec-make A feature that lets users export data as CSV with column selection
 ```
 
@@ -78,7 +78,7 @@ af skills
 `/research-auto` — think-test-reflect experimentation loop. Runs autonomously until a target metric is hit or you stop it. Based on [ResearcherSkill](https://github.com/krzysztofdudek/ResearcherSkill).
 
 ```
-/research-auto Optimize p99 latency of /api/encounters endpoint
+/research-auto Optimize p99 latency of /api/billing/usage endpoint
 ```
 
 ## Worktrees
