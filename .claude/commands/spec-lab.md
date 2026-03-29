@@ -1,22 +1,21 @@
-export function prodLab(): string {
-  return `---
-description: Design and run validation experiments against spec unknowns. Binary yes/no hypothesis testing — does X work? Can we do Y? Use when user says 'validate this unknown', 'test if this works', 'run experiments', 'can we prove this', 'lab test'. Do NOT use for open-ended optimization (use /researcher instead). Provide a spec path or specific unknown to validate.
+---
+description: Design and run validation experiments against spec unknowns. Binary yes/no hypothesis testing — does X work? Can we do Y? Use when user says 'validate this unknown', 'test if this works', 'run experiments', 'can we prove this', 'lab test'. Do NOT use for open-ended optimization (use /research-auto instead). Provide a spec path or specific unknown to validate.
 ---
 
-# /prod:lab — Validation Experiments
+# /spec-lab — Validation Experiments
 
-Design and orchestrate **validation experiments** — binary yes/no questions that resolve spec unknowns through code. For open-ended optimization or iteration, use \\\`/researcher\\\` instead.
+Design and orchestrate **validation experiments** — binary yes/no questions that resolve spec unknowns through code. For open-ended optimization or iteration, use \`/research-auto\` instead.
 
-Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:lab\\\` -> \\\`/prod:enrich\\\` -> \\\`/prod:refine\\\`
+Pipeline: \`/research-web\` -> \`/spec-make\` -> \`/spec-lab\` -> \`/spec-enrich\` -> \`/spec-refine\`
 
 ---
 
 ## Input
 
-Parse \\\`$ARGUMENTS\\\` for one of:
+Parse \`$ARGUMENTS\` for one of:
 
 1. **A spec file path** — auto-mode: triage all unknowns, run experiments for the experimentable ones
-2. **A specific unknown** (e.g., \\\`U-03\\\`) + spec path — run a single validation experiment
+2. **A specific unknown** (e.g., \`U-03\`) + spec path — run a single validation experiment
 3. **No arguments** — find the latest spec in the project, triage, and run
 
 ---
@@ -41,7 +40,7 @@ Binary questions answerable by writing and running code:
 
 ### Present the triage:
 
-\\\`\\\`\\\`
+\`\`\`
 ## Experiment Plan
 
 **Spec:** [file path]
@@ -54,11 +53,11 @@ Binary questions answerable by writing and running code:
 ### Not experimentable (skipping):
 - [U-xx]: [title] — reason: [why]
 
-### For iteration (use /researcher instead):
+### For iteration (use /research-auto instead):
 - [U-xx]: [title] — reason: [why this needs open-ended exploration]
 
 Proceeding with validation experiments.
-\\\`\\\`\\\`
+\`\`\`
 
 Do NOT wait for approval — proceed immediately. This skill is autonomous.
 
@@ -66,9 +65,9 @@ Do NOT wait for approval — proceed immediately. This skill is autonomous.
 
 ## Phase 2: Design Experiments
 
-For each experimentable unknown, write a **self-contained instruction file** at \\\`.lab/validations/[U-xx].md\\\`:
+For each experimentable unknown, write a **self-contained instruction file** at \`.lab/validations/[U-xx].md\`:
 
-\\\`\\\`\\\`markdown
+\`\`\`markdown
 # Validation: [U-xx] — [title]
 
 ## Hypothesis
@@ -90,7 +89,7 @@ For each experimentable unknown, write a **self-contained instruction file** at 
 - Commands to run: [list]
 
 ## Max turns: 50
-\\\`\\\`\\\`
+\`\`\`
 
 Design principles:
 - Each experiment is **self-contained** — another agent can execute it with no additional context
@@ -102,17 +101,17 @@ Design principles:
 
 ## Phase 3: Run Experiments
 
-Create \\\`.lab/\\\` directory if it doesn't exist. Add \\\`.lab/\\\` to \\\`.gitignore\\\` if not already there.
+Create \`.lab/\` directory if it doesn't exist. Add \`.lab/\` to \`.gitignore\` if not already there.
 
-Launch validation experiments in **parallel** using the Agent tool with \\\`run_in_background: true\\\`:
+Launch validation experiments in **parallel** using the Agent tool with \`run_in_background: true\`:
 
 For each validation:
-1. Spawn a subagent with the instruction file content as its prompt
+1. Spawn a subagent with the instruction file content as its prompt using Sonnet
 2. The subagent must:
    - Execute the test plan
    - Record raw results
    - Return a verdict: PASS, FAIL, or PARTIAL with evidence
-3. Use \\\`run_in_background: true\\\` — validations are independent
+3. Use \`run_in_background: true\` — validations are independent
 
 ### Monitoring
 
@@ -124,25 +123,25 @@ Check progress every ~2 minutes:
 
 ## Phase 4: Collect Results
 
-As each agent completes, record the result in \\\`.lab/validation-results.md\\\`:
+As each agent completes, record the result in \`.lab/validation-results.md\`:
 
-\\\`\\\`\\\`markdown
+\`\`\`markdown
 ## Validation Results
 
 | Unknown | Hypothesis | Verdict | Evidence | Duration |
 |---------|-----------|---------|----------|----------|
 | U-xx | [hypothesis] | PASS/FAIL/PARTIAL/INCONCLUSIVE | [one-line summary] | Xs |
-\\\`\\\`\\\`
+\`\`\`
 
 For each result, also write a detailed entry:
 
-\\\`\\\`\\\`markdown
+\`\`\`markdown
 ### U-xx: [title]
 **Verdict:** PASS/FAIL/PARTIAL/INCONCLUSIVE
 **Evidence:** [what was observed — specific output, error messages, behavior]
 **File references:** [file:line for any relevant code discovered]
 **Implications:** [what this means for the spec — which requirements are affected]
-\\\`\\\`\\\`
+\`\`\`
 
 ---
 
@@ -150,12 +149,12 @@ For each result, also write a detailed entry:
 
 Generate an updated spec version applying validation results:
 
-1. **Write to a NEW file:** \\\`[original-name]-v[N].md\\\`. Never overwrite.
+1. **Write to a NEW file:** \`[original-name]-v[N].md\`. Never overwrite.
 
 2. **For PASS results:**
    - Resolve the unknown — remove from register
    - Embed the validated fact in requirements with evidence
-   - Remove \\\`[depends: U-xx]\\\` tags from unblocked requirements
+   - Remove \`[depends: U-xx]\` tags from unblocked requirements
 
 3. **For FAIL results:**
    - Update the unknown with what was disproven
@@ -164,7 +163,7 @@ Generate an updated spec version applying validation results:
 
 4. **For PARTIAL results:**
    - Narrow the unknown — record what's confirmed and what remains
-   - Keep \\\`[depends: U-xx]\\\` tags
+   - Keep \`[depends: U-xx]\` tags
 
 5. **For INCONCLUSIVE:**
    - Keep the unknown as-is
@@ -172,19 +171,19 @@ Generate an updated spec version applying validation results:
 
 6. **Add a changelog entry:**
 
-\\\`\\\`\\\`markdown
+\`\`\`markdown
 ### v[N] — lab validation (YYYY-MM-DD)
 - Validated: U-xx (PASS), U-xx (FAIL), ...
 - Resolved: N unknowns
 - New unknowns from failures: N
 - Remaining unknowns: N
-\\\`\\\`\\\`
+\`\`\`
 
 ---
 
 ## Phase 6: Report
 
-\\\`\\\`\\\`
+\`\`\`
 ## Lab Complete
 
 **Spec:** [file name]
@@ -200,21 +199,21 @@ Generate an updated spec version applying validation results:
 ### Remaining unknowns:
 - N experimentable (could re-run with different approach)
 - N not experimentable (needs human input)
-- N iterative (use /researcher)
+- N iterative (use /research-auto)
 
 Updated spec: [file path]
 
 **Next step:**
-- If failures changed requirements -> run \\\`/prod:review [new file]\\\`
-- If unknowns remain -> run \\\`/prod:refine [new file]\\\`
-- For iterative unknowns -> run \\\`/researcher\\\`
-\\\`\\\`\\\`
+- If failures changed requirements -> run \`/spec-review [new file]\`
+- If unknowns remain -> run \`/spec-refine [new file]\`
+- For iterative unknowns -> run \`/research-auto\`
+\`\`\`
 
 ---
 
 ## Rules
 
-1. **Validation only.** Binary yes/no questions. If you can't phrase it as a hypothesis with clear pass/fail criteria, it's not a validation — suggest \\\`/researcher\\\` instead.
+1. **Validation only.** Binary yes/no questions. If you can't phrase it as a hypothesis with clear pass/fail criteria, it's not a validation — suggest \`/research-auto\` instead.
 2. **Non-destructive.** Tests should not modify production data, break existing functionality, or leave artifacts. Clean up after.
 3. **Evidence-based.** Every verdict needs specific evidence — output, error messages, file references. "It seems to work" is not a verdict.
 4. **Parallel when possible.** Independent validations run simultaneously.
@@ -222,5 +221,3 @@ Updated spec: [file path]
 6. **Version, don't overwrite.** Always write a new spec file.
 7. **Proceed autonomously.** Present the plan and immediately start running. Don't wait for approval.
 8. **Fail fast.** If a validation is clearly going to fail (wrong API, missing feature), log it and move on. Don't burn turns trying to make it work.
-`;
-}

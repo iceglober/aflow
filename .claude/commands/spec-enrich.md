@@ -1,15 +1,14 @@
-export function prodEnrich(): string {
-  return `---
+---
 description: Autonomous spec enrichment from codebase. Reads a product spec, researches the current repo to resolve unknowns, and produces an updated spec version — no user input needed. Use when user says 'enrich this spec from code', 'what can the codebase tell us', 'auto-resolve unknowns', 'research the repo for this spec'. Provide the spec file path.
 ---
 
-# /prod:enrich — Codebase-Driven Spec Enrichment
+# /spec-enrich — Codebase-Driven Spec Enrichment
 
 Read a product spec, research the current codebase to resolve unknowns, and produce an updated spec version autonomously — no user input required.
 
-Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:enrich\\\` -> \\\`/prod:refine\\\` x N
+Pipeline: \`/research-web\` -> \`/spec-make\` -> \`/spec-enrich\` -> \`/spec-refine\` x N
 
-Unlike \\\`/prod:refine\\\` (interactive, user answers questions), this skill is fully autonomous. It reads the repo to answer what the repo can answer, then hands off to the user for what it can't.
+Unlike \`/spec-refine\` (interactive, user answers questions), this skill is fully autonomous. It reads the repo to answer what the repo can answer, then hands off to the user for what it can't.
 
 ---
 
@@ -17,9 +16,9 @@ Unlike \\\`/prod:refine\\\` (interactive, user answers questions), this skill is
 
 The user provides a path to an existing spec file.
 
-Example: \\\`/prod:enrich research/dental-claims/spec-submission.md\\\`
+Example: \`/spec-enrich research/dental-claims/spec-submission.md\`
 
-Parse the spec path from \\\`$ARGUMENTS\\\`.
+Parse the spec path from \`$ARGUMENTS\`.
 
 ---
 
@@ -53,7 +52,7 @@ Parse the spec path from \\\`$ARGUMENTS\\\`.
 
 4. **Present the plan to the user:**
 
-\\\`\\\`\\\`
+\`\`\`
 ## Enrichment Plan: [spec name]
 
 **Total unknowns:** N
@@ -71,7 +70,7 @@ Parse the spec path from \\\`$ARGUMENTS\\\`.
 ...
 
 Proceeding with research.
-\\\`\\\`\\\`
+\`\`\`
 
 Do NOT wait for approval — proceed immediately after presenting the plan. This skill is meant to be autonomous.
 
@@ -84,17 +83,17 @@ Launch parallel research agents for independent unknowns. Use sequential researc
 ### For each researchable unknown:
 
 1. **Search the codebase** using Glob and Grep:
-   - Schema/model files: \\\`**/*.prisma\\\`, \\\`**/models/**\\\`, \\\`**/schema.*\\\`, \\\`**/migrations/**\\\`, \\\`**/*.entity.*\\\`
-   - Type definitions: \\\`**/*.d.ts\\\`, \\\`**/types/**\\\`, \\\`**/interfaces/**\\\`
-   - API routes: \\\`**/routes/**\\\`, \\\`**/api/**\\\`, \\\`**/controllers/**\\\`
-   - Config: \\\`**/*.config.*\\\`, \\\`**/.env.example\\\`, \\\`**/config/**\\\`
-   - Services/integrations: \\\`**/services/**\\\`, \\\`**/integrations/**\\\`, \\\`**/clients/**\\\`
+   - Schema/model files: \`**/*.prisma\`, \`**/models/**\`, \`**/schema.*\`, \`**/migrations/**\`, \`**/*.entity.*\`
+   - Type definitions: \`**/*.d.ts\`, \`**/types/**\`, \`**/interfaces/**\`
+   - API routes: \`**/routes/**\`, \`**/api/**\`, \`**/controllers/**\`
+   - Config: \`**/*.config.*\`, \`**/.env.example\`, \`**/config/**\`
+   - Services/integrations: \`**/services/**\`, \`**/integrations/**\`, \`**/clients/**\`
    - Search for keywords from the unknown (e.g., "encounter", "procedure", "npi", "stedi", "payer")
 
 2. **Read relevant files** to understand the actual implementation.
 
 3. **Record findings** with specific file:line references. Be precise:
-   - "Found \\\`encounter\\\` table in \\\`prisma/schema.prisma:42\\\` with fields: patientId, providerId, dateOfService, status. No procedure-level fields."
+   - "Found \`encounter\` table in \`prisma/schema.prisma:42\` with fields: patientId, providerId, dateOfService, status. No procedure-level fields."
    - NOT "The encounter model appears to have some fields."
 
 4. **Classify the result:**
@@ -127,20 +126,20 @@ Launch parallel research agents for independent unknowns. Use sequential researc
 
 ## Phase 3: Generate Updated Spec
 
-Apply the same rules as \\\`/prod:refine\\\` Phase 4:
+Apply the same rules as \`/spec-refine\` Phase 4:
 
-1. **Write to a NEW file:** \\\`[original-name]-v[N].md\\\`. Never overwrite.
+1. **Write to a NEW file:** \`[original-name]-v[N].md\`. Never overwrite.
 
 2. **For resolved unknowns:**
    - Remove from Unknowns Register
    - Embed the discovered fact in the relevant section with file:line references
-   - Remove \\\`[depends: U-xx]\\\` tags from unblocked requirements
+   - Remove \`[depends: U-xx]\` tags from unblocked requirements
    - Update requirements if the discovered reality changes them (e.g., a MUST becomes impossible, or a new constraint is discovered)
 
 3. **For partially resolved unknowns:**
    - Update the "Known" and "Remaining gap" fields
    - Add file:line references for what was found
-   - Keep \\\`[depends: U-xx]\\\` tags
+   - Keep \`[depends: U-xx]\` tags
 
 4. **For new discoveries** that aren't tied to existing unknowns:
    - If the codebase reveals a constraint or capability the spec didn't account for, add it as a new requirement or update an existing one
@@ -148,7 +147,7 @@ Apply the same rules as \\\`/prod:refine\\\` Phase 4:
 
 5. **Add a changelog** at the top:
 
-\\\`\\\`\\\`markdown
+\`\`\`markdown
 ## Changelog
 
 ### v[N] — enriched from codebase (YYYY-MM-DD)
@@ -157,7 +156,7 @@ Apply the same rules as \\\`/prod:refine\\\` Phase 4:
 - New discoveries: [anything the codebase revealed that wasn't in the spec]
 - Still requires human input: U-xx, U-xx, ...
 - Remaining unknowns: N
-\\\`\\\`\\\`
+\`\`\`
 
 ---
 
@@ -165,7 +164,7 @@ Apply the same rules as \\\`/prod:refine\\\` Phase 4:
 
 Present the results:
 
-\\\`\\\`\\\`
+\`\`\`
 ## Enrichment Complete
 
 **Researched:** N unknowns
@@ -181,8 +180,8 @@ Present the results:
 - [U-xx]: [title] — [why it can't be answered from code]
 
 Updated spec: [file path]
-Run \\\`/prod:refine [new file path]\\\` to resolve remaining unknowns with the user.
-\\\`\\\`\\\`
+Run \`/spec-refine [new file path]\` to resolve remaining unknowns with the user.
+\`\`\`
 
 ---
 
@@ -190,11 +189,9 @@ Run \\\`/prod:refine [new file path]\\\` to resolve remaining unknowns with the 
 
 1. **Be thorough but not exhaustive.** Search broadly first (Glob for patterns), then deep-read relevant files. Don't read every file in the repo.
 2. **Cite everything.** Every fact from the codebase gets a file:line reference. The user should be able to verify any finding in 10 seconds.
-3. **Don't guess.** If the code is ambiguous, record the ambiguity as a partial resolution, not a guess. "Found two possible encounter tables — \\\`encounters\\\` and \\\`clinical_encounters\\\` — unclear which is primary" is better than picking one.
+3. **Don't guess.** If the code is ambiguous, record the ambiguity as a partial resolution, not a guess. "Found two possible encounter tables — \`encounters\` and \`clinical_encounters\` — unclear which is primary" is better than picking one.
 4. **Respect scope.** Only research unknowns that are in the spec. Don't go exploring tangential topics.
 5. **Preserve the spec structure.** The output must have the same sections as the input. Don't reorganize — just update content.
 6. **Version, don't overwrite.** Always write a new file.
 7. **The codebase is truth.** If the code contradicts the spec's assumption, the code wins. Update the spec accordingly and flag the discrepancy.
 8. **Proceed without approval.** This skill is autonomous by design. Present the plan and immediately start researching.
-`;
-}

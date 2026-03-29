@@ -58,15 +58,15 @@ ${bold("COMMANDS")}
         /fix            Fix bugs, update task items if needed
         /qa             QA the diff against acceptance criteria
         /ship           Typecheck, review, commit, push, PR
-        /researcher     Autonomous experimentation (think-test-reflect loop)
+        /research-auto      Autonomous experimentation (think-test-reflect loop)
 
-      Product skills (research & spec pipeline):
-        /prod:research  Multi-agent research orchestrator
-        /prod:spec      Research to product spec
-        /prod:enrich    Autonomous spec enrichment from codebase
-        /prod:refine    Interactive spec refinement
-        /prod:review    Spec gap analysis after refinement
-        /prod:lab       Validation experiments against spec unknowns
+      Spec pipeline skills:
+        /research-web  Multi-agent web research orchestrator
+        /spec-make          Create product spec from research or description
+        /spec-enrich        Autonomous spec enrichment from codebase
+        /spec-refine        Interactive spec refinement
+        /spec-review        Spec gap analysis after refinement
+        /spec-lab           Validation experiments against spec unknowns
 
   hooks
       Create .aflow/hooks/ with a post_create template. The hook runs

@@ -1,23 +1,22 @@
-export function prodRefine(): string {
-  return `---
+---
 description: Interactive spec refinement. Walk through unknowns with the user, integrate answers, produce an updated spec with fewer unknowns. Use when user says 'refine this spec', 'resolve the unknowns', 'walk me through the questions', 'lets fill in the gaps'. Provide the spec file path.
 ---
 
-# /prod:refine — Interactive Spec Refinement
+# /spec-refine — Interactive Spec Refinement
 
 Walk through a product spec's unknowns with the user, integrate answers, and produce an updated spec with fewer unknowns.
 
-Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:refine\\\` x N
+Pipeline: \`/research-web\` -> \`/spec-make\` -> \`/spec-refine\` x N
 
 ---
 
 ## Input
 
-The user provides a path to an existing spec file produced by \\\`/prod:spec\\\`.
+The user provides a path to an existing spec file produced by \`/spec-make\`.
 
-Example: \\\`/prod:refine research/dental-claims/spec-submission.md\\\`
+Example: \`/spec-refine research/dental-claims/spec-submission.md\`
 
-Parse the spec path from \\\`$ARGUMENTS\\\`.
+Parse the spec path from \`$ARGUMENTS\`.
 
 ---
 
@@ -80,7 +79,7 @@ Once the user has answered what they can:
    - Resolved OQs -> convert to BR-xx or R-xx
    - Changed requirements -> update text and MUST/SHOULD/COULD level
 
-3. **Write to a NEW file:** \\\`[original-name]-v[N].md\\\`. NEVER overwrite the previous version.
+3. **Write to a NEW file:** \`[original-name]-v[N].md\`. NEVER overwrite the previous version.
 
 4. **Add a changelog** at the top:
    - What was resolved, partially resolved, newly discovered
@@ -103,5 +102,3 @@ Once the user has answered what they can:
 7. **New unknowns are progress.** More specific = more concrete.
 8. **Stay in scope.** Don't pull out-of-scope items back in.
 9. **Keep the pace.** Ask the next question immediately after stating impact.
-`;
-}
