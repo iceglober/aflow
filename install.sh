@@ -28,15 +28,9 @@ err()   { echo -e "${RED}error:${RESET} $1" >&2; }
 warn()  { echo -e "${YELLOW}warning:${RESET} $1"; }
 
 # ── Prerequisites ─────────────────────────────────────────────────────
-if ! command -v node &>/dev/null; then
-  err "Node.js is required but not found on PATH"
-  echo "  Install Node.js 20+ from https://nodejs.org"
-  exit 1
-fi
-
-NODE_MAJOR=$(node -e "console.log(process.version.slice(1).split('.')[0])")
-if [ "$NODE_MAJOR" -lt 20 ]; then
-  err "Node.js 20+ required, found $(node --version)"
+if ! command -v bun &>/dev/null; then
+  err "Bun is required but not found on PATH"
+  echo "  Install: curl -fsSL https://bun.sh/install | bash"
   exit 1
 fi
 
@@ -56,8 +50,8 @@ fi
 info "checking latest version..."
 
 RELEASE_JSON=$(gh release list -R "$REPO" --json tagName -L 50 2>/dev/null || echo "[]")
-LATEST_TAG=$(echo "$RELEASE_JSON" | node -e "
-  const data = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8'));
+LATEST_TAG=$(echo "$RELEASE_JSON" | bun -e "
+  const data = JSON.parse(await Bun.stdin.text());
   const r = data.find(r => r.tagName.startsWith('${TAG_PREFIX}'));
   console.log(r ? r.tagName : '');
 ")
