@@ -29,9 +29,22 @@ warn()  { echo -e "${YELLOW}warning:${RESET} $1"; }
 
 # ── Prerequisites ─────────────────────────────────────────────────────
 if ! command -v bun &>/dev/null; then
-  err "Bun is required but not found on PATH"
-  echo "  Install: curl -fsSL https://bun.sh/install | bash"
-  exit 1
+  warn "Bun is not installed"
+  printf "  Install it now? [Y/n] "
+  read -r answer
+  if [ "$answer" != "n" ] && [ "$answer" != "N" ]; then
+    curl -fsSL https://bun.sh/install | bash
+    # Source the shell env so bun is available in this session
+    [ -f "$HOME/.bun/bin/bun" ] && export PATH="$HOME/.bun/bin:$PATH"
+    if ! command -v bun &>/dev/null; then
+      err "Bun installation failed"
+      exit 1
+    fi
+    ok "Bun installed"
+  else
+    err "Bun is required — install manually: curl -fsSL https://bun.sh/install | bash"
+    exit 1
+  fi
 fi
 
 if ! command -v gh &>/dev/null; then
