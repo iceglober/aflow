@@ -1,14 +1,14 @@
 ---
-description: Autonomous spec enrichment from codebase. Reads a product spec, researches the current repo to resolve unknowns, and produces an updated spec version — no user input needed. Provide the spec file path.
+description: Autonomous spec enrichment from codebase. Reads a product spec, researches the current repo to resolve unknowns, and produces an updated spec version — no user input needed. Use when user says 'enrich this spec from code', 'what can the codebase tell us', 'auto-resolve unknowns', 'research the repo for this spec'. Provide the spec file path.
 ---
 
-# /prod:enrich — Codebase-Driven Spec Enrichment
+# /spec-enrich — Codebase-Driven Spec Enrichment
 
 Read a product spec, research the current codebase to resolve unknowns, and produce an updated spec version autonomously — no user input required.
 
-Pipeline: \`/prod:research\` -> \`/prod:spec\` -> \`/prod:enrich\` -> \`/prod:refine\` x N
+Pipeline: \`/spec-research-web\` -> \`/spec-make\` -> \`/spec-enrich\` -> \`/spec-refine\` x N
 
-Unlike \`/prod:refine\` (interactive, user answers questions), this skill is fully autonomous. It reads the repo to answer what the repo can answer, then hands off to the user for what it can't.
+Unlike \`/spec-refine\` (interactive, user answers questions), this skill is fully autonomous. It reads the repo to answer what the repo can answer, then hands off to the user for what it can't.
 
 ---
 
@@ -16,7 +16,7 @@ Unlike \`/prod:refine\` (interactive, user answers questions), this skill is ful
 
 The user provides a path to an existing spec file.
 
-Example: \`/prod:enrich research/dental-claims/spec-submission.md\`
+Example: \`/spec-enrich research/dental-claims/spec-submission.md\`
 
 Parse the spec path from \`$ARGUMENTS\`.
 
@@ -126,7 +126,7 @@ Launch parallel research agents for independent unknowns. Use sequential researc
 
 ## Phase 3: Generate Updated Spec
 
-Apply the same rules as \`/prod:refine\` Phase 4:
+Apply the same rules as \`/spec-refine\` Phase 4:
 
 1. **Write to a NEW file:** \`[original-name]-v[N].md\`. Never overwrite.
 
@@ -180,7 +180,7 @@ Present the results:
 - [U-xx]: [title] — [why it can't be answered from code]
 
 Updated spec: [file path]
-Run \`/prod:refine [new file path]\` to resolve remaining unknowns with the user.
+Run \`/spec-refine [new file path]\` to resolve remaining unknowns with the user.
 \`\`\`
 
 ---

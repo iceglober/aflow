@@ -13,13 +13,13 @@ import { workBacklog } from "./work-backlog.js";
 import { fix } from "./fix.js";
 import { qa } from "./qa.js";
 import { ship } from "./ship.js";
-import { prodResearch } from "./prod-research.js";
-import { prodSpec } from "./prod-spec.js";
-import { prodRefine } from "./prod-refine.js";
-import { prodEnrich } from "./prod-enrich.js";
-import { prodReview } from "./prod-review.js";
-import { prodLab } from "./prod-lab.js";
-import { researcher } from "./researcher.js";
+import { specResearchWeb } from "./spec-research-web.js";
+import { specMake } from "./spec-make.js";
+import { specRefine } from "./spec-refine.js";
+import { specEnrich } from "./spec-enrich.js";
+import { specReview } from "./spec-review.js";
+import { specLab } from "./spec-lab.js";
+import { researchAuto } from "./research-auto.js";
 
 export const SKILLS: Record<string, string> = {
   // Engineering skills
@@ -29,13 +29,13 @@ export const SKILLS: Record<string, string> = {
   "fix.md": fix(),
   "qa.md": qa(),
   "ship.md": ship(),
-  "researcher.md": researcher(),
+  "research-auto.md": researchAuto(),
 
-  // Product skills (installed to prod/ subdirectory)
-  "prod/research.md": prodResearch(),
-  "prod/spec.md": prodSpec(),
-  "prod/refine.md": prodRefine(),
-  "prod/enrich.md": prodEnrich(),
-  "prod/review.md": prodReview(),
-  "prod/lab.md": prodLab(),
+  // Spec pipeline skills
+  "spec-research-web.md": specResearchWeb(),
+  "spec-make.md": specMake(),
+  "spec-refine.md": specRefine(),
+  "spec-enrich.md": specEnrich(),
+  "spec-review.md": specReview(),
+  "spec-lab.md": specLab(),
 };

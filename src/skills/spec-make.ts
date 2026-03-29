@@ -1,43 +1,54 @@
-export function prodSpec(): string {
+export function specMake(): string {
   return `---
-description: Convert research output into a tight, actionable product spec. Strips narrative, defines terms, surfaces unknowns, questions KPIs. Use when user says 'create a spec from this research', 'turn this into requirements', 'write a product spec', 'spec this out'. Provide the research directory path and scoping guidance.
+description: Create a tight, actionable product spec from research output or a feature description. Strips narrative, defines terms, surfaces unknowns, questions KPIs. Use when user says 'create a spec', 'turn this into requirements', 'write a product spec', 'spec this out', 'spec from description'. Provide a research directory path OR a feature description.
 ---
 
-# /prod:spec — Research to Product Spec
+# /spec-make — Create Product Spec
 
-Take research output and convert it into a tight, actionable product spec. Strip narrative, define terms, surface unknowns, question KPIs.
+Create a tight, actionable product spec. Accepts either research output from \\\`/spec-research-web\\\` or a direct feature description.
 
-Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:refine\\\` x N
+Pipeline: \\\`/spec-research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-refine\\\` x N
 
 ---
 
 ## Input
 
-The user provides:
-1. **A research directory** to refine (e.g., \\\`research/dental-claims\\\`)
-2. **Scoping guidance** — what's in scope, what's explicitly out of scope, what to focus on
+Parse \\\`$ARGUMENTS\\\` to determine the input mode:
 
-Parse the arguments from \\\`$ARGUMENTS\\\` to extract the research path and the scoping constraints.
+### Mode A: From research directory
+If the argument is a path to a directory (e.g., \\\`research/dental-claims\\\`):
+1. Read every file in the directory — start with the synthesis, then each agent output
+2. Extract scoping constraints from additional arguments
+
+### Mode B: From description
+If the argument is a text description (not a directory path):
+1. Treat the entire argument as the feature/product description
+2. Ask clarifying questions if the scope is ambiguous:
+   - What's in scope vs. out of scope?
+   - Who is the target user?
+   - What are the key constraints?
+3. Write output to \\\`specs/spec-[slug].md\\\`
+
+In either mode, proceed to Phase 1 once you have the source material.
 
 ---
 
-## Phase 1: Ingest and Scope
+## Phase 1: Scope
 
-1. **Read every file in the research directory.** Start with the synthesis, then read each agent output for depth.
-2. **Apply the user's scoping constraints.** Out-of-scope items go to an "Out of Scope" section — not deleted, just fenced.
-3. **Build a mental model of what THIS spec covers.** Write it down in one sentence.
+1. **Build a mental model of what THIS spec covers.** Write it down in one sentence.
+2. **Apply scoping constraints.** Out-of-scope items go to an "Out of Scope" section — not deleted, just fenced.
 
 ---
 
 ## Phase 2: Identify Unknowns
 
-This is the most important phase. Research agents make assumptions. Your job is to find them.
+This is the most important phase. Source material makes assumptions. Your job is to find them.
 
 **Types of unknowns:**
-- **Platform Unknowns** — data model, API capabilities, integration points, infrastructure
-- **Domain Unknowns** — payer-specific behaviors, edge cases, regional variations
-- **Business Unknowns** — build vs. buy, prioritization, pricing, go-to-market
-- **Integration Unknowns** — vendor API capabilities, enrollment timelines, PMS constraints
+- **Platform** — data model, API capabilities, integration points, infrastructure
+- **Domain** — domain-specific behaviors, edge cases, regional variations
+- **Business** — build vs. buy, prioritization, pricing, go-to-market
+- **Integration** — vendor API capabilities, timelines, constraints
 
 **Format unknowns as open questions:**
 
@@ -55,11 +66,11 @@ Number every unknown (U-01, U-02, ...) so they can be referenced and tracked.
 
 ## Phase 3: Write the Spec
 
-Write to: \\\`[research-dir]/spec-[scope-slug].md\\\`
+Write to: \\\`[research-dir]/spec-[scope-slug].md\\\` (Mode A) or \\\`specs/spec-[slug].md\\\` (Mode B)
 
 ### Structure:
 
-1. **Header** — Status, Scope (one sentence), Out of scope, Date, Source research
+1. **Header** — Status, Scope (one sentence), Out of scope, Date, Source (research dir or description)
 2. **Unknowns Register** — All unknowns with assumed/risk/needed-from/blocks fields
 3. **Definitions** — Every domain term defined precisely. No ambiguity.
 4. **Requirements** — ID'd (R-01...), MUST/SHOULD/COULD, references unknowns with \\\`[depends: U-xx]\\\`

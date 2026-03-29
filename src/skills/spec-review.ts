@@ -1,13 +1,13 @@
-export function prodReview(): string {
+export function specReview(): string {
   return `---
 description: Spec gap analysis after refinement. Reads the latest spec version, reviews all changes from prior versions, and identifies new gaps, inconsistencies, or opportunities revealed by resolved unknowns. Use when user says 'review this spec', 'audit the spec', 'find gaps', 'check for consistency', 'is this spec ready for engineering'. Provide the spec file path.
 ---
 
-# /prod:review — Spec Gap Analysis
+# /spec-review — Spec Gap Analysis
 
 Read the latest spec version, review the changelog of what's been resolved, and identify new gaps, inconsistencies, or opportunities that weren't visible before unknowns were resolved.
 
-Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:enrich\\\` -> \\\`/prod:refine\\\` x N -> \\\`/prod:review\\\`
+Pipeline: \\\`/spec-research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-enrich\\\` -> \\\`/spec-refine\\\` x N -> \\\`/spec-review\\\`
 
 After multiple rounds of enrichment and refinement, a spec accumulates changes. Resolving unknowns can reveal new gaps — requirements that conflict, business rules that don't cover newly understood edge cases, or opportunities enabled by discoveries. This skill audits the spec with fresh eyes.
 
@@ -17,7 +17,7 @@ After multiple rounds of enrichment and refinement, a spec accumulates changes. 
 
 The user provides a path to the latest version of a spec file.
 
-Example: \\\`/prod:review research/dental-claims/spec-submission-v4.md\\\`
+Example: \\\`/spec-review research/dental-claims/spec-submission-v4.md\\\`
 
 Parse the spec path from \\\`$ARGUMENTS\\\`.
 
@@ -163,7 +163,7 @@ Audit the unknowns that are still open:
 Updated spec: [file path]
 
 **Next step:**
-- If new unknowns were added -> run \\\`/prod:enrich [new file]\\\` then \\\`/prod:refine [new file]\\\`
+- If new unknowns were added -> run \\\`/spec-enrich [new file]\\\` then \\\`/spec-refine [new file]\\\`
 - If spec is clean -> ready for engineering (\\\`/think\\\` -> \\\`/work\\\`)
 \\\`\\\`\\\`
 
@@ -176,8 +176,8 @@ Updated spec: [file path]
 3. **Don't expand scope.** Flag opportunities, don't act on them. The user decides what's in scope.
 4. **Consistency over completeness.** A consistent spec with known gaps is better than an inconsistent spec that tries to cover everything.
 5. **Version, don't overwrite.** Always write a new file.
-6. **Respect the pipeline.** This skill audits — it doesn't replace enrichment or refinement. If new unknowns need human input, say so and point to \\\`/prod:refine\\\`.
+6. **Respect the pipeline.** This skill audits — it doesn't replace enrichment or refinement. If new unknowns need human input, say so and point to \\\`/spec-refine\\\`.
 7. **Be specific.** "Some requirements may conflict" is useless. "R-12 requires real-time submission but R-27 assumes batch processing" is actionable.
-8. **Proceed autonomously.** Like \\\`/prod:enrich\\\`, this skill runs without waiting for approval. Present findings and the updated spec.
+8. **Proceed autonomously.** Like \\\`/spec-enrich\\\`, this skill runs without waiting for approval. Present findings and the updated spec.
 `;
 }

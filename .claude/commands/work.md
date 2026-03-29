@@ -1,16 +1,40 @@
 ---
-description: Implement a given task using the existing codebase patterns. Provide the task description or instructions.
+description: Implement a given task using existing codebase patterns. Use when user says 'implement', 'build this', 'make this change', 'add this feature', 'code this up', or provides ad-hoc task instructions. Reads CLAUDE.md, follows dependency order, typechecks after changes. Do NOT use for backlog-driven work (use /work-backlog instead).
 ---
 
 # Work
 
 You are implementing a task described by the user. Work through it methodically using the existing codebase patterns.
 
+## Critical Rules
+
+- **Read source files before editing them** — never edit blind.
+- **Match existing patterns** — use the style of adjacent code.
+- **Work in dependency order** — if B depends on A, complete A first.
+- **If the task is ambiguous**, state your interpretation and proceed.
+
 ## Input
 
 The user describes what to implement: `$ARGUMENTS`
 
-Read `CLAUDE.md` for project-specific commands (typecheck, build, lint, etc.).
+## Setup
+
+Before making any changes:
+
+1. **Pull the latest default branch:**
+   ```bash
+   git fetch origin
+   MAIN=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+   git checkout "$MAIN" && git pull origin "$MAIN"
+   ```
+
+2. **Create a working branch** with a descriptive slug derived from `$ARGUMENTS`:
+   ```bash
+   git checkout -b <slug>
+   ```
+   Use a short, kebab-case slug (e.g., `add-researcher-skill`, `fix-release-workflow`).
+
+3. Read `CLAUDE.md` for project-specific commands (typecheck, build, lint, etc.).
 
 ## Process
 
@@ -37,9 +61,3 @@ After implementing:
 2. Review the task description — verify the ask is fully met
 3. Run any relevant tests
 
-## Rules
-
-- Read source files before editing them
-- Use existing patterns in the codebase — match the style of adjacent code
-- Work methodically — don't try to do everything at once
-- If the task is ambiguous, state your interpretation and proceed

@@ -1,13 +1,13 @@
-export function prodLab(): string {
+export function specLab(): string {
   return `---
-description: Design and run validation experiments against spec unknowns. Binary yes/no hypothesis testing — does X work? Can we do Y? Use when user says 'validate this unknown', 'test if this works', 'run experiments', 'can we prove this', 'lab test'. Do NOT use for open-ended optimization (use /researcher instead). Provide a spec path or specific unknown to validate.
+description: Design and run validation experiments against spec unknowns. Binary yes/no hypothesis testing — does X work? Can we do Y? Use when user says 'validate this unknown', 'test if this works', 'run experiments', 'can we prove this', 'lab test'. Do NOT use for open-ended optimization (use /research-auto instead). Provide a spec path or specific unknown to validate.
 ---
 
-# /prod:lab — Validation Experiments
+# /spec-lab — Validation Experiments
 
-Design and orchestrate **validation experiments** — binary yes/no questions that resolve spec unknowns through code. For open-ended optimization or iteration, use \\\`/researcher\\\` instead.
+Design and orchestrate **validation experiments** — binary yes/no questions that resolve spec unknowns through code. For open-ended optimization or iteration, use \\\`/research-auto\\\` instead.
 
-Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:lab\\\` -> \\\`/prod:enrich\\\` -> \\\`/prod:refine\\\`
+Pipeline: \\\`/spec-research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-lab\\\` -> \\\`/spec-enrich\\\` -> \\\`/spec-refine\\\`
 
 ---
 
@@ -54,7 +54,7 @@ Binary questions answerable by writing and running code:
 ### Not experimentable (skipping):
 - [U-xx]: [title] — reason: [why]
 
-### For iteration (use /researcher instead):
+### For iteration (use /research-auto instead):
 - [U-xx]: [title] — reason: [why this needs open-ended exploration]
 
 Proceeding with validation experiments.
@@ -107,7 +107,7 @@ Create \\\`.lab/\\\` directory if it doesn't exist. Add \\\`.lab/\\\` to \\\`.gi
 Launch validation experiments in **parallel** using the Agent tool with \\\`run_in_background: true\\\`:
 
 For each validation:
-1. Spawn a subagent with the instruction file content as its prompt
+1. Spawn a subagent with the instruction file content as its prompt using Sonnet
 2. The subagent must:
    - Execute the test plan
    - Record raw results
@@ -200,21 +200,21 @@ Generate an updated spec version applying validation results:
 ### Remaining unknowns:
 - N experimentable (could re-run with different approach)
 - N not experimentable (needs human input)
-- N iterative (use /researcher)
+- N iterative (use /research-auto)
 
 Updated spec: [file path]
 
 **Next step:**
-- If failures changed requirements -> run \\\`/prod:review [new file]\\\`
-- If unknowns remain -> run \\\`/prod:refine [new file]\\\`
-- For iterative unknowns -> run \\\`/researcher\\\`
+- If failures changed requirements -> run \\\`/spec-review [new file]\\\`
+- If unknowns remain -> run \\\`/spec-refine [new file]\\\`
+- For iterative unknowns -> run \\\`/research-auto\\\`
 \\\`\\\`\\\`
 
 ---
 
 ## Rules
 
-1. **Validation only.** Binary yes/no questions. If you can't phrase it as a hypothesis with clear pass/fail criteria, it's not a validation — suggest \\\`/researcher\\\` instead.
+1. **Validation only.** Binary yes/no questions. If you can't phrase it as a hypothesis with clear pass/fail criteria, it's not a validation — suggest \\\`/research-auto\\\` instead.
 2. **Non-destructive.** Tests should not modify production data, break existing functionality, or leave artifacts. Clean up after.
 3. **Evidence-based.** Every verdict needs specific evidence — output, error messages, file references. "It seems to work" is not a verdict.
 4. **Parallel when possible.** Independent validations run simultaneously.

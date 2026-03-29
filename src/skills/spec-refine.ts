@@ -1,21 +1,21 @@
-export function prodRefine(): string {
+export function specRefine(): string {
   return `---
 description: Interactive spec refinement. Walk through unknowns with the user, integrate answers, produce an updated spec with fewer unknowns. Use when user says 'refine this spec', 'resolve the unknowns', 'walk me through the questions', 'lets fill in the gaps'. Provide the spec file path.
 ---
 
-# /prod:refine — Interactive Spec Refinement
+# /spec-refine — Interactive Spec Refinement
 
 Walk through a product spec's unknowns with the user, integrate answers, and produce an updated spec with fewer unknowns.
 
-Pipeline: \\\`/prod:research\\\` -> \\\`/prod:spec\\\` -> \\\`/prod:refine\\\` x N
+Pipeline: \\\`/spec-research-web\\\` -> \\\`/spec-make\\\` -> \\\`/spec-refine\\\` x N
 
 ---
 
 ## Input
 
-The user provides a path to an existing spec file produced by \\\`/prod:spec\\\`.
+The user provides a path to an existing spec file produced by \\\`/spec-make\\\`.
 
-Example: \\\`/prod:refine research/dental-claims/spec-submission.md\\\`
+Example: \\\`/spec-refine research/dental-claims/spec-submission.md\\\`
 
 Parse the spec path from \\\`$ARGUMENTS\\\`.
 
