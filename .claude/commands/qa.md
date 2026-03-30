@@ -114,7 +114,15 @@ Flag mismatches.
 - {mismatches between items and implementation}
 ```
 
-## Step 7: Fix (if asked)
+## Step 7: Browser testing (if UI changes)
+
+If the diff includes UI changes and the \`/browser\` skill is available, use it to verify visually:
+1. Navigate to the affected page
+2. Take a snapshot to confirm the UI renders correctly
+3. Walk through the key user flows (click, type, submit)
+4. Take a screenshot for the QA report
+
+## Step 8: Fix (if asked)
 
 If the user says "fix" or failures are critical:
 - Fix each gap, typecheck after

@@ -1,10 +1,10 @@
 /**
  * Embedded skill files for the aflow workflow.
- * These get written to .claude/commands/ by `af skills`.
+ * These get written to .claude/commands/ (commands) and .claude/skills/ (skills)
+ * by `af skills`.
  *
- * Each skill is defined in its own file under src/skills/.
- * Skills that operate on a backlog task use the shared TASK_PREAMBLE
- * from preamble.ts to describe how to find the current task.
+ * Commands are slash-invokable workflows (/work, /ship, /spec-make, etc.)
+ * Skills are capabilities that activate automatically when relevant (/browser, etc.)
  */
 
 import { think } from "./think.js";
@@ -20,9 +20,11 @@ import { specEnrich } from "./spec-enrich.js";
 import { specReview } from "./spec-review.js";
 import { specLab } from "./spec-lab.js";
 import { researchAuto } from "./research-auto.js";
+import { browser } from "./browser.js";
 
-export const SKILLS: Record<string, string> = {
-  // Engineering skills
+/** Slash commands — invoked explicitly via /name */
+export const COMMANDS: Record<string, string> = {
+  // Engineering
   "think.md": think(),
   "work.md": work(),
   "work-backlog.md": workBacklog(),
@@ -31,11 +33,16 @@ export const SKILLS: Record<string, string> = {
   "ship.md": ship(),
   "research-auto.md": researchAuto(),
 
-  // Spec pipeline skills
+  // Design pipeline
   "research-web.md": researchWeb(),
   "spec-make.md": specMake(),
   "spec-refine.md": specRefine(),
   "spec-enrich.md": specEnrich(),
   "spec-review.md": specReview(),
   "spec-lab.md": specLab(),
+};
+
+/** Skills — activate automatically when relevant */
+export const SKILLS: Record<string, string> = {
+  "browser.md": browser(),
 };
