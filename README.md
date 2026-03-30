@@ -1,51 +1,54 @@
-# aflow
+<p align="center">
+  <h1 align="center">aflow</h1>
+  <p align="center">
+    AI workflows for product and engineering.<br/>
+    Design specs. Write code. Ship it. All from Claude Code slash commands.
+  </p>
+</p>
 
-AI workflows for product and engineering, powered by Claude Code slash commands.
+---
 
-## Getting Started
+## Quick Start
 
 ```bash
-# Install (requires Node.js 20+ and GitHub CLI)
 curl -fsSL https://raw.githubusercontent.com/iceglober/aflow/main/install.sh | bash
-
-# Add skills to your repo
 af skills
 ```
 
-### Example: idea to shipping code
+> Requires Node.js 20+ and [GitHub CLI](https://cli.github.com). That's it.
+
+### Idea to production in 7 commands
 
 ```bash
-# 1. Research the problem space
 /research-web Build a multi-tenant billing system with usage-based pricing
 
-# 2. Create a spec from the research
 /spec-make research/billing focused on metering and invoicing
 
-# 3. Enrich the spec from your codebase (autonomous)
-/spec-enrich research/billing/spec-metering.md
+/spec-enrich research/billing/spec-metering.md        # autonomous — reads your codebase
 
-# 4. Refine unknowns with the user (interactive, repeat as needed)
-/spec-refine research/billing/spec-metering-v2.md
+/spec-refine research/billing/spec-metering-v2.md     # interactive — you answer unknowns
 
-# 5. Implement it
 /work Add usage metering API per spec R-01 through R-05
 
-# 6. Ship it
-/ship
+/qa                                                    # verify against acceptance criteria
+
+/ship                                                  # typecheck → review → commit → push → PR
 ```
 
-## Skills
+---
 
-### Design pipeline
+## Design Pipeline
 
-| Step | Skill | What it does |
-|------|-------|-------------|
-| Research | `/research-web` | Parallel web research agents → synthesis document |
-| Structure | `/spec-make` | Research dir or description → structured spec with tracked unknowns |
-| Enrich | `/spec-enrich` | Resolves unknowns from your codebase (autonomous) |
-| Refine | `/spec-refine` | Walks through unknowns one at a time with the user |
-| Audit | `/spec-review` | Gap analysis: consistency, completeness, opportunities |
-| Validate | `/spec-lab` | Binary yes/no experiments against unknowns |
+Turn an idea into an airtight spec with tracked unknowns.
+
+| | Skill | |
+|---|---|---|
+| **Research** | `/research-web` | Parallel web research agents produce a synthesis |
+| **Structure** | `/spec-make` | Research _or description_ becomes a spec with unknowns |
+| **Enrich** | `/spec-enrich` | Resolves unknowns from your codebase autonomously |
+| **Refine** | `/spec-refine` | Walks through unknowns 1-by-1 with you |
+| **Audit** | `/spec-review` | Finds gaps, conflicts, and opportunities |
+| **Validate** | `/spec-lab` | Runs binary yes/no experiments against unknowns |
 
 ```
 /research-web  →  /spec-make  →  /spec-enrich  →  /spec-refine × N  →  /spec-review
@@ -55,47 +58,61 @@ af skills
                                                                       (validate)
 ```
 
-`/spec-make` accepts either a research directory or a plain description:
-
+`/spec-make` works from research output or a plain description:
 ```
-/spec-make research/billing focused on metering and invoicing
-/spec-make A feature that lets users export data as CSV with column selection
+/spec-make research/billing focused on metering
+/spec-make A CSV export feature with configurable column selection
 ```
 
-### Engineering pipeline
+---
 
-| Step | Skill | What it does |
-|------|-------|-------------|
-| Plan | `/think` | Strategy session — forces "why" before "how" |
-| Build | `/work` | Implement from a description (pulls latest, creates branch) |
-| Build | `/work-backlog` | Implement from `.aflow/backlog.json` checklist |
-| Fix | `/fix` | Bug fixes within the current task scope |
-| Test | `/qa` | Diff vs. acceptance criteria — PASS/FAIL per scenario |
-| Ship | `/ship` | Typecheck → review → commit → push → PR |
+## Engineering Pipeline
 
-### Autonomous research
+Ship features with structure.
 
-`/research-auto` — think-test-reflect experimentation loop. Runs autonomously until a target metric is hit or you stop it. Based on [ResearcherSkill](https://github.com/krzysztofdudek/ResearcherSkill).
+| | Skill | |
+|---|---|---|
+| **Plan** | `/think` | Forces "why" before "how" |
+| **Build** | `/work` | Implement from a description — pulls latest, branches, codes |
+| **Build** | `/work-backlog` | Work through a `.aflow/backlog.json` checklist |
+| **Fix** | `/fix` | Targeted bug fixes within task scope |
+| **Test** | `/qa` | Diff vs. acceptance criteria — PASS/FAIL per scenario |
+| **Ship** | `/ship` | Typecheck → review → commit → push → PR |
+
+---
+
+## Research & Browser
+
+| | Skill | |
+|---|---|---|
+| **Experiment** | `/research-auto` | Autonomous think-test-reflect loop until a metric target is hit |
+| **Browse** | `/browser` | Navigate, interact, scrape, and screenshot with a real browser |
 
 ```
 /research-auto Optimize p99 latency of /api/billing/usage endpoint
 ```
 
+`/browser` is auto-activated by `/qa` for UI testing and `/ship` for PR screenshots. Powered by [Playwright MCP](https://github.com/microsoft/playwright-mcp).
+
+---
+
 ## Worktrees
 
 ```bash
 af wt create feature-auth          # new branch + worktree
-af wt checkout feature-payments     # worktree from existing branch
+af wt checkout feature-payments     # from existing remote branch
 af wt list                          # show all
 af wt cleanup                       # delete merged/stale
 ```
 
-## Auto-Claude [Alpha]
+---
 
-`af start` launches a TUI that runs engineering skills across a task backlog with parallel Claude sessions. Tasks support `dependencies` — blocked tasks won't auto-start until their deps ship.
+## Auto-Claude `alpha`
+
+`af start` launches a TUI running engineering skills across a task backlog with parallel Claude sessions. Tasks support `dependencies` — blocked tasks won't start until their deps ship.
 
 ![aflow TUI](assets/tui.png)
 
-## License
+---
 
-MIT
+<p align="center">MIT License</p>
