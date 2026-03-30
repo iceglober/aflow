@@ -59,8 +59,9 @@ ${bold("COMMANDS")}
         /qa             QA the diff against acceptance criteria
         /ship           Typecheck, review, commit, push, PR
         /research-auto      Autonomous experimentation (think-test-reflect loop)
+        /browser            Browse and interact with web pages (Playwright MCP)
 
-      Spec pipeline skills:
+      Design pipeline skills:
         /research-web  Multi-agent web research orchestrator
         /spec-make          Create product spec from research or description
         /spec-enrich        Autonomous spec enrichment from codebase

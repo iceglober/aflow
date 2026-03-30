@@ -2,9 +2,39 @@ import { command, flag } from "cmd-ts";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
-import { SKILLS } from "../skills/index.js";
+import { COMMANDS, SKILLS } from "../skills/index.js";
 import { ok, info, warn } from "../lib/fmt.js";
 import { gitRoot } from "../lib/git.js";
+
+function installFiles(
+  files: Record<string, string>,
+  baseDir: string,
+  force: boolean,
+): { created: number; updated: number; upToDate: number } {
+  let created = 0;
+  let updated = 0;
+  let upToDate = 0;
+
+  for (const name of Object.keys(files)) {
+    const dest = path.join(baseDir, name);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+
+    if (fs.existsSync(dest)) {
+      const existing = fs.readFileSync(dest, "utf-8");
+      if (existing === files[name] && !force) {
+        upToDate++;
+        continue;
+      }
+      fs.writeFileSync(dest, files[name]);
+      updated++;
+    } else {
+      fs.writeFileSync(dest, files[name]);
+      created++;
+    }
+  }
+
+  return { created, updated, upToDate };
+}
 
 export const installSkills = command({
   name: "skills",
@@ -17,14 +47,14 @@ export const installSkills = command({
     }),
     user: flag({
       long: "user",
-      description: "Install to ~/.claude/commands/ (user-level) instead of the current project",
+      description: "Install to ~/.claude/ (user-level) instead of the current project",
     }),
   },
   handler: async ({ force, user }) => {
-    let baseDir: string;
+    let claudeDir: string;
 
     if (user) {
-      baseDir = path.join(os.homedir(), ".claude", "commands");
+      claudeDir = path.join(os.homedir(), ".claude");
     } else {
       let root: string;
       try {
@@ -33,51 +63,51 @@ export const installSkills = command({
         console.error("Not in a git repository (use --user to install globally)");
         process.exit(1);
       }
-      baseDir = path.join(root, ".claude", "commands");
+      claudeDir = path.join(root, ".claude");
     }
 
-    const names = Object.keys(SKILLS);
-    let created = 0;
-    let updated = 0;
-    let upToDate = 0;
+    const commandsDir = path.join(claudeDir, "commands");
+    const skillsDir = path.join(claudeDir, "skills");
 
-    for (const name of names) {
-      const dest = path.join(baseDir, name);
-      // Create subdirectories as needed (e.g., prod/)
-      fs.mkdirSync(path.dirname(dest), { recursive: true });
+    // Install commands
+    const cmdResult = installFiles(COMMANDS, commandsDir, force);
+    // Install skills
+    const skillResult = installFiles(SKILLS, skillsDir, force);
 
-      if (fs.existsSync(dest)) {
-        const existing = fs.readFileSync(dest, "utf-8");
-        if (existing === SKILLS[name] && !force) {
-          upToDate++;
-          continue;
-        }
-        fs.writeFileSync(dest, SKILLS[name]);
-        updated++;
-      } else {
-        fs.writeFileSync(dest, SKILLS[name]);
-        created++;
-      }
+    const totalCreated = cmdResult.created + skillResult.created;
+    const totalUpdated = cmdResult.updated + skillResult.updated;
+    const totalUpToDate = cmdResult.upToDate + skillResult.upToDate;
+
+    const target = user ? "~/.claude/" : ".claude/";
+
+    if (totalCreated > 0) {
+      ok(`created ${totalCreated} new file${totalCreated === 1 ? "" : "s"} in ${target}`);
     }
-
-    const target = user ? "~/.claude/commands/" : ".claude/commands/";
-
-    if (created > 0) {
-      ok(`created ${created} new skill${created === 1 ? "" : "s"} in ${target}`);
+    if (totalUpdated > 0) {
+      ok(`updated ${totalUpdated} file${totalUpdated === 1 ? "" : "s"} in ${target}`);
     }
-    if (updated > 0) {
-      ok(`updated ${updated} skill${updated === 1 ? "" : "s"} in ${target}`);
-    }
-    if (upToDate > 0 && created === 0 && updated === 0) {
+    if (totalUpToDate > 0 && totalCreated === 0 && totalUpdated === 0) {
       ok("all skills up to date");
     }
 
-    // List what's available
+    // List commands
+    const commandNames = Object.keys(COMMANDS);
     console.log("");
-    info("available skills:");
-    for (const name of names) {
+    info("commands:");
+    for (const name of commandNames) {
       const slug = name.replace(".md", "").replace(/\//g, ":");
       console.log(`  /${slug}`);
+    }
+
+    // List skills
+    const skillNames = Object.keys(SKILLS);
+    if (skillNames.length > 0) {
+      console.log("");
+      info("skills:");
+      for (const name of skillNames) {
+        const slug = name.replace(".md", "").replace(/\//g, ":");
+        console.log(`  /${slug}`);
+      }
     }
 
     if (!user) {

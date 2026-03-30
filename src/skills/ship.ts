@@ -69,7 +69,11 @@ git push -u origin HEAD
 
 Never force-push.
 
-## Step 7: Create PR
+## Step 7: Screenshots (if UI changes)
+
+If the diff includes UI changes and the \\\`/browser\\\` skill is available, capture screenshots of the affected pages to include in the PR body. Save them to a temporary location and reference them in the PR.
+
+## Step 8: Create PR
 
 \`\`\`bash
 gh pr create --title "<title>" --body "$(cat <<'EOF'
@@ -92,13 +96,13 @@ EOF
 )"
 \`\`\`
 
-## Step 8: Update task
+## Step 9: Update task
 
 - Set the task's \`status\` to \`"shipped"\` in \`.aflow/backlog.json\`
 - Set the task's \`pr\` field to the PR URL
 - Set \`shippedAt\` to the current ISO timestamp
 
-## Step 9: Report
+## Step 10: Report
 
 \`\`\`
 ## Shipped
