@@ -101,7 +101,7 @@ af skills
 
 | Skill | When it activates |
 |:--|:--|
-| `/browser` | UI testing in `/qa`, PR screenshots in `/ship`. Powered by [Playwright MCP](https://github.com/microsoft/playwright-mcp). |
+| `/browser` | UI testing in `/qa`, PR screenshots in `/ship`. Powered by [Playwright CLI](https://github.com/microsoft/playwright-cli). |
 | `/research-auto` | Autonomous think→test→reflect experimentation loop. Based on [ResearcherSkill](https://github.com/krzysztofdudek/ResearcherSkill). |
 
 ```bash
