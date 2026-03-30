@@ -14,7 +14,9 @@ AI workflows for product & engineering, powered by Claude Code.
 
 </div>
 
-## Install
+## Getting Started
+
+### Installation
 
 > [!NOTE]
 > Requires Node.js 20+ and the [GitHub CLI](https://cli.github.com).
@@ -23,7 +25,7 @@ AI workflows for product & engineering, powered by Claude Code.
 curl -fsSL https://raw.githubusercontent.com/iceglober/aflow/main/install.sh | bash
 ```
 
-Then add skills to your repo:
+### Get the skills
 
 ```bash
 af skills
