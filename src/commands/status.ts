@@ -22,7 +22,7 @@ const phaseIcon: Record<Phase, string> = {
   cancelled: "✗",
 };
 
-function formatTask(task: Task, indent: number, allTasks: Task[]): void {
+function formatTask(task: Task, indent: number, allTasks: Task[], verbose: boolean): void {
   const prefix = "  ".repeat(indent);
   const color = phaseColor[task.phase] ?? dim;
   const icon = phaseIcon[task.phase] ?? "●";
@@ -33,6 +33,14 @@ function formatTask(task: Task, indent: number, allTasks: Task[]): void {
   if (task.pr) line += ` ${dim(task.pr)}`;
   line += blocked;
   console.log(line);
+
+  // Show transition history in verbose mode
+  if (verbose && task.transitions.length > 0) {
+    for (const t of task.transitions) {
+      const ts = new Date(t.timestamp).toLocaleString();
+      console.log(`${prefix}  ${dim(ts)}  →  ${bold(t.phase)}  ${dim(`(${t.actor})`)}`);
+    }
+  }
 
   // Show pipeline progress for non-terminal, non-epic tasks
   if (!isTerminal(task.phase) && task.children.length === 0) {
@@ -62,7 +70,7 @@ function formatTask(task: Task, indent: number, allTasks: Task[]): void {
   if (task.children.length > 0) {
     for (const childId of task.children) {
       const child = allTasks.find((t) => t.id === childId);
-      if (child) formatTask(child, indent + 1, allTasks);
+      if (child) formatTask(child, indent + 1, allTasks, verbose);
     }
   }
 }
@@ -72,6 +80,7 @@ export const status = command({
   description: "Show all tasks and their progress",
   args: {
     json: flag({ long: "json", description: "Output as JSON" }),
+    verbose: flag({ long: "verbose", short: "v", description: "Show transition history inline" }),
   },
   handler: (args) => {
     let tasks = listTasks();
@@ -96,7 +105,7 @@ export const status = command({
     // Show top-level tasks (no parent), with children nested
     const topLevel = tasks.filter((t) => !t.parent);
     for (const task of topLevel) {
-      formatTask(task, 0, tasks);
+      formatTask(task, 0, tasks, args.verbose);
     }
   },
 });
