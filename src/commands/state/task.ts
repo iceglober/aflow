@@ -5,6 +5,7 @@ import {
   listTasks,
   transitionTask,
   saveTask,
+  deleteTask,
   deriveEpicPhase,
   isTerminal,
   PHASES,
@@ -220,6 +221,25 @@ const list = command({
   },
 });
 
+// ── af state task delete ─────────────────────────────────────────────
+
+const del = command({
+  name: "delete",
+  description: "Delete a task and its pipeline state",
+  args: {
+    id: option({ type: string, long: "id", short: "i", description: "Task ID" }),
+  },
+  handler: (args) => {
+    try {
+      deleteTask(args.id);
+      ok(`deleted ${bold(args.id)}`);
+    } catch (e: any) {
+      console.error(e.message);
+      process.exit(1);
+    }
+  },
+});
+
 // ── Export subcommands ───────────────────────────────────────────────
 
 export const stateTask = subcommands({
@@ -231,6 +251,7 @@ export const stateTask = subcommands({
     transition,
     update,
     cancel,
+    delete: del,
     list,
   },
 });

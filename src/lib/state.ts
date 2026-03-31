@@ -201,6 +201,26 @@ export function createTask(opts: {
   return task;
 }
 
+export function deleteTask(id: string): void {
+  const tp = taskPath(id);
+  if (!fs.existsSync(tp)) throw new Error(`Task "${id}" not found.`);
+
+  // Remove parent's reference to this child
+  const task = loadTask(id);
+  if (task?.parent) {
+    const parent = loadTask(task.parent);
+    if (parent) {
+      parent.children = parent.children.filter((c) => c !== id);
+      saveTask(parent);
+    }
+  }
+
+  fs.unlinkSync(tp);
+
+  const pp = pipelinePath(id);
+  if (fs.existsSync(pp)) fs.unlinkSync(pp);
+}
+
 // ── Phase transitions (R-02, R-06) ──────────────────────────────────
 
 function phaseIndex(p: Phase): number {
