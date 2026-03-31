@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execaSync } from "execa";
 import { git, gitSafe } from "../lib/git.js";
 
 /** Pull main with fast-forward only. Returns true on success. */
@@ -14,10 +14,9 @@ export function pullMain(): boolean {
 /** Check PR status via gh CLI. Returns "open", "merged", or "closed". */
 export function checkPrStatus(prUrl: string): "open" | "merged" | "closed" | "unknown" {
   try {
-    const result = execFileSync("gh", ["pr", "view", prUrl, "--json", "state", "-q", ".state"], {
-      encoding: "utf-8",
+    const result = execaSync("gh", ["pr", "view", prUrl, "--json", "state", "-q", ".state"], {
       timeout: 10_000,
-    }).trim();
+    }).stdout;
     if (result === "MERGED") return "merged";
     if (result === "CLOSED") return "closed";
     if (result === "OPEN") return "open";

@@ -1,14 +1,14 @@
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import type { SDKMessage, SDKAssistantMessage, SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
 import { EventEmitter } from "node:events";
-import { execFileSync } from "node:child_process";
+import { execaSync } from "execa";
 
 /** Find the system-installed Claude Code CLI path.
  *  When bundled, the SDK can't find its own cli.js (import.meta.url points to
  *  the bundle). We resolve the user's installed `claude` binary instead. */
 function findClaudeCli(): string | undefined {
   try {
-    return execFileSync("which", ["claude"], { encoding: "utf-8" }).trim() || undefined;
+    return execaSync("which", ["claude"]).stdout || undefined;
   } catch {
     return undefined;
   }

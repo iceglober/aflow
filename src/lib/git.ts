@@ -1,14 +1,14 @@
-import { execFileSync, execSync } from "node:child_process";
+import { execaSync } from "execa";
 
 /** Run a git command and return trimmed stdout. Throws on failure. */
 export function git(...args: string[]): string {
-  return execFileSync("git", args, { encoding: "utf-8" }).trim();
+  return execaSync("git", args).stdout;
 }
 
 /** Run a git command, returning null on failure instead of throwing. */
 export function gitSafe(...args: string[]): string | null {
   try {
-    return execFileSync("git", args, { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] }).trim();
+    return execaSync("git", args, { reject: false }).stdout || null;
   } catch {
     return null;
   }
@@ -16,12 +16,12 @@ export function gitSafe(...args: string[]): string | null {
 
 /** Run a git command inside a specific directory. */
 export function gitIn(cwd: string, ...args: string[]): string {
-  return execFileSync("git", args, { encoding: "utf-8", cwd }).trim();
+  return execaSync("git", args, { cwd }).stdout;
 }
 
 export function gitInSafe(cwd: string, ...args: string[]): string | null {
   try {
-    return execFileSync("git", args, { encoding: "utf-8", cwd, stdio: ["pipe", "pipe", "pipe"] }).trim();
+    return execaSync("git", args, { cwd, reject: false }).stdout || null;
   } catch {
     return null;
   }
@@ -30,7 +30,7 @@ export function gitInSafe(cwd: string, ...args: string[]): string | null {
 /** Spawn an interactive shell in a directory. Returns when the shell exits. */
 export function spawnShell(cwd: string): void {
   const shell = process.env.SHELL || "bash";
-  execSync(shell, { cwd, stdio: "inherit" });
+  execaSync(shell, [], { cwd, stdio: "inherit" });
 }
 
 /** Get the root of the main worktree (resolves through linked worktrees). */

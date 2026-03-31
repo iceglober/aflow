@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execaSync } from "execa";
 import fs from "node:fs";
 import path from "node:path";
 import { gitRoot } from "./git.js";
@@ -19,7 +19,7 @@ export function runHook(name: string, env: HookEnv): void {
   if (!(stat.mode & 0o111)) return; // not executable
 
   console.log(`\x1b[36m▸\x1b[0m running ${name} hook...`);
-  execSync(`bash "${hookFile}"`, {
+  execaSync("bash", [hookFile], {
     stdio: "inherit",
     env: { ...process.env, ...env },
   });
