@@ -1,10 +1,11 @@
-import fs from "node:fs";
 import path from "node:path";
+import { ports } from "../container.js";
 import { gitRoot } from "../lib/git.js";
-import type { Backlog, Task } from "./backlog.js";
+import type { Backlog } from "./backlog.js";
 
 /** Regenerate .aflow/spec.md from backlog data. */
 export function generateSpec(backlog: Backlog): void {
+  const { fs } = ports();
   const specPath = path.join(gitRoot(), ".aflow", "spec.md");
   const dir = path.dirname(specPath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });

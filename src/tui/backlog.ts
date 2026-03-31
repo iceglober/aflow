@@ -1,5 +1,5 @@
-import fs from "node:fs";
 import path from "node:path";
+import { ports } from "../container.js";
 import { gitRoot } from "../lib/git.js";
 import { generateSpec } from "./spec-gen.js";
 
@@ -41,6 +41,7 @@ function backlogPath(): string {
 }
 
 export function loadBacklog(): Backlog {
+  const { fs } = ports();
   const p = backlogPath();
   if (!fs.existsSync(p)) {
     return { project: path.basename(gitRoot()), tasks: [] };
@@ -54,6 +55,7 @@ export function loadBacklog(): Backlog {
 }
 
 export function saveBacklog(backlog: Backlog): void {
+  const { fs } = ports();
   const dir = backlogDir();
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(backlogPath(), JSON.stringify(backlog, null, 2) + "\n");

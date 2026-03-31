@@ -1,6 +1,5 @@
-import { execSync } from "node:child_process";
-import fs from "node:fs";
 import path from "node:path";
+import { ports } from "../container.js";
 import { gitRoot } from "./git.js";
 
 export interface HookEnv {
@@ -12,14 +11,15 @@ export interface HookEnv {
 
 /** Run a hook script if it exists and is executable. */
 export function runHook(name: string, env: HookEnv): void {
+  const { fs, shell, console: con } = ports();
   const hookFile = path.join(gitRoot(), ".aflow", "hooks", name);
   if (!fs.existsSync(hookFile)) return;
 
   const stat = fs.statSync(hookFile);
   if (!(stat.mode & 0o111)) return; // not executable
 
-  console.log(`\x1b[36m▸\x1b[0m running ${name} hook...`);
-  execSync(`bash "${hookFile}"`, {
+  con.log(`\x1b[36m▸\x1b[0m running ${name} hook...`);
+  shell.exec(`bash "${hookFile}"`, {
     stdio: "inherit",
     env: { ...process.env, ...env },
   });

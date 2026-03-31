@@ -1,5 +1,5 @@
 import { command, positional, string } from "cmd-ts";
-import fs from "node:fs";
+import { ports } from "../container.js";
 import { git, gitSafe, gitRoot } from "../lib/git.js";
 import { worktreePath } from "../lib/config.js";
 import { runHook } from "../lib/hooks.js";
@@ -18,7 +18,7 @@ export const checkout = command({
   handler: ({ branch }) => {
     const wtPath = worktreePath(branch);
 
-    if (fs.existsSync(wtPath)) {
+    if (ports().fs.existsSync(wtPath)) {
       ok(`worktree already exists: ${wtPath}`);
       return;
     }
@@ -50,6 +50,6 @@ export const checkout = command({
     });
 
     ok(`worktree created at ${bold(wtPath)}`);
-    console.log(`\n  cd ${wtPath}\n`);
+    ports().console.log(`\n  cd ${wtPath}\n`);
   },
 });

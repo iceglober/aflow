@@ -1,7 +1,6 @@
-import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
-import { execFileSync } from "node:child_process";
+import { ports } from "../container.js";
 import { VERSION } from "./version.js";
 import { warn } from "./fmt.js";
 
@@ -14,6 +13,7 @@ interface CachedVersion {
 }
 
 function readCache(): CachedVersion | null {
+  const { fs } = ports();
   try {
     if (!fs.existsSync(CACHE_FILE)) return null;
     const data: CachedVersion = JSON.parse(fs.readFileSync(CACHE_FILE, "utf-8"));
@@ -25,6 +25,7 @@ function readCache(): CachedVersion | null {
 }
 
 function writeCache(version: string): void {
+  const { fs } = ports();
   try {
     const dir = path.dirname(CACHE_FILE);
     fs.mkdirSync(dir, { recursive: true });
@@ -36,11 +37,11 @@ function writeCache(version: string): void {
 
 function fetchLatestVersion(): string | null {
   try {
-    const out = execFileSync(
+    const out = ports().shell.execFile(
       "gh",
       ["release", "list", "-R", "iceglober/aflow", "--json", "tagName", "-L", "10"],
-      { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"], timeout: 5000 },
-    ).trim();
+      { timeout: 5000 },
+    );
     if (!out) return null;
     const releases: Array<{ tagName: string }> = JSON.parse(out);
     const match = releases.find((r) => r.tagName.startsWith("v"));

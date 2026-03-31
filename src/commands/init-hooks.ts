@@ -1,6 +1,6 @@
-import fs from "node:fs";
 import path from "node:path";
 import { command } from "cmd-ts";
+import { ports } from "../container.js";
 import { gitRoot } from "../lib/git.js";
 import { ok, info } from "../lib/fmt.js";
 
@@ -26,6 +26,7 @@ export const initHooks = command({
   description: "Create .aflow/hooks/ with a post_create template",
   args: {},
   handler: () => {
+    const { fs } = ports();
     const hookDir = path.join(gitRoot(), ".aflow", "hooks");
     fs.mkdirSync(hookDir, { recursive: true });
 

@@ -11,7 +11,8 @@
   "scripts": {
     "build": "bun run build.ts",
     "dev": "bun --watch run build.ts",
-    "typecheck": "bun x tsc --noEmit"
+    "typecheck": "bun x tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.86",

@@ -2,7 +2,7 @@ import { command } from "cmd-ts";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
+import { ports } from "../container.js";
 import { VERSION } from "../lib/version.js";
 import { ok, info, warn, red } from "../lib/fmt.js";
 
@@ -31,7 +31,7 @@ async function fetchLatestRelease(): Promise<Release | null> {
  */
 function tryGhCli(): Release | null | undefined {
   try {
-    const out = execFileSync(
+    const out = ports().shell.execFile(
       "gh",
       [
         "release",
@@ -43,8 +43,7 @@ function tryGhCli(): Release | null | undefined {
         "-L",
         "50",
       ],
-      { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] },
-    ).trim();
+    );
 
     if (!out) return null;
 
@@ -117,13 +116,13 @@ async function downloadBinary(
   release: Release,
   dest: string,
 ): Promise<boolean> {
+  const { fs, shell } = ports();
   // Try gh CLI download first
   try {
     const tmp = dest + ".tmp";
-    execFileSync(
+    shell.execFile(
       "gh",
       ["release", "download", release.tag, "-R", REPO, "-p", "af", "-O", tmp],
-      { stdio: ["pipe", "pipe", "pipe"] },
     );
     fs.chmodSync(tmp, 0o755);
     fs.renameSync(tmp, dest);
@@ -134,7 +133,7 @@ async function downloadBinary(
 
   // Fall back to direct download
   if (!release.assetUrl) {
-    console.error(red("no download URL available"));
+    ports().console.error(red("no download URL available"));
     return false;
   }
 
@@ -144,7 +143,7 @@ async function downloadBinary(
 
   const res = await fetch(release.assetUrl, { headers, redirect: "follow" });
   if (!res.ok) {
-    console.error(red(`download failed: HTTP ${res.status}`));
+    ports().console.error(red(`download failed: HTTP ${res.status}`));
     return false;
   }
 
@@ -160,10 +159,11 @@ export const upgrade = command({
   description: "Update aflow to the latest version",
   args: {},
   handler: async () => {
+    const { fs: fsPort, console: con } = ports();
     info(`current version: ${VERSION}`);
 
     // Find where we're installed
-    const scriptPath = fs.realpathSync(
+    const scriptPath = fsPort.realpathSync(
       fileURLToPath(import.meta.url),
     );
     info(`installed at: ${scriptPath}`);
@@ -174,8 +174,8 @@ export const upgrade = command({
 
     if (!latest) {
       warn("no releases found");
-      console.log("  Push a tag to create the first release:");
-      console.log("    git tag v0.2.0 && git push origin --tags");
+      con.log("  Push a tag to create the first release:");
+      con.log("    git tag v0.2.0 && git push origin --tags");
       process.exit(1);
     }
 
@@ -189,9 +189,9 @@ export const upgrade = command({
     // Check write permission
     const installDir = path.dirname(scriptPath);
     try {
-      fs.accessSync(installDir, fs.constants.W_OK);
+      fsPort.accessSync(installDir, fs.constants.W_OK);
     } catch {
-      console.error(
+      con.error(
         red(`no write permission to ${installDir} — try with sudo`),
       );
       process.exit(1);
@@ -205,7 +205,7 @@ export const upgrade = command({
     }
 
     ok(`updated to v${latest.version}`);
-    console.log("");
+    con.log("");
     info("run `af skills` to update your Claude Code slash commands");
   },
 });

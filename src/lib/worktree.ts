@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import { ports } from "../container.js";
 import { git, defaultBranch, gitRoot } from "./git.js";
 import { worktreePath } from "./config.js";
 import { runHook } from "./hooks.js";
@@ -18,7 +18,7 @@ export function createWorktree(
   const base = from ?? defaultBranch();
   const wtPath = worktreePath(name);
 
-  if (fs.existsSync(wtPath)) {
+  if (ports().fs.existsSync(wtPath)) {
     throw new Error(`Worktree already exists: ${wtPath}`);
   }
 
@@ -47,7 +47,7 @@ export function createWorktree(
 /** Create a worktree or return the existing path if it already exists. */
 export function ensureWorktree(name: string, from?: string): string {
   const wtPath = worktreePath(name);
-  if (fs.existsSync(wtPath)) {
+  if (ports().fs.existsSync(wtPath)) {
     info(`worktree already exists at ${bold(wtPath)}, reusing...`);
     return wtPath;
   }

@@ -1,10 +1,9 @@
-import { execFileSync } from "node:child_process";
-import { git, gitSafe } from "../lib/git.js";
+import { ports } from "../container.js";
 
 /** Pull main with fast-forward only. Returns true on success. */
 export function pullMain(): boolean {
   try {
-    git("pull", "--ff-only", "origin", "main");
+    ports().git.run("pull", "--ff-only", "origin", "main");
     return true;
   } catch {
     return false;
@@ -14,10 +13,9 @@ export function pullMain(): boolean {
 /** Check PR status via gh CLI. Returns "open", "merged", or "closed". */
 export function checkPrStatus(prUrl: string): "open" | "merged" | "closed" | "unknown" {
   try {
-    const result = execFileSync("gh", ["pr", "view", prUrl, "--json", "state", "-q", ".state"], {
-      encoding: "utf-8",
+    const result = ports().shell.execFile("gh", ["pr", "view", prUrl, "--json", "state", "-q", ".state"], {
       timeout: 10_000,
-    }).trim();
+    });
     if (result === "MERGED") return "merged";
     if (result === "CLOSED") return "closed";
     if (result === "OPEN") return "open";

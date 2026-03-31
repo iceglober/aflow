@@ -1,7 +1,7 @@
 import { command, flag } from "cmd-ts";
-import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import { ports } from "../container.js";
 import { COMMANDS, SKILLS } from "../skills/index.js";
 import { ok, info, warn } from "../lib/fmt.js";
 import { gitRoot } from "../lib/git.js";
@@ -11,6 +11,7 @@ function installFiles(
   baseDir: string,
   force: boolean,
 ): { created: number; updated: number; upToDate: number } {
+  const { fs } = ports();
   let created = 0;
   let updated = 0;
   let upToDate = 0;
@@ -51,6 +52,7 @@ export const installSkills = command({
     }),
   },
   handler: async ({ force, user }) => {
+    const con = ports().console;
     let claudeDir: string;
 
     if (user) {
@@ -60,7 +62,7 @@ export const installSkills = command({
       try {
         root = gitRoot();
       } catch {
-        console.error("Not in a git repository (use --user to install globally)");
+        con.error("Not in a git repository (use --user to install globally)");
         process.exit(1);
       }
       claudeDir = path.join(root, ".claude");
@@ -92,21 +94,21 @@ export const installSkills = command({
 
     // List commands
     const commandNames = Object.keys(COMMANDS);
-    console.log("");
+    con.log("");
     info("commands:");
     for (const name of commandNames) {
       const slug = name.replace(".md", "").replace(/\//g, ":");
-      console.log(`  /${slug}`);
+      con.log(`  /${slug}`);
     }
 
     // List skills
     const skillNames = Object.keys(SKILLS);
     if (skillNames.length > 0) {
-      console.log("");
+      con.log("");
       info("skills:");
       for (const name of skillNames) {
         const slug = name.replace(".md", "").replace(/\//g, ":");
-        console.log(`  /${slug}`);
+        con.log(`  /${slug}`);
       }
     }
 
