@@ -9,7 +9,6 @@
 
 import { think } from "./think.js";
 import { work } from "./work.js";
-import { workBacklog } from "./work-backlog.js";
 import { fix } from "./fix.js";
 import { qa } from "./qa.js";
 import { ship } from "./ship.js";
@@ -27,7 +26,6 @@ export const COMMANDS: Record<string, string> = {
   // Engineering
   "think.md": think(),
   "work.md": work(),
-  "work-backlog.md": workBacklog(),
   "fix.md": fix(),
   "qa.md": qa(),
   "ship.md": ship(),

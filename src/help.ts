@@ -3,7 +3,7 @@ import { VERSION } from "./lib/version.js";
 
 export const HELP_TEXT = `
 ${bold("aflow")} ${dim(`v${VERSION}`)}
-AI-native development workflow — worktrees, tasks, and Claude Code skills.
+AI-native development workflow — design, implement, test, and ship with Claude Code.
 
 ${bold("USAGE")}
 
@@ -11,39 +11,21 @@ ${bold("USAGE")}
 
 ${bold("COMMANDS")}
 
-  ${bold("Worktree management")} ${dim("(af wt ...)")}
-
-  wt create <name> [--from <branch>]
-      Create a new worktree with a fresh branch forked from <branch>
-      (defaults to main/master). Opens a shell inside the worktree.
-
-      Examples:
-        af wt create feature-auth
-        af wt create hotfix-login --from release/2.0
-
-  wt checkout <branch>
-      Create a worktree from an existing remote branch.
-
-      Example:
-        af wt checkout feature-payments
-
-  wt list
-      Show all worktrees with their branch and latest commit.
-
-  wt delete <name> [--force]
-      Remove a worktree and its local branch. Refuses if the worktree
-      has uncommitted changes unless --force is passed.
-
-  wt cleanup [--base <branch>] [--dry-run] [--yes]
-      Delete worktrees whose branches are merged into <base> (default:
-      auto-detected) or whose remote branch has been deleted. Skips
-      worktrees with uncommitted changes or unpushed commits.
-
   ${bold("Workflow")}
 
-  start
-      Launch the interactive TUI — manage your backlog, start tasks,
-      and run parallel Claude Code sessions.
+  start ["description"] [--quick]
+      Start a new task pipeline or resume an existing one. Claude guides you
+      through: understand → design → implement → verify → ship.
+
+      With --quick, skips design phases for small bugs and features.
+
+      Examples:
+        af start                           (prompts for description)
+        af start "add user auth"           (starts full pipeline)
+        af start --quick "fix login bug"   (skips design, straight to implement)
+
+  status [--json]
+      Show all tasks in a tree view with phases, branches, and progress.
 
   skills [--force] [--user]
       Install aflow workflow skills as Claude Code slash commands.
@@ -51,36 +33,81 @@ ${bold("COMMANDS")}
       By default, installs to .claude/commands/ in the current repo.
       With --user, installs to ~/.claude/commands/ (available globally).
 
-      Engineering skills (task workflow):
+      Engineering skills:
         /think          Product strategy session before building
-        /work           Implement a given task (no backlog required)
-        /work-backlog   Work through current task from the backlog
-        /fix            Fix bugs, update task items if needed
+        /work           Implement a task (from spec or ad-hoc)
+        /fix            Fix bugs, update task if needed
         /qa             QA the diff against acceptance criteria
         /ship           Typecheck, review, commit, push, PR
-        /research-auto      Autonomous experimentation (think-test-reflect loop)
-        /browser            Browse and interact with web pages (Playwright MCP)
+        /research-auto  Autonomous experimentation (think-test-reflect)
+        /browser        Browse and interact with web pages
 
-      Design pipeline skills:
-        /research-web  Multi-agent web research orchestrator
-        /spec-make          Create product spec from research or description
-        /spec-enrich        Autonomous spec enrichment from codebase
-        /spec-refine        Interactive spec refinement
-        /spec-review        Spec gap analysis after refinement
-        /spec-lab           Validation experiments against spec unknowns
+      Design pipeline:
+        /research-web   Multi-agent web research orchestrator
+        /spec-make      Create product spec from research or description
+        /spec-enrich    Autonomous spec enrichment from codebase
+        /spec-refine    Interactive spec refinement
+        /spec-review    Spec gap analysis after refinement
+        /spec-lab       Validation experiments against spec unknowns
+
+  ${bold("Worktree management")} ${dim("(af wt ...)")}
+
+  wt create <name> [--from <branch>]
+      Create a new worktree with a fresh branch forked from <branch>
+      (defaults to main/master). Opens a shell inside the worktree.
+
+  wt checkout <branch>
+      Create a worktree from an existing remote branch.
+
+  wt list
+      Show all worktrees with their branch and latest commit.
+
+  wt delete <name> [--force]
+      Remove a worktree and its local branch.
+
+  wt cleanup [--base <branch>] [--dry-run] [--yes]
+      Delete worktrees whose branches are merged or whose remote is deleted.
 
   hooks
-      Create .aflow/hooks/ with a post_create template. The hook runs
-      after every \`af wt create\` or \`af wt checkout\`.
-
-      Hook environment variables:
-        WORKTREE_DIR   - absolute path to the new worktree
-        WORKTREE_NAME  - name of the worktree / branch
-        BASE_BRANCH    - branch it was created from
-        REPO_ROOT      - absolute path to the main repository
+      Create .aflow/hooks/ with a post_create template.
 
   upgrade
       Check for a newer version and self-update.
+
+  ${bold("Advanced")} ${dim("(internal — used by skills and orchestrator)")}
+
+  state task create --title "..."
+      Create a new task (returns task ID).
+
+  state task <id> show [--json]
+      Display task details.
+
+  state task <id> transition <phase> [--force]
+      Move task to a new phase.
+
+  state task <id> update --<field> <value>
+      Update task metadata.
+
+  state task <id> cancel
+      Cancel a task.
+
+  state task list [--phase <p>] [--parent <id>] [--json]
+      List tasks with optional filters.
+
+  state spec <id> show
+      Display a task's spec.
+
+  state spec <id> set --file <path> | --content "..."
+      Write a task's spec.
+
+  state spec <id> add-workstream --title "..." [--depends-on <ids>]
+      Add a workstream to an epic.
+
+  state qa <id> report --status pass|fail --summary "..."
+      Record a QA result.
+
+  state log <id>
+      Show phase transition history.
 
 ${bold("FLAGS")}
 
@@ -90,26 +117,5 @@ ${bold("FLAGS")}
 ${bold("ENVIRONMENT")}
 
   AFLOW_DIR    Override where worktrees are stored. By default, worktrees
-               are created as siblings of the repo:
-
-                 repo/            <- your project
-                 repo-wt-feature/ <- worktree
-
-               With AFLOW_DIR set:
-
-                 AFLOW_DIR/
-                   feature/       <- worktree
-                   bugfix/        <- worktree
-
-${bold("WORKTREE LAYOUT")}
-
-  Worktrees share the same .git object store, so branches, stashes, and
-  history are shared. Each worktree has its own working tree and index.
-
-  Default:
-    ~/repos/myapp/               <- main repo
-    ~/repos/myapp-wt-feature/    <- worktree
-
-  With AFLOW_DIR=~/.worktrees:
-    ~/.worktrees/feature/        <- worktree
+               are created as siblings of the repo.
 `.trimStart();

@@ -5,9 +5,11 @@ import { list } from "./commands/list.js";
 import { del } from "./commands/delete.js";
 import { cleanup } from "./commands/cleanup.js";
 import { initHooks } from "./commands/init-hooks.js";
-import { startWork } from "./commands/start-work.js";
+import { start } from "./commands/start.js";
 import { upgrade } from "./commands/upgrade.js";
 import { installSkills } from "./commands/install-skills.js";
+import { state } from "./commands/state/index.js";
+import { status } from "./commands/status.js";
 import { HELP_TEXT } from "./help.js";
 import { VERSION } from "./lib/version.js";
 import { checkForUpdate } from "./lib/update-check.js";
@@ -43,9 +45,11 @@ const cli = subcommands({
   description: "aflow — AI-native development workflow",
   cmds: {
     wt,
-    start: startWork,
+    start,
+    status,
     skills: installSkills,
     hooks: initHooks,
+    state,
     upgrade,
   },
 });
