@@ -2,3 +2,8 @@ node_modules/
 dist/
 research/
 .aflow/
+
+# aflow local state (per-engineer, not shared)
+.aflow/state/
+.lab/
+run.log

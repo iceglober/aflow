@@ -1,6 +1,6 @@
 {
   "name": "aflow",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "description": "Structured AI workflows for product and engineering",
   "license": "MIT",
   "repository": "https://github.com/iceglober/aflow",
@@ -11,7 +11,8 @@
   "scripts": {
     "build": "bun run build.ts",
     "dev": "bun --watch run build.ts",
-    "typecheck": "bun x tsc --noEmit"
+    "typecheck": "bun x tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.86",
