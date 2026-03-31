@@ -2,7 +2,7 @@ import { command } from "cmd-ts";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
+import { execaSync } from "execa";
 import { VERSION } from "../lib/version.js";
 import { ok, info, warn, red } from "../lib/fmt.js";
 
@@ -31,20 +31,12 @@ async function fetchLatestRelease(): Promise<Release | null> {
  */
 function tryGhCli(): Release | null | undefined {
   try {
-    const out = execFileSync(
+    const result = execaSync(
       "gh",
-      [
-        "release",
-        "list",
-        "-R",
-        REPO,
-        "--json",
-        "tagName",
-        "-L",
-        "50",
-      ],
-      { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] },
-    ).trim();
+      ["release", "list", "-R", REPO, "--json", "tagName", "-L", "50"],
+      { stderr: "pipe" },
+    );
+    const out = result.stdout.trim();
 
     if (!out) return null;
 
@@ -120,10 +112,10 @@ async function downloadBinary(
   // Try gh CLI download first
   try {
     const tmp = dest + ".tmp";
-    execFileSync(
+    execaSync(
       "gh",
       ["release", "download", release.tag, "-R", REPO, "-p", "af", "-O", tmp],
-      { stdio: ["pipe", "pipe", "pipe"] },
+      { stderr: "pipe" },
     );
     fs.chmodSync(tmp, 0o755);
     fs.renameSync(tmp, dest);

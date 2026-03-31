@@ -250,21 +250,18 @@ async function _runPipeline(task: Task): Promise<void> {
       const updated = loadTask(current.id)!;
       if (!updated.pr && updated.branch) {
         // Skill may have created a PR without updating state — check gh
-        const prUrl = gitInSafe(
-          updated.worktree ?? gitRoot(),
-          "ls-remote", "--get-url", "origin",
-        );
         try {
-          const { execFileSync } = await import("node:child_process");
-          const ghResult = execFileSync("gh", ["pr", "view", updated.branch, "--json", "url", "-q", ".url"], {
-            encoding: "utf-8",
+          const { execaSync } = await import("execa");
+          const ghResult = execaSync("gh", ["pr", "view", updated.branch, "--json", "url", "-q", ".url"], {
             cwd: updated.worktree ?? gitRoot(),
-          }).trim();
-          if (ghResult) {
-            updated.pr = ghResult;
+            stderr: "pipe",
+          });
+          const prUrl = ghResult.stdout.trim();
+          if (prUrl) {
+            updated.pr = prUrl;
             const { saveTask } = await import("./state.js");
             saveTask(updated);
-            ok(`PR detected: ${ghResult}`);
+            ok(`PR detected: ${prUrl}`);
           }
         } catch {}
       }
