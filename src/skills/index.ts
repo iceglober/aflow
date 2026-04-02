@@ -20,6 +20,12 @@ import { specReview } from "./spec-review.js";
 import { specLab } from "./spec-lab.js";
 import { researchAuto } from "./research-auto.js";
 import { browser } from "./browser.js";
+import { productDiscoveryNew } from "./product-discovery-new.js";
+import { productDiscoveryRefine } from "./product-discovery-refine.js";
+import { productDiscoveryUser } from "./product-discovery-user.js";
+import { productPrdNew } from "./product-prd-new.js";
+import { productPrdRefine } from "./product-prd-refine.js";
+import { productPipeline } from "./product-pipeline.js";
 
 /** Slash commands — invoked explicitly via /name */
 export const COMMANDS: Record<string, string> = {
@@ -38,6 +44,14 @@ export const COMMANDS: Record<string, string> = {
   "spec-enrich.md": specEnrich(),
   "spec-review.md": specReview(),
   "spec-lab.md": specLab(),
+
+  // Product documentation pipeline
+  "product-discovery-new.md": productDiscoveryNew(),
+  "product-discovery-refine.md": productDiscoveryRefine(),
+  "product-discovery-user.md": productDiscoveryUser(),
+  "product-prd-new.md": productPrdNew(),
+  "product-prd-refine.md": productPrdRefine(),
+  "product-pipeline.md": productPipeline(),
 };
 
 /** Skills — activate automatically when relevant */

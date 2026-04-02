@@ -1,5 +1,5 @@
 ---
-description: Fix bugs or implement changes for the current aflow task. Use when user says 'fix this bug', 'this is broken', 'something's wrong with', 'patch this', or reports specific errors. Classifies issues as bug/scope-change/new-work, fixes code, updates backlog items if behavior changes.
+description: Fix bugs or implement changes for the current aflow task. Use when user says 'fix this bug', 'this is broken', 'something's wrong with', 'patch this', or reports specific errors. Classifies issues as bug/scope-change/new-work, fixes code, updates task state if behavior changes.
 ---
 
 # Fix
@@ -8,7 +8,7 @@ You are fixing issues or making changes within the scope of the current aflow ta
 
 ## Critical Rules
 
-- **Implement code changes first**, then update the backlog.
+- **Implement code changes first**, then update the task.
 - **Read source files before editing them.**
 - The task's **acceptance criteria define what "correct" means**.
 - If a fix **contradicts the task's intent**, flag it to the user instead of proceeding.
@@ -19,24 +19,30 @@ The user provides issues to address: `$ARGUMENTS`
 
 ## Context: Current task
 
-Run \`git branch --show-current\` to get the current branch name.
+Run \`af state task list --json\` and find the task whose \`branch\` field matches the current branch (\`git branch --show-current\`). This is your **current task**.
 
-Read \`.aflow/backlog.json\` and find the task whose \`branch\` field matches the current branch. This is your **current task**.
+If no task matches, this branch isn't linked to an aflow task — operate in ad-hoc mode without state tracking.
 
-If no task matches, tell the user: "This branch isn't linked to an aflow task. Run \`af start\` to create one."
-
-The task object has:
+If a task is found, run \`af state task show --id <id> --json\` to get full details. The task has:
 - \`id\` — task identifier (e.g. "t3")
 - \`title\` — short description
 - \`description\` — full context
-- \`items\` — checklist of implementation tasks (\`{ text, done }\`)
-- \`acceptance\` — acceptance criteria (strings)
+- \`phase\` — understand | design | implement | verify | ship | done | cancelled
+- \`spec\` — path to spec file (if exists)
 - \`dependencies\` — array of task IDs that must complete before this task can start
-- \`status\` — pending | active | shipped | merged
 - \`branch\` — the git branch for this task
 - \`pr\` — PR URL if shipped
+- \`qaResult\` — latest QA result (if any)
 
-Also read \`.aflow/spec.md\` for a formatted overview of the full backlog, and \`CLAUDE.md\` for project-specific commands (typecheck, build, lint, etc.).
+If the task has a spec, run \`af state spec show --id <id>\` to read it.
+
+Also read \`CLAUDE.md\` for project-specific commands (typecheck, build, lint, etc.).
+
+**State mutations:** Use \`af state\` commands for all changes:
+- \`af state task update --id <id> --field value\` — update metadata
+- \`af state task transition --id <id> --phase <phase>\` — advance phase
+- \`af state spec set --id <id> --file <path>\` — save spec content
+- \`af state qa --id <id> --status pass|fail --summary "..."\` — record QA result
 
 ## Process
 
@@ -56,10 +62,10 @@ For each issue:
 
 ### Step 3: Update the task (if needed)
 
-Only update `.aflow/backlog.json` if an issue is a **scope change** or **new work**:
-- Add new items for new work
-- Mark completed items as `done: true`
-- Update acceptance criteria if behavior changed
+Only update the task via `af state task update` if an issue is a **scope change** or **new work**:
+- Add new items for new work via `af state task update --id <id> --items '<json>'`
+- Mark completed items as done via `af state task update --id <id> --items '<json>'`
+- Update acceptance criteria if behavior changed via `af state task update --id <id> --acceptance '<criteria>'`
 - Leave unrelated items alone
 
 ### Step 4: Verify
