@@ -1,9 +1,9 @@
-import { execFileSync, spawn as nodeSpawn } from "node:child_process";
+import { execaSync, execa } from "execa";
 
 /** Find the system-installed Claude Code CLI path. */
 function findClaudeCli(): string {
   try {
-    const p = execFileSync("which", ["claude"], { encoding: "utf-8" }).trim();
+    const p = execaSync("which", ["claude"]).stdout.trim();
     if (p) return p;
   } catch {}
   throw new Error("Claude CLI not found. Install it from https://claude.ai/download");
@@ -37,21 +37,24 @@ export async function runSession(opts: RunSessionOpts): Promise<number> {
   const claude = findClaudeCli();
 
   return new Promise<number>((resolve, reject) => {
-    const child = nodeSpawn(claude, [
+    const subprocess = execa(claude, [
       "-p",
       "--dangerously-skip-permissions",
     ], {
       cwd: opts.cwd,
-      stdio: ["pipe", "inherit", "pipe"],
+      stdin: "pipe",
+      stdout: "inherit",
+      stderr: "pipe",
+      reject: false,
     });
 
     // Pass prompt via stdin (avoids --allowedTools eating the positional arg)
-    child.stdin?.write(opts.prompt);
-    child.stdin?.end();
+    subprocess.stdin?.write(opts.prompt);
+    subprocess.stdin?.end();
 
     let interrupted = false;
 
-    child.stderr?.on("data", (chunk: Buffer) => {
+    subprocess.stderr?.on("data", (chunk: Buffer) => {
       if (!interrupted) {
         process.stderr.write(chunk);
       }
@@ -59,18 +62,18 @@ export async function runSession(opts: RunSessionOpts): Promise<number> {
 
     const sigHandler = () => {
       if (interrupted) {
-        child.kill("SIGKILL");
+        subprocess.kill("SIGKILL");
         return;
       }
       interrupted = true;
-      child.kill("SIGINT");
+      subprocess.kill("SIGINT");
       setTimeout(() => {
-        if (!child.killed) child.kill("SIGINT");
+        if (!subprocess.killed) subprocess.kill("SIGINT");
       }, 100);
     };
     process.on("SIGINT", sigHandler);
 
-    child.on("close", (code, signal) => {
+    subprocess.on("close", (code, signal) => {
       process.off("SIGINT", sigHandler);
 
       if (interrupted || signal === "SIGINT" || signal === "SIGTERM" || code === 130) {
@@ -81,7 +84,7 @@ export async function runSession(opts: RunSessionOpts): Promise<number> {
       resolve(code ?? 1);
     });
 
-    child.on("error", (err) => {
+    subprocess.on("error", (err) => {
       process.off("SIGINT", sigHandler);
       resolve(1);
     });

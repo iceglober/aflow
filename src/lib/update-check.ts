@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
-import { execFileSync } from "node:child_process";
+import { execaSync } from "execa";
 import { VERSION } from "./version.js";
 import { warn } from "./fmt.js";
 
@@ -36,11 +36,12 @@ function writeCache(version: string): void {
 
 function fetchLatestVersion(): string | null {
   try {
-    const out = execFileSync(
+    const result = execaSync(
       "gh",
       ["release", "list", "-R", "iceglober/aflow", "--json", "tagName", "-L", "10"],
-      { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"], timeout: 5000 },
-    ).trim();
+      { stderr: "pipe", timeout: 5000 },
+    );
+    const out = result.stdout.trim();
     if (!out) return null;
     const releases: Array<{ tagName: string }> = JSON.parse(out);
     const match = releases.find((r) => r.tagName.startsWith("v"));
