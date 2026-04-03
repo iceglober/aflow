@@ -1,4 +1,4 @@
-# aflow
+# glorious
 
 AI-native development workflow CLI. Manages worktrees, tasks, and Claude Code skills.
 
@@ -20,22 +20,22 @@ src/
 ├── index.ts              # CLI entry point (cmd-ts router)
 ├── help.ts               # Manual text
 ├── commands/
-│   ├── start.ts          # af start — pipeline orchestrator
-│   ├── status.ts         # af status — task tree view
-│   ├── state/            # af state — task state management (internal)
+│   ├── start.ts          # gs start — pipeline orchestrator
+│   ├── status.ts         # gs status — task tree view
+│   ├── state/            # gs state — task state management (internal)
 │   │   ├── index.ts      # Subcommand group
 │   │   ├── task.ts       # create, show, transition, update, cancel, list
 │   │   ├── spec.ts       # show, set, add-workstream
 │   │   ├── qa.ts         # QA report
 │   │   └── log.ts        # Transition history
-│   ├── create.ts         # af wt create
-│   ├── checkout.ts       # af wt checkout
-│   ├── list.ts           # af wt list
-│   ├── delete.ts         # af wt delete
-│   ├── cleanup.ts        # af wt cleanup
-│   ├── install-skills.ts # af skills
-│   ├── init-hooks.ts     # af hooks
-│   └── upgrade.ts        # af upgrade
+│   ├── create.ts         # gs wt create
+│   ├── checkout.ts       # gs wt checkout
+│   ├── list.ts           # gs wt list
+│   ├── delete.ts         # gs wt delete
+│   ├── cleanup.ts        # gs wt cleanup
+│   ├── install-skills.ts # gs skills
+│   ├── init-hooks.ts     # gs hooks
+│   └── upgrade.ts        # gs upgrade
 ├── lib/
 │   ├── state.ts          # Task model, CRUD, phase validation, auto-setup
 │   ├── state.test.ts     # State module tests
@@ -51,7 +51,7 @@ src/
 │   └── update-check.ts   # Update checker
 └── skills/
     ├── index.ts          # COMMANDS & SKILLS registry
-    ├── preamble.ts       # Shared task context for skills (uses af state)
+    ├── preamble.ts       # Shared task context for skills (uses gs state)
     │
     │  # Engineering skills
     ├── think.ts          # /think — product strategy session
@@ -98,12 +98,12 @@ src/
 
 ## Key concepts
 
-- **Task state** lives in `.aflow/state/` (gitignored, per-engineer)
-- **Specs** live in `.aflow/specs/` (committed, shared)
-- **`af state`** is the sole interface for reading/writing state — skills call it via Bash, never edit files directly
+- **Task state** lives in `.glorious/state/` (gitignored, per-engineer)
+- **Specs** live in `.glorious/specs/` (committed, shared)
+- **`gs state`** is the sole interface for reading/writing state — skills call it via Bash, never edit files directly
 - **Pipeline phases**: understand → design → implement → verify → ship → done
 - **Each skill runs as a separate Claude session** to avoid context window bloat
-- Skills use `TASK_PREAMBLE` from `preamble.ts` to find the current task via `af state`
+- Skills use `TASK_PREAMBLE` from `preamble.ts` to find the current task via `gs state`
 
 ## Stack
 

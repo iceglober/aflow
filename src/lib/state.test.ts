@@ -27,8 +27,8 @@ import {
 } from "./state.js";
 import { gitRoot } from "./git.js";
 
-const stateDir = () => path.join(gitRoot(), ".aflow", "state");
-const specsDir = () => path.join(gitRoot(), ".aflow", "specs");
+const stateDir = () => path.join(gitRoot(), ".glorious", "state");
+const specsDir = () => path.join(gitRoot(), ".glorious", "specs");
 
 function cleanState() {
   const sd = stateDir();
@@ -48,16 +48,16 @@ afterAll(() => {
 // ── Auto-setup ───────────────────────────────────────────────────────
 
 describe("ensureSetup", () => {
-  test("creates .aflow/state/ and .aflow/specs/ directories", () => {
+  test("creates .glorious/state/ and .glorious/specs/ directories", () => {
     ensureSetup();
     expect(fs.existsSync(stateDir())).toBe(true);
     expect(fs.existsSync(specsDir())).toBe(true);
   });
 
-  test("adds .aflow/state/ to .gitignore", () => {
+  test("adds .glorious/state/ to .gitignore", () => {
     ensureSetup();
     const gi = fs.readFileSync(path.join(gitRoot(), ".gitignore"), "utf-8");
-    expect(gi).toContain(".aflow/state/");
+    expect(gi).toContain(".glorious/state/");
   });
 });
 
@@ -128,8 +128,8 @@ describe("createTask", () => {
   });
 
   test("records actor in transition", () => {
-    const task = createTask({ title: "Test", actor: "af start" });
-    expect(task.transitions[0].actor).toBe("af start");
+    const task = createTask({ title: "Test", actor: "gs start" });
+    expect(task.transitions[0].actor).toBe("gs start");
   });
 });
 
@@ -370,12 +370,12 @@ describe("spec management", () => {
     createTask({ title: "Test" });
     saveSpec("t1", "# Spec");
     const task = loadTask("t1")!;
-    expect(task.spec).toBe(".aflow/specs/t1.md");
+    expect(task.spec).toBe(".glorious/specs/t1.md");
   });
 
   test("saveSpecFromFile reads from disk", () => {
     createTask({ title: "Test" });
-    const tmp = path.join(gitRoot(), ".aflow", "test-spec-tmp.md");
+    const tmp = path.join(gitRoot(), ".glorious", "test-spec-tmp.md");
     fs.writeFileSync(tmp, "# From file");
     try {
       saveSpecFromFile("t1", tmp);

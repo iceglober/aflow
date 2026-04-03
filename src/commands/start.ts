@@ -118,7 +118,7 @@ export const start = command({
     task = createTask({
       title: args.description!,
       phase,
-      actor: "af start",
+      actor: "gs start",
     });
 
     info(`created ${bold(task.id)}: ${task.title}`);

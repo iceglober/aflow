@@ -5,7 +5,7 @@ import { execaSync } from "execa";
 import { VERSION } from "./version.js";
 import { warn } from "./fmt.js";
 
-const CACHE_FILE = path.join(os.homedir(), ".cache", "aflow", "latest-version.json");
+const CACHE_FILE = path.join(os.homedir(), ".cache", "glorious", "latest-version.json");
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 interface CachedVersion {
@@ -38,7 +38,7 @@ function fetchLatestVersion(): string | null {
   try {
     const result = execaSync(
       "gh",
-      ["release", "list", "-R", "iceglober/aflow", "--json", "tagName", "-L", "10"],
+      ["release", "list", "-R", "iceglober/glorious", "--json", "tagName", "-L", "10"],
       { stderr: "pipe", timeout: 5000 },
     );
     const out = result.stdout.trim();
@@ -80,7 +80,7 @@ export function checkForUpdate(): void {
     }
 
     if (latest && compareVersions(latest, VERSION) > 0) {
-      warn(`aflow v${latest} available (current: v${VERSION}) — run \`af upgrade\``);
+      warn(`glorious v${latest} available (current: v${VERSION}) — run \`gs upgrade\``);
     }
   } catch {
     // never crash the CLI for a version check

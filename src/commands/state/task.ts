@@ -12,7 +12,7 @@ import {
 } from "../../lib/state.js";
 import { ok, warn, bold, dim, cyan, green, yellow, red } from "../../lib/fmt.js";
 
-// ── af state task create ─────────────────────────────────────────────
+// ── gs state task create ─────────────────────────────────────────────
 
 const create = command({
   name: "create",
@@ -42,7 +42,7 @@ const create = command({
   },
 });
 
-// ── af state task show ───────────────────────────────────────────────
+// ── gs state task show ───────────────────────────────────────────────
 
 const show = command({
   name: "show",
@@ -95,7 +95,7 @@ const show = command({
   },
 });
 
-// ── af state task transition ─────────────────────────────────────────
+// ── gs state task transition ─────────────────────────────────────────
 
 const transition = command({
   name: "transition",
@@ -124,7 +124,7 @@ const transition = command({
   },
 });
 
-// ── af state task update ─────────────────────────────────────────────
+// ── gs state task update ─────────────────────────────────────────────
 
 const update = command({
   name: "update",
@@ -153,7 +153,7 @@ const update = command({
   },
 });
 
-// ── af state task cancel ─────────────────────────────────────────────
+// ── gs state task cancel ─────────────────────────────────────────────
 
 const cancel = command({
   name: "cancel",
@@ -176,7 +176,7 @@ const cancel = command({
   },
 });
 
-// ── af state task list ───────────────────────────────────────────────
+// ── gs state task list ───────────────────────────────────────────────
 
 const list = command({
   name: "list",

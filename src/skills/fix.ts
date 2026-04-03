@@ -2,12 +2,12 @@ import { TASK_PREAMBLE } from "./preamble.js";
 
 export function fix(): string {
   return `---
-description: Fix bugs or implement changes for the current aflow task. Use when user says 'fix this bug', 'this is broken', 'something's wrong with', 'patch this', or reports specific errors. Classifies issues as bug/scope-change/new-work, fixes code, updates task state if behavior changes.
+description: Fix bugs or implement changes for the current glorious task. Use when user says 'fix this bug', 'this is broken', 'something's wrong with', 'patch this', or reports specific errors. Classifies issues as bug/scope-change/new-work, fixes code, updates task state if behavior changes.
 ---
 
 # Fix
 
-You are fixing issues or making changes within the scope of the current aflow task.
+You are fixing issues or making changes within the scope of the current glorious task.
 
 ## Critical Rules
 
@@ -40,10 +40,10 @@ For each issue:
 
 ### Step 3: Update the task (if needed)
 
-Only update the task via \`af state task update\` if an issue is a **scope change** or **new work**:
-- Add new items for new work via \`af state task update --id <id> --items '<json>'\`
-- Mark completed items as done via \`af state task update --id <id> --items '<json>'\`
-- Update acceptance criteria if behavior changed via \`af state task update --id <id> --acceptance '<criteria>'\`
+Only update the task via \`gs state task update\` if an issue is a **scope change** or **new work**:
+- Add new items for new work via \`gs state task update --id <id> --items '<json>'\`
+- Mark completed items as done via \`gs state task update --id <id> --items '<json>'\`
+- Update acceptance criteria if behavior changed via \`gs state task update --id <id> --acceptance '<criteria>'\`
 - Leave unrelated items alone
 
 ### Step 4: Verify

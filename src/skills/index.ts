@@ -1,7 +1,7 @@
 /**
- * Embedded skill files for the aflow workflow.
+ * Embedded skill files for the glorious workflow.
  * These get written to .claude/commands/ (commands) and .claude/skills/ (skills)
- * by `af skills`.
+ * by `gs skills`.
  *
  * Commands are slash-invokable workflows (/work, /ship, /spec-make, etc.)
  * Skills are capabilities that activate automatically when relevant (/browser, etc.)

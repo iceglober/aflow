@@ -54,7 +54,7 @@ function formatTask(task: Task, indent: number, allTasks: Task[]): void {
 
     // Show resume hint for stalled tasks
     if (task.worktree) {
-      console.log(`${prefix}  ${dim(`resume: cd ${task.worktree} && af start`)}`);
+      console.log(`${prefix}  ${dim(`resume: cd ${task.worktree} && gs start`)}`);
     }
   }
 
@@ -89,7 +89,7 @@ export const status = command({
     }
 
     if (tasks.length === 0) {
-      console.log(dim("No tasks. Run `af start` to begin."));
+      console.log(dim("No tasks. Run `gs start` to begin."));
       return;
     }
 

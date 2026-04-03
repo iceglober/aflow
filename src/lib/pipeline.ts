@@ -69,7 +69,7 @@ function buildSkillPrompt(skill: string, task: Task): string {
   if (task.pr) lines.push(`- PR: ${task.pr}`);
 
   lines.push("");
-  lines.push(`Use \`af state task show --id ${task.id} --json\` for full task details. Use \`af state spec show --id ${task.id}\` to read the spec. Use \`af state task update --id ${task.id} --pr <url>\` to record a PR URL after creating one.`);
+  lines.push(`Use \`gs state task show --id ${task.id} --json\` for full task details. Use \`gs state spec show --id ${task.id}\` to read the spec. Use \`gs state task update --id ${task.id} --pr <url>\` to record a PR URL after creating one.`);
   lines.push("");
   lines.push(`/${skill} ${task.id}: ${task.title}`);
 
@@ -131,7 +131,7 @@ export async function runPipeline(task: Task): Promise<void> {
     if (e instanceof SessionInterrupted) {
       // Clear the ^C from the terminal line
       process.stdout.write("\r\x1b[K");
-      warn(`pipeline interrupted. Run ${bold("af start")} to resume.`);
+      warn(`pipeline interrupted. Run ${bold("gs start")} to resume.`);
       return;
     }
     throw e;
@@ -225,7 +225,7 @@ async function _runPipeline(task: Task): Promise<void> {
     if (current.phase === "implement" && current.worktree) {
       if (!hasCommitsAhead(current.worktree)) {
         warn("implement phase produced no changes.");
-        warn(`task ${bold(current.id)} remains in implement. Run ${bold("af start")} to retry.`);
+        warn(`task ${bold(current.id)} remains in implement. Run ${bold("gs start")} to retry.`);
         savePipeline({
           taskId: current.id,
           currentPhase: "implement",
@@ -260,7 +260,7 @@ async function _runPipeline(task: Task): Promise<void> {
     if (current.phase === "understand" || current.phase === "design") {
       const approved = await confirm(`${bold(current.phase)} phase complete. Approve and continue?`);
       if (!approved) {
-        warn("Pipeline paused. Run af start to resume.");
+        warn("Pipeline paused. Run gs start to resume.");
         return;
       }
     }
@@ -311,7 +311,7 @@ async function _runPipeline(task: Task): Promise<void> {
       }
       if (!updated.pr) {
         warn("ship phase did not produce a PR.");
-        warn(`task ${bold(current.id)} remains in ship. Run ${bold("af start")} to retry.`);
+        warn(`task ${bold(current.id)} remains in ship. Run ${bold("gs start")} to retry.`);
         savePipeline({
           taskId: current.id,
           currentPhase: "ship",
@@ -365,7 +365,7 @@ async function runSkillWithRetry(
 
   // Both attempts failed
   console.error(red(`/${skill} failed after 2 attempts. Pipeline stopped.`));
-  warn(`task ${bold(task.id)} remains in ${task.phase}. Run ${bold("af start")} to retry.`);
+  warn(`task ${bold(task.id)} remains in ${task.phase}. Run ${bold("gs start")} to retry.`);
   return false;
 }
 

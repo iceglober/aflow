@@ -102,7 +102,7 @@ Severity:
 ## Step 6: Record result
 
 \`\`\`bash
-af state qa --id <id> --status pass|fail --summary "<one-line summary>"
+gs state qa --id <id> --status pass|fail --summary "<one-line summary>"
 \`\`\`
 
 ## Step 7: Fix CRITICAL issues

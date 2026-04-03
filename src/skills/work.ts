@@ -32,7 +32,7 @@ ${TASK_PREAMBLE}
 
 ## Setup
 
-1. **Check for an active aflow task** by running the task lookup from the context section above.
+1. **Check for an active glorious task** by running the task lookup from the context section above.
 2. **If no working branch exists yet**:
    \`\`\`bash
    git fetch origin

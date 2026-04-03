@@ -2,7 +2,7 @@ import { command, subcommands, option, optional, string } from "cmd-ts";
 import { loadTask, loadSpec, saveSpec, saveSpecFromFile, createTask, saveTask } from "../../lib/state.js";
 import { ok, bold } from "../../lib/fmt.js";
 
-// ── af state spec show ───────────────────────────────────────────────
+// ── gs state spec show ───────────────────────────────────────────────
 
 const show = command({
   name: "show",
@@ -20,7 +20,7 @@ const show = command({
   },
 });
 
-// ── af state spec set ────────────────────────────────────────────────
+// ── gs state spec set ────────────────────────────────────────────────
 
 const set = command({
   name: "set",
@@ -55,7 +55,7 @@ const set = command({
   },
 });
 
-// ── af state spec add-workstream ─────────────────────────────────────
+// ── gs state spec add-workstream ─────────────────────────────────────
 
 const addWorkstream = command({
   name: "add-workstream",

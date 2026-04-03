@@ -2,7 +2,7 @@ import { command, option, string } from "cmd-ts";
 import { loadTask } from "../../lib/state.js";
 import { bold, dim } from "../../lib/fmt.js";
 
-// ── af state log <id> ────────────────────────────────────────────────
+// ── gs state log <id> ────────────────────────────────────────────────
 
 export const stateLog = command({
   name: "log",

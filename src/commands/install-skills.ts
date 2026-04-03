@@ -39,7 +39,7 @@ function installFiles(
 export const installSkills = command({
   name: "skills",
   description:
-    "Install aflow workflow skills as Claude Code slash commands",
+    "Install glorious workflow skills as Claude Code slash commands",
   args: {
     force: flag({
       long: "force",

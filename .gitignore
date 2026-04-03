@@ -7,3 +7,6 @@ research/
 .aflow/state/
 .lab/
 run.log
+
+# glorious local state (per-engineer, not shared)
+.glorious/state/

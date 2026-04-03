@@ -1,12 +1,12 @@
 {
-  "name": "aflow",
+  "name": "glorious",
   "version": "1.4.0",
   "description": "Structured AI workflows for product and engineering",
   "license": "MIT",
-  "repository": "https://github.com/iceglober/aflow",
+  "repository": "https://github.com/iceglober/glorious",
   "type": "module",
   "bin": {
-    "af": "./dist/index.js"
+    "gs": "./dist/index.js"
   },
   "scripts": {
     "build": "bun run build.ts",

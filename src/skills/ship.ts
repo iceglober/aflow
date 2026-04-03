@@ -60,8 +60,8 @@ Read every line. Check for:
 
 ## Step 4: Task verification
 
-- Read the current task from \`af state\`
-- Are there unchecked items that this diff completes? Mark them done via \`af state task update\`.
+- Read the current task from \`gs state\`
+- Are there unchecked items that this diff completes? Mark them done via \`gs state task update\`.
 - Do the acceptance criteria pass?
 
 ## Step 5: Version bump (if applicable)
@@ -181,9 +181,9 @@ EOF
 
 ## Step 12: Update task
 
-- Transition the task to shipped: \`af state task update --id <id> --status shipped\`
-- Set the task's PR field: \`af state task update --id <id> --pr '<url>'\`
-- Set shippedAt: \`af state task update --id <id> --shippedAt '<ISO timestamp>'\`
+- Transition the task to shipped: \`gs state task update --id <id> --status shipped\`
+- Set the task's PR field: \`gs state task update --id <id> --pr '<url>'\`
+- Set shippedAt: \`gs state task update --id <id> --shippedAt '<ISO timestamp>'\`
 
 ## Step 13: Report
 

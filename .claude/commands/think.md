@@ -19,11 +19,11 @@ The user describes what they want to build: `$ARGUMENTS`
 
 ## Context: Current task
 
-Run \`af state task list --json\` and find the task whose \`branch\` field matches the current branch (\`git branch --show-current\`). This is your **current task**.
+Run \`gs state task list --json\` and find the task whose \`branch\` field matches the current branch (\`git branch --show-current\`). This is your **current task**.
 
-If no task matches, this branch isn't linked to an aflow task — operate in ad-hoc mode without state tracking.
+If no task matches, this branch isn't linked to an glorious task — operate in ad-hoc mode without state tracking.
 
-If a task is found, run \`af state task show --id <id> --json\` to get full details. The task has:
+If a task is found, run \`gs state task show --id <id> --json\` to get full details. The task has:
 - \`id\` — task identifier (e.g. "t3")
 - \`title\` — short description
 - \`description\` — full context
@@ -34,21 +34,21 @@ If a task is found, run \`af state task show --id <id> --json\` to get full deta
 - \`pr\` — PR URL if shipped
 - \`qaResult\` — latest QA result (if any)
 
-If the task has a spec, run \`af state spec show --id <id>\` to read it.
+If the task has a spec, run \`gs state spec show --id <id>\` to read it.
 
 Also read \`CLAUDE.md\` for project-specific commands (typecheck, build, lint, etc.).
 
-**State mutations:** Use \`af state\` commands for all changes:
-- \`af state task update --id <id> --field value\` — update metadata
-- \`af state task transition --id <id> --phase <phase>\` — advance phase
-- \`af state spec set --id <id> --file <path>\` — save spec content
-- \`af state qa --id <id> --status pass|fail --summary "..."\` — record QA result
+**State mutations:** Use \`gs state\` commands for all changes:
+- \`gs state task update --id <id> --field value\` — update metadata
+- \`gs state task transition --id <id> --phase <phase>\` — advance phase
+- \`gs state spec set --id <id> --file <path>\` — save spec content
+- \`gs state qa --id <id> --status pass|fail --summary "..."\` — record QA result
 
 ## Process
 
 ### Step 1: Understand the landscape
 
-- Run `af state task list` to see all tasks — what's pending, active, shipped
+- Run `gs state task list` to see all tasks — what's pending, active, shipped
 - Read `CLAUDE.md` to understand the project's architecture
 - Skim the relevant source files to understand the current state
 
@@ -100,9 +100,9 @@ If validated, write a concise plan:
 ### Step 5: Update the task
 
 If the current task exists and this planning session refines it:
-- Update the task's items via `af state task update --id <id> --items '<json>'`
-- Update acceptance criteria via `af state task update --id <id> --acceptance '<criteria>'`
-- Set the design field via `af state task update --id <id> --design '<summary>'`
+- Update the task's items via `gs state task update --id <id> --items '<json>'`
+- Update acceptance criteria via `gs state task update --id <id> --acceptance '<criteria>'`
+- Set the design field via `gs state task update --id <id> --design '<summary>'`
 
-If this is a new feature not yet tracked, tell the user to add it via `af start`.
+If this is a new feature not yet tracked, tell the user to add it via `gs start`.
 

@@ -2,7 +2,7 @@ import { command, option, string } from "cmd-ts";
 import { loadTask, saveTask } from "../../lib/state.js";
 import { ok, bold } from "../../lib/fmt.js";
 
-// ── af state qa report ───────────────────────────────────────────────
+// ── gs state qa report ───────────────────────────────────────────────
 
 export const qaReport = command({
   name: "report",
