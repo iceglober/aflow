@@ -11,7 +11,7 @@ export const del = command({
     name: positional({
       type: string,
       displayName: "name",
-      description: "Worktree name (as shown in `af wt list`)",
+      description: "Worktree name (as shown in `gs wt list`)",
     }),
     force: flag({
       long: "force",

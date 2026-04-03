@@ -21,11 +21,11 @@ Optional focus area: `$ARGUMENTS`
 
 ## Context: Current task
 
-Run \`af state task list --json\` and find the task whose \`branch\` field matches the current branch (\`git branch --show-current\`). This is your **current task**.
+Run \`gs state task list --json\` and find the task whose \`branch\` field matches the current branch (\`git branch --show-current\`). This is your **current task**.
 
-If no task matches, this branch isn't linked to an aflow task — operate in ad-hoc mode without state tracking.
+If no task matches, this branch isn't linked to an glorious task — operate in ad-hoc mode without state tracking.
 
-If a task is found, run \`af state task show --id <id> --json\` to get full details. The task has:
+If a task is found, run \`gs state task show --id <id> --json\` to get full details. The task has:
 - \`id\` — task identifier (e.g. "t3")
 - \`title\` — short description
 - \`description\` — full context
@@ -36,15 +36,15 @@ If a task is found, run \`af state task show --id <id> --json\` to get full deta
 - \`pr\` — PR URL if shipped
 - \`qaResult\` — latest QA result (if any)
 
-If the task has a spec, run \`af state spec show --id <id>\` to read it.
+If the task has a spec, run \`gs state spec show --id <id>\` to read it.
 
 Also read \`CLAUDE.md\` for project-specific commands (typecheck, build, lint, etc.).
 
-**State mutations:** Use \`af state\` commands for all changes:
-- \`af state task update --id <id> --field value\` — update metadata
-- \`af state task transition --id <id> --phase <phase>\` — advance phase
-- \`af state spec set --id <id> --file <path>\` — save spec content
-- \`af state qa --id <id> --status pass|fail --summary "..."\` — record QA result
+**State mutations:** Use \`gs state\` commands for all changes:
+- \`gs state task update --id <id> --field value\` — update metadata
+- \`gs state task transition --id <id> --phase <phase>\` — advance phase
+- \`gs state spec set --id <id> --file <path>\` — save spec content
+- \`gs state qa --id <id> --status pass|fail --summary "..."\` — record QA result
 
 ## Step 1: Fresh build verification
 
@@ -124,7 +124,7 @@ Severity:
 ## Step 6: Record result
 
 ```bash
-af state qa --id <id> --status pass|fail --summary "<one-line summary>"
+gs state qa --id <id> --status pass|fail --summary "<one-line summary>"
 ```
 
 ## Step 7: Fix CRITICAL issues

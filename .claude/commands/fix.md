@@ -1,10 +1,10 @@
 ---
-description: Fix bugs or implement changes for the current aflow task. Use when user says 'fix this bug', 'this is broken', 'something's wrong with', 'patch this', or reports specific errors. Classifies issues as bug/scope-change/new-work, fixes code, updates task state if behavior changes.
+description: Fix bugs or implement changes for the current glorious task. Use when user says 'fix this bug', 'this is broken', 'something's wrong with', 'patch this', or reports specific errors. Classifies issues as bug/scope-change/new-work, fixes code, updates task state if behavior changes.
 ---
 
 # Fix
 
-You are fixing issues or making changes within the scope of the current aflow task.
+You are fixing issues or making changes within the scope of the current glorious task.
 
 ## Critical Rules
 
@@ -19,11 +19,11 @@ The user provides issues to address: `$ARGUMENTS`
 
 ## Context: Current task
 
-Run \`af state task list --json\` and find the task whose \`branch\` field matches the current branch (\`git branch --show-current\`). This is your **current task**.
+Run \`gs state task list --json\` and find the task whose \`branch\` field matches the current branch (\`git branch --show-current\`). This is your **current task**.
 
-If no task matches, this branch isn't linked to an aflow task — operate in ad-hoc mode without state tracking.
+If no task matches, this branch isn't linked to an glorious task — operate in ad-hoc mode without state tracking.
 
-If a task is found, run \`af state task show --id <id> --json\` to get full details. The task has:
+If a task is found, run \`gs state task show --id <id> --json\` to get full details. The task has:
 - \`id\` — task identifier (e.g. "t3")
 - \`title\` — short description
 - \`description\` — full context
@@ -34,15 +34,15 @@ If a task is found, run \`af state task show --id <id> --json\` to get full deta
 - \`pr\` — PR URL if shipped
 - \`qaResult\` — latest QA result (if any)
 
-If the task has a spec, run \`af state spec show --id <id>\` to read it.
+If the task has a spec, run \`gs state spec show --id <id>\` to read it.
 
 Also read \`CLAUDE.md\` for project-specific commands (typecheck, build, lint, etc.).
 
-**State mutations:** Use \`af state\` commands for all changes:
-- \`af state task update --id <id> --field value\` — update metadata
-- \`af state task transition --id <id> --phase <phase>\` — advance phase
-- \`af state spec set --id <id> --file <path>\` — save spec content
-- \`af state qa --id <id> --status pass|fail --summary "..."\` — record QA result
+**State mutations:** Use \`gs state\` commands for all changes:
+- \`gs state task update --id <id> --field value\` — update metadata
+- \`gs state task transition --id <id> --phase <phase>\` — advance phase
+- \`gs state spec set --id <id> --file <path>\` — save spec content
+- \`gs state qa --id <id> --status pass|fail --summary "..."\` — record QA result
 
 ## Process
 
@@ -62,10 +62,10 @@ For each issue:
 
 ### Step 3: Update the task (if needed)
 
-Only update the task via `af state task update` if an issue is a **scope change** or **new work**:
-- Add new items for new work via `af state task update --id <id> --items '<json>'`
-- Mark completed items as done via `af state task update --id <id> --items '<json>'`
-- Update acceptance criteria if behavior changed via `af state task update --id <id> --acceptance '<criteria>'`
+Only update the task via `gs state task update` if an issue is a **scope change** or **new work**:
+- Add new items for new work via `gs state task update --id <id> --items '<json>'`
+- Mark completed items as done via `gs state task update --id <id> --items '<json>'`
+- Update acceptance criteria if behavior changed via `gs state task update --id <id> --acceptance '<criteria>'`
 - Leave unrelated items alone
 
 ### Step 4: Verify

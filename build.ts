@@ -24,7 +24,7 @@ const result = await Bun.build({
   splitting: false,
   minify: false,
   define: {
-    __AFLOW_VERSION__: JSON.stringify(pkg.version),
+    __GLORIOUS_VERSION__: JSON.stringify(pkg.version),
   },
   packages: "bundle",
   plugins: [shimDevtools],

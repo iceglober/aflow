@@ -2,12 +2,12 @@ import { bold, dim, cyan } from "./lib/fmt.js";
 import { VERSION } from "./lib/version.js";
 
 export const HELP_TEXT = `
-${bold("aflow")} ${dim(`v${VERSION}`)}
+${bold("glorious")} ${dim(`v${VERSION}`)}
 AI-native development workflow — design, implement, test, and ship with Claude Code.
 
 ${bold("USAGE")}
 
-  ${cyan("af")} <command> [arguments] [flags]
+  ${cyan("gs")} <command> [arguments] [flags]
 
 ${bold("COMMANDS")}
 
@@ -22,16 +22,16 @@ ${bold("COMMANDS")}
       With --quick, skips design phases for small bugs and features.
 
       Examples:
-        af start                           (find stalled tasks or prompt)
-        af start "add user auth"           (starts full pipeline)
-        af start --quick "fix login bug"   (skips design, straight to implement)
-        af start --id t1                   (resume task t1 from anywhere)
+        gs start                           (find stalled tasks or prompt)
+        gs start "add user auth"           (starts full pipeline)
+        gs start --quick "fix login bug"   (skips design, straight to implement)
+        gs start --id t1                   (resume task t1 from anywhere)
 
   status [--json]
       Show all tasks in a tree view with phases, branches, and progress.
 
   skills [--force] [--user]
-      Install aflow workflow skills as Claude Code slash commands.
+      Install glorious workflow skills as Claude Code slash commands.
 
       By default, installs to .claude/commands/ in the current repo.
       With --user, installs to ~/.claude/commands/ (available globally).
@@ -53,7 +53,7 @@ ${bold("COMMANDS")}
         /spec-review    Spec gap analysis after refinement
         /spec-lab       Validation experiments against spec unknowns
 
-  ${bold("Worktree management")} ${dim("(af wt ...)")}
+  ${bold("Worktree management")} ${dim("(gs wt ...)")}
 
   wt create <name> [--from <branch>]
       Create a new worktree with a fresh branch forked from <branch>
@@ -72,7 +72,7 @@ ${bold("COMMANDS")}
       Delete worktrees whose branches are merged or whose remote is deleted.
 
   hooks
-      Create .aflow/hooks/ with a post_create template.
+      Create .glorious/hooks/ with a post_create template.
 
   upgrade
       Check for a newer version and self-update.
@@ -119,6 +119,6 @@ ${bold("FLAGS")}
 
 ${bold("ENVIRONMENT")}
 
-  AFLOW_DIR    Override where worktrees are stored. By default, worktrees
+  GLORIOUS_DIR Override where worktrees are stored. By default, worktrees
                are created as siblings of the repo.
 `.trimStart();

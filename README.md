@@ -2,13 +2,13 @@
 
 <br/>
 
-# `aflow`
+# `glorious`
 
 **Design specs. Write code. Ship it.**<br/>
 AI workflows for product & engineering, powered by Claude Code.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![GitHub Release](https://img.shields.io/github/v/release/iceglober/aflow?style=flat-square&label=latest)](https://github.com/iceglober/aflow/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/iceglober/glorious?style=flat-square&label=latest)](https://github.com/iceglober/glorious/releases)
 
 <br/>
 
@@ -22,13 +22,13 @@ AI workflows for product & engineering, powered by Claude Code.
 > Requires Node.js 20+ and the [GitHub CLI](https://cli.github.com).
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/iceglober/aflow/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/iceglober/glorious/main/install.sh | bash
 ```
 
 ### Get the skills
 
 ```bash
-af skills
+gs skills
 ```
 
 <br/>
@@ -90,7 +90,7 @@ af skills
 |:--|:--|
 | `/think` | Strategy session — forces "why" before "how" |
 | `/work` | Implements from a description. Pulls latest, creates branch, codes. |
-| `/work-backlog` | Works through `.aflow/backlog.json` checklist items |
+| `/work-backlog` | Works through `.glorious/backlog.json` checklist items |
 | `/fix` | Targeted bug fixes within task scope |
 | `/qa` | Diffs against acceptance criteria. PASS/FAIL per scenario. |
 | `/ship` | Typecheck → review → commit → push → PR |
@@ -115,10 +115,10 @@ af skills
 ## Worktrees
 
 ```bash
-af wt create feature-auth        # new branch + worktree
-af wt checkout feature-payments   # from existing remote branch
-af wt list                        # show all
-af wt cleanup                     # delete merged/stale
+gs wt create feature-auth        # new branch + worktree
+gs wt checkout feature-payments   # from existing remote branch
+gs wt list                        # show all
+gs wt cleanup                     # delete merged/stale
 ```
 
 ---

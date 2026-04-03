@@ -24,7 +24,7 @@ export function repoName(): string {
  * - Otherwise: ../<repo>-wt-<name> (sibling of the repo)
  */
 export function worktreePath(name: string): string {
-  const wtmDir = process.env.AFLOW_DIR;
+  const wtmDir = process.env.GLORIOUS_DIR;
   if (wtmDir) {
     return path.resolve(wtmDir, name);
   }

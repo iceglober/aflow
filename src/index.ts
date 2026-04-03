@@ -21,7 +21,7 @@ if (args.length === 0 || args[0] === "--help" || args[0] === "-h" || args[0] ===
   process.exit(0);
 }
 if (args[0] === "--version" || args[0] === "-V") {
-  console.log(`af ${VERSION}`);
+  console.log(`gs ${VERSION}`);
   process.exit(0);
 }
 
@@ -40,9 +40,9 @@ const wt = subcommands({
 });
 
 const cli = subcommands({
-  name: "af",
+  name: "gs",
   version: VERSION,
-  description: "aflow — AI-native development workflow",
+  description: "glorious — AI-native development workflow",
   cmds: {
     wt,
     start,

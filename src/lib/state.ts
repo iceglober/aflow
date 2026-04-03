@@ -52,11 +52,11 @@ export interface PipelineState {
 // ── Paths ────────────────────────────────────────────────────────────
 
 function stateDir(): string {
-  return path.join(gitRoot(), ".aflow", "state");
+  return path.join(gitRoot(), ".glorious", "state");
 }
 
 function specsDir(): string {
-  return path.join(gitRoot(), ".aflow", "specs");
+  return path.join(gitRoot(), ".glorious", "specs");
 }
 
 function taskPath(id: string): string {
@@ -80,22 +80,22 @@ function ensureDirs(): void {
   if (!fs.existsSync(sp)) fs.mkdirSync(sp, { recursive: true });
 }
 
-/** Add .aflow/state/ to .gitignore if not already present. */
+/** Add .glorious/state/ to .gitignore if not already present. */
 function ensureGitignore(): void {
   const root = gitRoot();
   const gi = path.join(root, ".gitignore");
-  const entry = ".aflow/state/";
+  const entry = ".glorious/state/";
 
   if (fs.existsSync(gi)) {
     const content = fs.readFileSync(gi, "utf-8");
     if (content.includes(entry)) return;
-    fs.appendFileSync(gi, `\n# aflow local state (per-engineer, not shared)\n${entry}\n`);
+    fs.appendFileSync(gi, `\n# glorious local state (per-engineer, not shared)\n${entry}\n`);
   } else {
-    fs.writeFileSync(gi, `# aflow local state (per-engineer, not shared)\n${entry}\n`);
+    fs.writeFileSync(gi, `# glorious local state (per-engineer, not shared)\n${entry}\n`);
   }
 }
 
-/** Ensure .aflow/state/ and .aflow/specs/ exist, and .gitignore is set. */
+/** Ensure .glorious/state/ and .glorious/specs/ exist, and .gitignore is set. */
 export function ensureSetup(): void {
   ensureDirs();
   ensureGitignore();
@@ -306,7 +306,7 @@ export function saveSpec(taskId: string, content: string): void {
   // Update the task's spec field
   const task = loadTask(taskId);
   if (task) {
-    const rel = `.aflow/specs/${taskId}.md`;
+    const rel = `.glorious/specs/${taskId}.md`;
     if (task.spec !== rel) {
       task.spec = rel;
       saveTask(task);

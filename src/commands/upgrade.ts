@@ -6,7 +6,7 @@ import { execaSync } from "execa";
 import { VERSION } from "../lib/version.js";
 import { ok, info, warn, red } from "../lib/fmt.js";
 
-const REPO = "iceglober/aflow";
+const REPO = "iceglober/glorious";
 const TAG_PREFIX = "v";
 
 interface Release {
@@ -58,7 +58,7 @@ async function fetchFromApi(): Promise<Release | null> {
   const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
-    "User-Agent": "aflow-cli",
+    "User-Agent": "glorious-cli",
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -85,7 +85,7 @@ async function fetchFromApi(): Promise<Release | null> {
   if (!release) return null;
 
   const version = release.tag_name.slice(TAG_PREFIX.length);
-  const asset = release.assets.find((a) => a.name === "af");
+  const asset = release.assets.find((a) => a.name === "gs");
 
   return {
     version,
@@ -114,7 +114,7 @@ async function downloadBinary(
     const tmp = dest + ".tmp";
     execaSync(
       "gh",
-      ["release", "download", release.tag, "-R", REPO, "-p", "af", "-O", tmp],
+      ["release", "download", release.tag, "-R", REPO, "-p", "gs", "-O", tmp],
       { stderr: "pipe" },
     );
     fs.chmodSync(tmp, 0o755);
@@ -131,7 +131,7 @@ async function downloadBinary(
   }
 
   const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
-  const headers: Record<string, string> = { "User-Agent": "aflow-cli" };
+  const headers: Record<string, string> = { "User-Agent": "glorious-cli" };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(release.assetUrl, { headers, redirect: "follow" });
@@ -149,7 +149,7 @@ async function downloadBinary(
 
 export const upgrade = command({
   name: "upgrade",
-  description: "Update aflow to the latest version",
+  description: "Update glorious to the latest version",
   args: {},
   handler: async () => {
     info(`current version: ${VERSION}`);
@@ -198,6 +198,6 @@ export const upgrade = command({
 
     ok(`updated to v${latest.version}`);
     console.log("");
-    info("run `af skills` to update your Claude Code slash commands");
+    info("run `gs skills` to update your Claude Code slash commands");
   },
 });
