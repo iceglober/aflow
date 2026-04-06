@@ -178,9 +178,12 @@ fn try_auto_upgrade(tag: &str) -> bool {
                 use std::os::unix::fs::PermissionsExt;
                 let _ = fs::set_permissions(&tmp, fs::Permissions::from_mode(0o755));
             }
-            // Clear quarantine xattrs so macOS doesn't kill the binary
+            // Ad-hoc codesign + clear quarantine so macOS doesn't block the binary
             #[cfg(target_os = "macos")]
             {
+                let _ = std::process::Command::new("codesign")
+                    .args(["-s", "-", "--force", &tmp])
+                    .status();
                 let _ = std::process::Command::new("xattr")
                     .args(["-cr", &tmp])
                     .status();

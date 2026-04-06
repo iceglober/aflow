@@ -14,6 +14,17 @@ struct Release {
     asset_url: String,
 }
 
+/// Ad-hoc codesign a binary so macOS doesn't block it.
+#[cfg(target_os = "macos")]
+fn codesign_adhoc(path: &str) {
+    let _ = std::process::Command::new("codesign")
+        .args(["-s", "-", "--force", path])
+        .status();
+}
+
+#[cfg(not(target_os = "macos"))]
+fn codesign_adhoc(_path: &str) {}
+
 fn detect_platform() -> &'static str {
     let os = if cfg!(target_os = "macos") {
         "darwin"
@@ -181,6 +192,7 @@ async fn download_binary(release: &Release, dest: &str) -> anyhow::Result<bool> 
     if let Ok(status) = gh_result {
         if status.success() {
             fs::set_permissions(&tmp, fs::Permissions::from_mode(0o755))?;
+            codesign_adhoc(&tmp);
             fs::rename(&tmp, dest)?;
             return Ok(true);
         }
@@ -213,6 +225,7 @@ async fn download_binary(release: &Release, dest: &str) -> anyhow::Result<bool> 
     let bytes = resp.bytes().await?;
     fs::write(&tmp, &bytes)?;
     fs::set_permissions(&tmp, fs::Permissions::from_mode(0o755))?;
+    codesign_adhoc(&tmp);
     fs::rename(&tmp, dest)?;
     Ok(true)
 }
