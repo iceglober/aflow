@@ -51,7 +51,7 @@ Addresses 2 CRITICAL, 3 HIGH, and 2 MEDIUM issues from deep review.
 
 ## Step 2 — Fix cached credentials served without expiration check (CRITICAL + HIGH)
 
-- [ ] **2.1 — Add expires_at check before returning cached credentials**
+- [x] **2.1 — Add expires_at check before returning cached credentials**
 
   **What:** `packages/assume/src/core/daemon.rs:461-472` returns cached credentials on the HTTP endpoint without checking `creds.expires_at`. If the refresh loop hasn't run yet, expired credentials get served. Add an `expires_at > Utc::now()` guard so expired cache entries fall through to the on-demand fetch path.
 
