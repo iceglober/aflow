@@ -113,7 +113,7 @@ Addresses 2 CRITICAL, 3 HIGH, and 2 MEDIUM issues from deep review.
 
 ## Step 4 — Fix fragile target path label detection (HIGH)
 
-- [ ] **4.1 — Add `scope` field to `InstallPlan` and derive target label from it**
+- [x] **4.1 — Add `scope` field to `InstallPlan` and derive target label from it**
 
   **What:** `packages/agentic/src/commands/install-skills.ts:228-231` detects whether to show `~/.claude/` or `.claude/` by comparing `plan.claudeDir` against `os.homedir()`. This is fragile — it breaks if `HOME` has trailing slashes, symlinks, or non-standard paths. Fix: add a `scope: "project" | "user"` field to the `InstallPlan` interface, set it in `computeInstallPlan`, and use `plan.scope === "user" ? "~/.claude/" : ".claude/"` in `executeInstall`.
 
