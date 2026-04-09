@@ -279,7 +279,7 @@ export async function promptScope(opts?: {
   selectFn?: (o: any) => Promise<Scope | null>;
 }): Promise<Scope> {
   const isTTY = opts?.isTTY ?? process.stdin.isTTY;
-  if (!isTTY) return "project";
+  if (!isTTY) return "user";
 
   const selectFn = opts?.selectFn ?? (select as (o: any) => Promise<Scope | null>);
   const result = await selectFn({
@@ -288,14 +288,14 @@ export async function promptScope(opts?: {
       {
         title: "Scope",
         choices: [
-          { label: "~/.claude/", value: "user" as Scope, hint: "available in all projects" },
+          { label: "~/.claude/", value: "user" as Scope, hint: "available in all projects (recommended)" },
           { label: ".claude/", value: "project" as Scope, hint: "committed to this repo" },
         ],
       },
     ],
   });
 
-  return result ?? "project";
+  return result ?? "user";
 }
 
 /** Resolve scope from CLI flags. Returns null when interactive picker is needed. */

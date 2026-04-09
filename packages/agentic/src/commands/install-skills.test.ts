@@ -299,24 +299,24 @@ describe("promptScope", () => {
     expect(result).toBe("project");
   });
 
-  test("falls back to project when not TTY", async () => {
+  test("falls back to user when not TTY", async () => {
     let selectCalled = false;
     const result = await promptScope({
       isTTY: false,
       selectFn: async () => {
         selectCalled = true;
-        return "user" as const;
+        return "project" as const;
       },
     });
-    expect(result).toBe("project");
+    expect(result).toBe("user");
     expect(selectCalled).toBe(false);
   });
 
-  test("falls back to project on cancel (null)", async () => {
+  test("falls back to user on cancel (null)", async () => {
     const result = await promptScope({
       isTTY: true,
       selectFn: async () => null,
     });
-    expect(result).toBe("project");
+    expect(result).toBe("user");
   });
 });
