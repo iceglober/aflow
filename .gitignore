@@ -11,5 +11,8 @@ run.log
 # glorious local state (per-engineer, not shared)
 .glorious/state/
 
+# Claude plans (per-engineer, not shared)
+.claude/plans/
+
 # Rust build artifacts
 target/
