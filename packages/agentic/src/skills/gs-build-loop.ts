@@ -88,6 +88,11 @@ RULES:
 15. If no tasks remain: report "All tasks complete." and stop.
 \`\`\`
 
+When /loop finishes:
+- If its output contains "All tasks complete": proceed to the **Epic Complete** section below.
+- If it completed only one task and there are remaining tasks: go back to **Find and execute the next task** above to claim the next one.
+- If it reports an error: report the error to the user and stop.
+
 ## Epic Complete
 
 When all tasks in the epic are done, use the AskUserQuestion tool:
