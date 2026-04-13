@@ -56,8 +56,12 @@ describe("cross-references use canonical names", () => {
 
   test("gs-quick-review uses canonical cross-refs", () => {
     const output = gsQuickReview();
-    expect(output).toContain("/deep-review");
+    expect(output).toContain('Skill("qa")');
+    expect(output).toContain('Skill("ship")');
+    expect(output).toContain('Skill("deep-plan"');
     expect(output).not.toContain("/gs-deep-review");
+    expect(output).not.toContain("/gs-qa");
+    expect(output).not.toContain("/gs-ship");
   });
 
   test("gs-build uses canonical cross-refs", () => {

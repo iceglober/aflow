@@ -143,6 +143,42 @@ End with one of:
 - **SHIP IT** — No critical or high findings.
 - **NEEDS FIXES** — Has findings that should be addressed before merging.
 
-If **NEEDS FIXES**, ask the user how to proceed (same as /deep-review).
+Then use the AskUserQuestion tool based on the verdict:
+
+**If SHIP IT:**
+\`\`\`
+question: "Review clean — no critical or high findings. What's next?"
+header: "Next step"
+options:
+  1. label: "QA (Recommended)", description: "Run QA against the task's acceptance criteria"
+  2. label: "Ship it", description: "Typecheck, commit, push, and create a PR"
+  3. label: "Done for now", description: "Stop here — come back later"
+\`\`\`
+
+Based on the user's response:
+- **QA (Recommended)**: invoke the qa skill using the Skill tool: Skill("qa")
+- **Ship it**: invoke the ship skill using the Skill tool: Skill("ship")
+- **Done for now**: stop
+- **Other (free text)**: the user is giving direction — follow their instructions
+
+**If NEEDS FIXES:**
+\`\`\`
+question: "Review found issues that need addressing. What's next?"
+header: "Next step"
+options:
+  1. label: "Plan the fixes (Recommended)", description: "Create a structured fix plan with /deep-plan"
+  2. label: "QA anyway", description: "Run QA to see full acceptance criteria status"
+  3. label: "Ship anyway", description: "Skip unresolved findings — typecheck, commit, push, and create a PR"
+  4. label: "Done for now", description: "Stop here — address findings later"
+\`\`\`
+
+Based on the user's response:
+- **Plan the fixes (Recommended)**: invoke the deep-plan skill using the Skill tool with a one-line summary of each finding (severity, file:line, description) as the argument: Skill("deep-plan", args: "<findings summary>")
+- **QA anyway**: invoke the qa skill using the Skill tool: Skill("qa")
+- **Ship anyway**: invoke the ship skill using the Skill tool: Skill("ship")
+- **Done for now**: stop
+- **Other (free text)**: the user is giving direction — follow their instructions
+
+Do NOT auto-fix. Wait for the user's choice.
 `;
 }
