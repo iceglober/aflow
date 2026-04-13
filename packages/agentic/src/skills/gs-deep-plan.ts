@@ -337,7 +337,7 @@ options:
 \`\`\`
 
 Based on the user's response:
-- **Build it**: invoke the build-loop skill using the Skill tool: Skill("build-loop")
+- **Build it (Recommended)**: invoke the build-loop skill using the Skill tool: Skill("build-loop")
 - **Review the plan**: run \`gs-agentic plan review --id <epic-id>\` to open the browser reviewer, then stop
 - **Done for now**: summarize the epic and task IDs, then stop
 - **Other (free text)**: the user is giving plan feedback — incorporate their feedback by going back to Step 8 (Handle plan updates), update the plan and tasks accordingly, then ask this question again

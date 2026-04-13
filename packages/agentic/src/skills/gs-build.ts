@@ -160,7 +160,7 @@ After all test cases are implemented:
    \`\`\`
 
    Based on the user's response:
-   - **Keep building**: invoke the build skill using the Skill tool: Skill("build")
+   - **Keep building (Recommended)**: invoke the build skill using the Skill tool: Skill("build")
    - **Deep review**: invoke the deep-review skill using the Skill tool: Skill("deep-review")
    - **Quick review**: invoke the quick-review skill using the Skill tool: Skill("quick-review")
    - **Done for now**: summarize what was built, then stop
@@ -178,7 +178,7 @@ After all test cases are implemented:
    \`\`\`
 
    Based on the user's response:
-   - **Deep review**: invoke the deep-review skill using the Skill tool: Skill("deep-review")
+   - **Deep review (Recommended)**: invoke the deep-review skill using the Skill tool: Skill("deep-review")
    - **Quick review**: invoke the quick-review skill using the Skill tool: Skill("quick-review")
    - **Ship it**: invoke the ship skill using the Skill tool: Skill("ship")
    - **Done for now**: summarize what was built, then stop
