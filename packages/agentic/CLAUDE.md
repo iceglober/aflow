@@ -1,3 +1,5 @@
+<!-- This file provides context for AI coding assistants (e.g. Claude Code). -->
+
 # agentic
 
 AI-native development workflow CLI. Manages worktrees, tasks, and Claude Code skills.
@@ -181,4 +183,4 @@ src/
 - **Skill testing**: `validateSkill()` and `testTriggers()` for skill validation
 - **Auto-migration**: old commands-format installs automatically migrate to skills format on CLI startup
 
-See `releases/` for full version history.
+See `releases/` for version history (internal changelog).

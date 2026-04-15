@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
-# Install or update glorious-assume (gs-assume / gsa) — unified cloud credential manager.
+# Install or update glorious-assume (gs-assume / gsa) — multi-cloud credential manager.
 #
-# Usage (public repo):
+# Usage:
 #   curl -fsSL https://raw.githubusercontent.com/iceglober/glorious/main/packages/assume/install.sh | bash
-#
-# Usage (private repo, requires gh CLI):
-#   bash <(gh api repos/iceglober/glorious/contents/packages/assume/install.sh --jq .content | base64 -d)
-#
-# Usage (from local clone):
-#   bash install.sh
 set -euo pipefail
 
 REPO="iceglober/glorious"
@@ -112,10 +106,10 @@ sys.exit(1)
 }
 
 if ! fetch_release_public; then
-  info "public API unavailable, trying gh CLI..."
+  info "GitHub API unavailable, trying gh CLI..."
   if ! fetch_release_gh; then
     err "could not fetch release info for ${REPO}"
-    echo "  For private repos, authenticate with: gh auth login"
+    echo "  Check your network connection, or install the gh CLI: https://cli.github.com"
     exit 1
   fi
 fi
@@ -198,7 +192,7 @@ download_gh() {
 if ! download_public; then
   info "direct download failed, trying gh CLI..."
   if ! download_gh; then
-    err "download failed — for private repos, authenticate with: gh auth login"
+    err "download failed — check your network connection or try again"
     exit 1
   fi
 fi

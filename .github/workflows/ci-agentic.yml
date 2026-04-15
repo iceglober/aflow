@@ -1,0 +1,21 @@
+name: CI glorious-agentic
+
+on:
+  pull_request:
+    paths:
+      - packages/agentic/**
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Typecheck
+        working-directory: packages/agentic
+        run: bun run typecheck
+      - name: Test
+        working-directory: packages/agentic
+        run: bun test

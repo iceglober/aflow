@@ -201,7 +201,7 @@ src/
 │   └── registry.rs         # Plugin registry + validation
 ├── providers/
 │   ├── aws/                # AWS Identity Center (SSO OIDC + STS)
-│   └── gcp/                # Google Cloud (stub)
+│   └── gcp/                # Google Cloud (planned — not yet functional)
 ├── tui/
 │   └── picker.rs           # Interactive context picker + multi-select
 └── shell/

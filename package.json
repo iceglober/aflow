@@ -1,5 +1,6 @@
 {
   "name": "glorious-monorepo",
+  "description": "AI-native development tools — agentic workflows and multi-cloud credential management",
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {

@@ -1,3 +1,5 @@
+<!-- This file provides context for AI coding assistants (e.g. Claude Code). -->
+
 # glorious monorepo
 
 Bun workspace monorepo containing:
