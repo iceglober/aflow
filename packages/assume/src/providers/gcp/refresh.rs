@@ -18,6 +18,8 @@ struct ErrorResponse {
     error: String,
     #[allow(dead_code)]
     error_description: Option<String>,
+    /// Distinguishes RAPT re-auth ("invalid_rapt", "rapt_required") from truly expired tokens
+    error_subtype: Option<String>,
 }
 
 /// Refresh the Google OAuth access token using the refresh token.
@@ -95,7 +97,12 @@ pub async fn refresh(tokens: &AuthTokens) -> Result<AuthTokens, ProviderError> {
     })?;
 
     match err.error.as_str() {
-        "invalid_grant" => Err(ProviderError::RefreshTokenExpired),
+        "invalid_grant" => match err.error_subtype.as_deref() {
+            Some("invalid_rapt") | Some("rapt_required") => {
+                Err(ProviderError::RaptReauthRequired)
+            }
+            _ => Err(ProviderError::RefreshTokenExpired),
+        },
         other => {
             if other.contains("timeout") || other.contains("connection") {
                 Err(ProviderError::NetworkError(format!(
