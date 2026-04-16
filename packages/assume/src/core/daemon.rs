@@ -612,14 +612,19 @@ pub fn ensure_daemon_running() {
     start_daemon_background();
 }
 
-/// Check if the daemon is actually responding on its port.
+/// Check if the daemon is actually responding on any of its provider ports.
 fn is_daemon_healthy() -> bool {
-    let port = 9911u16; // DEFAULT_PORT
-    std::net::TcpStream::connect_timeout(
-        &std::net::SocketAddr::from(([127, 0, 0, 1], port)),
-        std::time::Duration::from_millis(500),
-    )
-    .is_ok()
+    let ports = [
+        crate::providers::aws::endpoint::DEFAULT_PORT,
+        crate::providers::gcp::endpoint::DEFAULT_PORT,
+    ];
+    ports.iter().any(|&port| {
+        std::net::TcpStream::connect_timeout(
+            &std::net::SocketAddr::from(([127, 0, 0, 1], port)),
+            std::time::Duration::from_millis(500),
+        )
+        .is_ok()
+    })
 }
 
 /// Restart the daemon. Kills the running instance (if any) and starts fresh.
