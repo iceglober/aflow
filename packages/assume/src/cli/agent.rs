@@ -232,10 +232,13 @@ async fn run_exec(
     let program = &args.command[0];
     let cmd_args = &args.command[1..];
 
-    let status = std::process::Command::new(program)
-        .args(cmd_args)
-        .envs(env_vars)
-        .status()?;
+    let mut cmd = std::process::Command::new(program);
+    cmd.args(cmd_args).envs(env_vars);
+    // Clear conflicting credential env vars so SDKs use our injected credentials
+    if context.provider_id == "gcp" {
+        cmd.env_remove("GOOGLE_APPLICATION_CREDENTIALS");
+    }
+    let status = cmd.status()?;
 
     audit::log_event(
         audit::AuditEvent::CredentialFetch,

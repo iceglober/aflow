@@ -140,6 +140,9 @@ pub async fn run(args: ExecArgs, registry: &PluginRegistry, cfg: &config::Config
             .and_then(|p| p.port)
             .unwrap_or(crate::providers::gcp::endpoint::DEFAULT_PORT);
         env_vars.push(("GCE_METADATA_HOST".into(), format!("localhost:{port}")));
+        // Clear GOOGLE_APPLICATION_CREDENTIALS so the SDK uses our injected
+        // credentials instead of a pre-existing service account key file
+        remove_vars.push("GOOGLE_APPLICATION_CREDENTIALS");
     }
 
     // Run the command
