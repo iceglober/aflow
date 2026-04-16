@@ -17,9 +17,9 @@ jobs:
       - name: Typecheck
         working-directory: packages/agentic
         run: bun run typecheck
-      - name: Test
-        working-directory: packages/agentic
-        run: bun test
       - name: Build
         working-directory: packages/agentic
         run: bun run build
+      - name: Test
+        working-directory: packages/agentic
+        run: bun test
