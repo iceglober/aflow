@@ -42,6 +42,8 @@ import { gsBuildLoop } from "./gs-build-loop.js";
 import { gsDeepReview } from "./gs-deep-review.js";
 import { gsQuickReview } from "./gs-quick-review.js";
 import { gsAddressFeedback } from "./gs-address-feedback.js";
+import { gsPlanLoop } from "./gs-plan-loop.js";
+import { gsAutoLoop } from "./gs-auto-loop.js";
 import { gs } from "./gs.js";
 
 /**
@@ -81,6 +83,14 @@ export const GS_SKILL_NAMES: Record<
   "gs-address-feedback": {
     canonical: "address-feedback.md",
     generator: gsAddressFeedback,
+  },
+  "gs-plan-loop": {
+    canonical: "plan-loop.md",
+    generator: gsPlanLoop,
+  },
+  "gs-auto-loop": {
+    canonical: "auto-loop.md",
+    generator: gsAutoLoop,
   },
 };
 
@@ -183,12 +193,20 @@ export const BUILTIN_COLLISIONS = new Set([
 ]);
 
 /**
- * Inject `disable-model-invocation: false` into YAML frontmatter.
- * Claude Code defaults commands to disable-model-invocation: true,
+ * Ensure `disable-model-invocation: false` in YAML frontmatter.
+ * Claude Code defaults skills to disable-model-invocation: true,
  * which prevents the Skill tool from invoking them programmatically.
- * Our commands are designed to be called via skill handoffs.
+ * Our skills are designed to be called via skill handoffs.
+ *
+ * If the field already exists, replace its value; otherwise append it.
  */
-function enableModelInvocation(content: string): string {
+export function enableModelInvocation(content: string): string {
+  if (content.includes("disable-model-invocation:")) {
+    return content.replace(
+      /disable-model-invocation:\s*true/,
+      "disable-model-invocation: false",
+    );
+  }
   return content.replace(
     /^(---\n[\s\S]*?)\n---/,
     "$1\ndisable-model-invocation: false\n---",
@@ -292,11 +310,11 @@ export function buildAllSkills(prefix?: string): Record<string, string> {
     const output = entry.generator();
     if (typeof output === "string") {
       // Legacy string generator — wrap as single SKILL.md
-      result[`${dirName}/SKILL.md`] = output;
+      result[`${dirName}/SKILL.md`] = enableModelInvocation(output);
     } else {
       // SkillEntry — flatten all files into the directory
       for (const [file, content] of Object.entries(output)) {
-        result[`${dirName}/${file}`] = content;
+        result[`${dirName}/${file}`] = file === "SKILL.md" ? enableModelInvocation(content) : content;
       }
     }
   }
@@ -305,11 +323,11 @@ export function buildAllSkills(prefix?: string): Record<string, string> {
   for (const [filename, content] of Object.entries(STATIC_COMMANDS)) {
     const dirName = filename.replace(/\.md$/, "");
     if (typeof content === "string") {
-      result[`${dirName}/SKILL.md`] = content;
+      result[`${dirName}/SKILL.md`] = enableModelInvocation(content);
     } else {
       // SkillEntry — flatten all files into the directory
       for (const [file, fileContent] of Object.entries(content)) {
-        result[`${dirName}/${file}`] = fileContent;
+        result[`${dirName}/${file}`] = file === "SKILL.md" ? enableModelInvocation(fileContent) : fileContent;
       }
     }
   }
@@ -317,16 +335,16 @@ export function buildAllSkills(prefix?: string): Record<string, string> {
   // Browser — single/multi file skill
   const browserOutput = browser();
   if (typeof browserOutput === "string") {
-    result["browser/SKILL.md"] = browserOutput;
+    result["browser/SKILL.md"] = enableModelInvocation(browserOutput);
   } else {
     for (const [file, content] of Object.entries(browserOutput)) {
-      result[`browser/${file}`] = content;
+      result[`browser/${file}`] = file === "SKILL.md" ? enableModelInvocation(content) : content;
     }
   }
 
   // Writing-skills — multi-file skill (already a Record<string, string>)
   for (const [file, content] of Object.entries(writingSkills())) {
-    result[`writing-skills/${file}`] = content;
+    result[`writing-skills/${file}`] = file === "SKILL.md" ? enableModelInvocation(content) : content;
   }
 
   return result;
