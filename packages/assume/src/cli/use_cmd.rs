@@ -370,6 +370,29 @@ pub async fn run(args: UseArgs, registry: &PluginRegistry, cfg: &config::Config)
         }
     }
 
+    // Validate the GCP credential endpoint works for the specific context.
+    if selected.provider_id == "gcp" {
+        let port = cfg
+            .providers
+            .get("gcp")
+            .and_then(|p| p.port)
+            .unwrap_or(crate::providers::gcp::endpoint::DEFAULT_PORT);
+        let status = crate::core::daemon::validate_gcp_credential_endpoint(port);
+
+        if status == crate::core::daemon::EndpointStatus::NeedsLogin {
+            eprintln!("GCP session expired. Launching login...");
+            eprintln!();
+            let login_args = super::login::LoginArgs {
+                provider: Some(provider_id.clone()),
+            };
+            super::login::run(login_args, registry, cfg).await?;
+            eprintln!();
+
+            crate::core::daemon::restart_daemon();
+            std::thread::sleep(std::time::Duration::from_secs(3));
+        }
+    }
+
     audit::log_event(
         audit::AuditEvent::ContextSwitch,
         &selected.provider_id,

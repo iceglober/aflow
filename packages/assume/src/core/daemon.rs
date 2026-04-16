@@ -732,6 +732,59 @@ fn try_credential_fetch(url: &str, auth: &str) -> EndpointStatus {
     }
 }
 
+/// Validate the GCP metadata server credential endpoint is responding.
+/// Uses the Metadata-Flavor: Google header instead of Bearer auth.
+pub fn validate_gcp_credential_endpoint(port: u16) -> EndpointStatus {
+    let url = format!(
+        "http://localhost:{port}{}",
+        crate::providers::gcp::endpoint::TOKEN_PATH
+    );
+    let status = try_gcp_credential_fetch(&url);
+    match status {
+        EndpointStatus::Ok => EndpointStatus::Ok,
+        EndpointStatus::NeedsLogin => EndpointStatus::NeedsLogin,
+        EndpointStatus::Unreachable => {
+            eprintln!("GCP credential endpoint not responding, restarting daemon...");
+            restart_daemon();
+            std::thread::sleep(std::time::Duration::from_secs(3));
+            let retry = try_gcp_credential_fetch(&url);
+            if retry == EndpointStatus::Unreachable {
+                eprintln!(
+                    "Warning: GCP credential endpoint still not responding after daemon restart"
+                );
+            }
+            retry
+        }
+    }
+}
+
+fn try_gcp_credential_fetch(url: &str) -> EndpointStatus {
+    let output = std::process::Command::new("curl")
+        .args([
+            "-s",
+            "--max-time",
+            "10",
+            "-H",
+            "Metadata-Flavor: Google",
+            "-o",
+            "/dev/null",
+            "-w",
+            "%{http_code}",
+            url,
+        ])
+        .stdin(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .output();
+
+    match output {
+        Ok(o) => {
+            let code = String::from_utf8_lossy(&o.stdout);
+            classify_http_status(&code)
+        }
+        Err(_) => EndpointStatus::Unreachable,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
