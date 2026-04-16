@@ -284,19 +284,9 @@ async fn refresh_provider(state: &SharedDaemonState, provider_id: &str) -> Resul
                 }
                 tracing::info!("Session refreshed for {provider_id}");
             }
-            Ok(Err(ProviderError::RefreshTokenExpired)) => {
-                tracing::warn!("Refresh token expired for {provider_id}");
-                let display_name = provider.display_name().to_string();
-                {
-                    let mut s = state.write().await;
-                    if let Some(ps) = s.plugin_states.get_mut(provider_id) {
-                        ps.status = PluginStatus::NeedsLogin;
-                    }
-                } // write lock dropped BEFORE notification
-                notify_session_expired(&display_name);
-            }
-            Ok(Err(ProviderError::RaptReauthRequired)) => {
-                tracing::warn!("RAPT re-authentication required for {provider_id} (organization policy)");
+            Ok(Err(ProviderError::RefreshTokenExpired))
+            | Ok(Err(ProviderError::RaptReauthRequired)) => {
+                tracing::warn!("Session expired for {provider_id} — re-authentication required");
                 let display_name = provider.display_name().to_string();
                 {
                     let mut s = state.write().await;
