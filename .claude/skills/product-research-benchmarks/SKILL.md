@@ -1,7 +1,7 @@
 ---
 name: product-research-benchmarks
 description: Use when researching industry benchmarks, KPIs, SLAs, or performance expectations for a product domain, when the user needs numbers to set targets, or when a discovery doc needs quantitative context
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Research — Benchmarks

@@ -2,7 +2,7 @@
 name: build
 description: Implement a specific gs-agentic task. Use when user says 'build t3', 'implement this task', 'work on t5', or provides a specific task ID. Reads the task's plan and context, then implements with TDD methodology. Updates task state on completion.
 argument-hint: "[task-id]"
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 ## Skill Handoff Rule

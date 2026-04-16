@@ -1,7 +1,7 @@
 ---
 name: product-evaluate
 description: Use when evaluating a product artifact for quality, when the orchestrator needs to decide if an artifact needs rework, or when scoring a discovery doc, problem definition, PRD, or acceptance criteria against quality standards
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Evaluate

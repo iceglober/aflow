@@ -1,7 +1,7 @@
 ---
 name: product-research-technical
 description: Use when researching technical feasibility by reading the codebase, when mapping existing capabilities and integration points, or when the team needs to know what exists before designing a solution
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Research — Technical

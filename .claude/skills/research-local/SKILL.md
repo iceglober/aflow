@@ -1,7 +1,7 @@
 ---
 name: research-local
 description: Deep codebase research using parallel Explore subagents. Decomposes a question about the local codebase into research tasks, launches parallel explorations, reviews for gaps, iterates, and synthesizes findings with specific file paths and line numbers. Use when user says 'how does X work in this codebase', 'where is Y implemented', 'trace the data flow for Z', 'what patterns does this repo use', 'explain the architecture of'. Provide the research topic as arguments.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # /research-local — Deep Codebase Research

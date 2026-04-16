@@ -1,6 +1,7 @@
 ---
 name: browser
 description: Browse the web, interact with pages, fill forms, and extract data using a real browser via Playwright CLI. Use when user says 'open this page', 'browse to', 'fill out the form', 'scrape this site', 'take a screenshot', 'test this URL', 'check this website'. Do NOT use for web research across multiple sources (use /research-web instead).
+disable-model-invocation: false
 ---
 
 # /browser — Browser Automation via Playwright CLI

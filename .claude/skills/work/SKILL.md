@@ -2,7 +2,7 @@
 name: work
 description: Implement a given task using existing codebase patterns. Use when user says 'implement', 'build this', 'make this change', 'add this feature', 'code this up', or provides ad-hoc task instructions. Reads CLAUDE.md, follows dependency order, typechecks after changes.
 argument-hint: "[task instructions]"
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Work — Test-Driven Implementation

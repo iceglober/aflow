@@ -2,7 +2,7 @@
 name: quick-review
 description: Fast single-pass code review for small changesets. Reviews the current diff for correctness, security, and style in one shot — no subagents, no parallelism. Stores findings in gs-agentic review state. Use for quick sanity checks before committing or when a full deep-review would be overkill.
 argument-hint: "[--staged-only]"
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 ## Skill Handoff Rule

@@ -1,7 +1,7 @@
 ---
 name: product-research-market
 description: Use when researching the market for a product area, when the user needs market sizing or pricing intelligence, when evaluating build/buy/partner decisions, or when a discovery doc needs market context
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Research — Market

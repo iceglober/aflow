@@ -1,7 +1,7 @@
 ---
 name: address-feedback
 description: Address PR review feedback — gather all unresolved comments and review items, classify each (fix/pushback/acknowledge/wont-fix), implement fixes, respond on GitHub with evidence. Use when user says 'address feedback', 'handle PR comments', 'resolve review items', 'respond to reviewer'. Reads from both GitHub PR comments and gs-agentic review state.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Address Feedback — PR Review Resolution

@@ -1,7 +1,7 @@
 ---
 name: spec-lab
 description: Design and run validation experiments against spec unknowns. Binary yes/no hypothesis testing — does X work? Can we do Y? Use when user says 'validate this unknown', 'test if this works', 'run experiments', 'can we prove this', 'lab test'. Do NOT use for open-ended optimization (use /research-auto instead). Provide a spec path or specific unknown to validate.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # /spec-lab — Validation Experiments

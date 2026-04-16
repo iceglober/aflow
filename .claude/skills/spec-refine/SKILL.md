@@ -1,7 +1,7 @@
 ---
 name: spec-refine
 description: Interactive spec refinement. Walk through unknowns with the user, integrate answers, produce an updated spec with fewer unknowns. Use when user says 'refine this spec', 'resolve the unknowns', 'walk me through the questions', 'lets fill in the gaps'. Provide the spec file path.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # /spec-refine — Interactive Spec Refinement

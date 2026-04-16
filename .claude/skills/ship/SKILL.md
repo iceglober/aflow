@@ -2,7 +2,7 @@
 name: ship
 description: Ship the current task's branch — typecheck, review, commit, push, and create a PR. Use when user says 'ship it', 'create a PR', 'push and release', 'land this', 'send for review'. Runs full pre-flight pipeline before pushing. Never force-pushes or pushes to main.
 argument-hint: "[PR context]"
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Ship

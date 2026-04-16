@@ -2,7 +2,7 @@
 name: deep-plan
 description: Create a zero-ambiguity implementation plan with strict TDD methodology. Use when user says 'deep plan', 'plan this', 'create a plan', 'implementation plan', 'break this down', 'plan the work', 'how should we build this'. Saves plan to global store via gs-agentic state, with checkboxes, sequenced work, exact test cases, and dependency order. Creates gs-agentic epics and tasks for every plan step. Do NOT use for implementation (use /work or /build) or strategy evaluation (use /think).
 argument-hint: "[feature description]"
-disable-model-invocation: true
+disable-model-invocation: false
 allowed-tools: Read, Grep, Glob, Bash, Agent
 ---
 
@@ -331,9 +331,9 @@ cat <<'PLAN_EOF' | gs-agentic state plan set --id <epic-id> --stdin
 PLAN_EOF
    ```
 7. **Verify task state matches plan** — run `gs-agentic state task list --epic <epic-id> --json` and confirm every non-cancelled task title matches the revised plan steps.
-8. **Clear incorporated feedback:**
+8. **Resolve incorporated feedback:**
    ```bash
-   gs-agentic state plan clear-feedback --id <epic-id>
+   gs-agentic state plan resolve-feedback --id <epic-id>
    ```
 
 The state is the source of truth. Plan file updates follow state changes, not the other way around. **Never save the plan without also updating the task titles.**

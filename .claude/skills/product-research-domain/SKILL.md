@@ -1,7 +1,7 @@
 ---
 name: product-research-domain
 description: Use when researching an unfamiliar product domain before discovery, when the team needs actionable domain knowledge to build, or when entering a regulated industry with standards and rules the system must encode
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Research — Domain

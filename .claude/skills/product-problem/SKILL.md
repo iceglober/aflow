@@ -1,7 +1,7 @@
 ---
 name: product-problem
 description: Use when synthesizing research outputs into a problem definition, when bridging discovery research to requirements, or when the team needs a crisp problem statement before writing a PRD
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Problem Definition

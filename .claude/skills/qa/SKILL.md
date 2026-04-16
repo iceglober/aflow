@@ -1,7 +1,7 @@
 ---
 name: qa
 description: QA the current diff against the task's acceptance criteria. Use when user says 'test this', 'QA the changes', 'check the diff', 'does this meet the criteria', 'verify the implementation'. Builds a test matrix, traces code paths per scenario, reports findings with file references, stores results in review DB.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # QA — Verification Before Completion

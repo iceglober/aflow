@@ -2,7 +2,7 @@
 name: gs
 description: General gsag interface — use for any gs-agentic question or action. Use when user says 'whats our next task', 'show me tasks', 'what are we working on', 'gsag help', 'project status', 'what needs to be done', or any natural-language query about the current workflow state.
 argument-hint: "[question or command]"
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # gs — Glorious Workflow Assistant

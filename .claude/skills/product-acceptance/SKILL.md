@@ -1,7 +1,7 @@
 ---
 name: product-acceptance
 description: Use when a PRD is complete and the team needs product-level definition of done and acceptance criteria, when deciding what "ready to ship" means, or when defining success metrics for a feature
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Acceptance Criteria
