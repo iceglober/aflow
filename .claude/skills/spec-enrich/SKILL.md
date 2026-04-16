@@ -1,7 +1,7 @@
 ---
 name: spec-enrich
 description: Autonomous spec enrichment from codebase. Reads a product spec, researches the current repo to resolve unknowns, and produces an updated spec version — no user input needed. Use when user says 'enrich this spec from code', 'what can the codebase tell us', 'auto-resolve unknowns', 'research the repo for this spec'. Provide the spec file path.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # /spec-enrich — Codebase-Driven Spec Enrichment

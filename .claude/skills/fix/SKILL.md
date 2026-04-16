@@ -2,7 +2,7 @@
 name: fix
 description: Fix bugs or implement changes for the current glorious task. Use when user says 'fix this bug', 'this is broken', 'something's wrong with', 'patch this', or reports specific errors. Classifies issues as bug/scope-change/new-work, reproduces with a failing test, fixes code, verifies fully.
 argument-hint: "[bug description or error]"
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Fix — Test-Driven Bug Resolution

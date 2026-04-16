@@ -1,7 +1,7 @@
 ---
 name: spec-review
 description: Spec gap analysis after refinement. Reads the latest spec version, reviews all changes from prior versions, and identifies new gaps, inconsistencies, or opportunities revealed by resolved unknowns. Use when user says 'review this spec', 'audit the spec', 'find gaps', 'check for consistency', 'is this spec ready for engineering'. Provide the spec file path.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # /spec-review — Spec Gap Analysis

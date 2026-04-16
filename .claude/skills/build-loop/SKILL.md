@@ -2,7 +2,7 @@
 name: build-loop
 description: Loop through an epic's tasks, completing one step per iteration. Use when user says 'build-loop', 'execute the plan', 'work through the plan', 'build all the tasks'. Uses gs-agentic state task next to find ready tasks automatically.
 argument-hint: "[epic-id]"
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 ## Skill Handoff Rule

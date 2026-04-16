@@ -1,7 +1,7 @@
 ---
 name: product-engineering-handoff
 description: Use when extracting engineering questions and technical blockers from product docs for engineer review, when bridging product-to-engineering communication, or when the CTO needs an async handoff document
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Engineering Handoff

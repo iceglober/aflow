@@ -1,7 +1,7 @@
 ---
 name: spec-make
 description: Create a tight, actionable product spec from research output or a feature description. Strips narrative, defines terms, surfaces unknowns, questions KPIs. Use when user says 'create a spec', 'turn this into requirements', 'write a product spec', 'spec this out', 'spec from description'. Provide a research directory path OR a feature description.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # /spec-make — Create Product Spec

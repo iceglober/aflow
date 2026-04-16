@@ -1,7 +1,7 @@
 ---
 name: product-research-competitive
 description: Use when analyzing competitors for a product idea, when comparing features against market alternatives, or when identifying competitive gaps to exploit
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Research — Competitive Analysis

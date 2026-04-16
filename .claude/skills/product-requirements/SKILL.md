@@ -1,7 +1,7 @@
 ---
 name: product-requirements
 description: Use when producing a tier-1 PRD from problem.md and research outputs, when the user wants outcome-grouped requirements instead of a requirements matrix, or when engineering needs a buildable requirements doc
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Requirements

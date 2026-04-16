@@ -1,7 +1,7 @@
 ---
 name: product-interview
 description: Use when research is complete and you need stakeholder answers for gaps tagged [USER] in research docs, when filling specific unknowns that only the user can answer, or when conducting a focused 10-15 minute interview after autonomous research
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Product Interview — Targeted Gap-Filler
