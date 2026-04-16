@@ -199,6 +199,47 @@ mod gcp_conformance {
             "ADC file must have 0600 permissions, got {:o}",
             mode
         );
+
+        // Verify ADC JSON content includes quota_project_id
+        let content: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(&adc_path).unwrap()).unwrap();
+        assert_eq!(content["type"], "authorized_user");
+        assert_eq!(content["client_id"], "test-client-id");
+        assert_eq!(content["client_secret"], "test-client-secret");
+        assert_eq!(content["refresh_token"], "test-refresh-token");
+        assert_eq!(content["quota_project_id"], "test-project");
+    }
+
+    #[test]
+    fn test_adc_without_quota_project_id() {
+        use std::collections::HashMap;
+
+        let tmp = tempfile::tempdir().unwrap();
+        let adc_path = tmp.path().join("gcloud").join("application_default_credentials.json");
+
+        let mut secrets = HashMap::new();
+        secrets.insert("client_id".into(), "test-client-id".into());
+        secrets.insert("client_secret".into(), "test-client-secret".into());
+        secrets.insert("refresh_token".into(), "test-refresh-token".into());
+
+        let tokens = assume::plugin::AuthTokens {
+            provider_id: "gcp".into(),
+            secrets,
+            session_expires_at: chrono::Utc::now() + chrono::Duration::hours(1),
+            refresh_expires_at: chrono::Utc::now() + chrono::Duration::days(30),
+        };
+
+        assume::providers::gcp::adc::write_adc_to_path(&tokens, None, &adc_path);
+
+        assert!(adc_path.exists(), "ADC file must be created");
+        let content: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(&adc_path).unwrap()).unwrap();
+        assert_eq!(content["type"], "authorized_user");
+        assert_eq!(content["client_id"], "test-client-id");
+        assert!(
+            content.get("quota_project_id").is_none(),
+            "ADC without project_id must not have quota_project_id field"
+        );
     }
 }
 
