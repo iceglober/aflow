@@ -188,7 +188,7 @@ mod gcp_conformance {
         };
 
         // Call write_adc_to_path which writes to a specific path
-        assume::providers::gcp::adc::write_adc_to_path(&tokens, &adc_path);
+        assume::providers::gcp::adc::write_adc_to_path(&tokens, Some("test-project"), &adc_path);
 
         // Verify file exists and has 0o600 permissions
         assert!(adc_path.exists(), "ADC file must be created");

@@ -170,11 +170,6 @@ pub async fn run(args: LoginArgs, registry: &PluginRegistry, cfg: &config::Confi
     // Store tokens (encrypted at rest)
     keychain::store_tokens(&provider_id, &tokens)?;
 
-    // Write ADC file so gcloud and client libraries work automatically
-    if provider_id == "gcp" {
-        crate::providers::gcp::adc::write_adc(&tokens);
-    }
-
     // Discover available contexts
     eprintln!("Discovering available contexts...");
     match provider.list_contexts(&tokens).await {
@@ -219,6 +214,16 @@ pub async fn run(args: LoginArgs, registry: &PluginRegistry, cfg: &config::Confi
             // Cache contexts for fast offline access
             if let Err(e) = crate::core::cache::save_contexts(&provider_id, &contexts) {
                 tracing::warn!("Failed to cache contexts: {e}");
+            }
+
+            // Write ADC file so gcloud and client libraries work automatically.
+            // Include quota_project_id from the first discovered project.
+            if provider_id == "gcp" {
+                let first_project_id = contexts
+                    .first()
+                    .and_then(|c| c.metadata.get("project_id"))
+                    .map(|s| s.as_str());
+                crate::providers::gcp::adc::write_adc(&tokens, first_project_id);
             }
 
             // Set prompt: auto-select if single context, otherwise [provider:no-profile]
